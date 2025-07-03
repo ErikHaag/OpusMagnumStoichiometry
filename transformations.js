@@ -232,7 +232,7 @@ let transformationTable = [];
         }
     }, {
         name: "Glyph of Animismus",
-        groups: ["Normal", "Wheel captures vitae", "Wheel captures mors"],
+        groups: ["Wheelless", "Wheel captures vitae", "Wheel captures mors"],
         transforms: () => {
             let t = [];
             if (atoms.get("salt") >= 2) {
@@ -277,7 +277,7 @@ let transformationTable = [];
         }
     }, {
         name: "Glyph of Disposal / Waste Chain",
-        groups: ["Remove from board "],
+        groups: ["Remove from board"],
         transforms: () => {
             let t = [];
             for (const [aT, c] of atoms.entries()) {
@@ -294,9 +294,46 @@ let transformationTable = [];
             }
             return t;
         }
+    }, {
+        name: "Glyph of Unification",
+        groups: ["Unify"],
+        transforms: () => {
+            let valid = true;
+            for (const c of ["air", "earth", "fire", "water"]) {
+                if ((atoms.get(c) ?? 0) <= 0) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) {
+                return [{
+                    inputs: ["air", "earth", "fire", "water"],
+                    wheelInputs: null,
+                    outputs: ["quintessence"],
+                    wheelOutputs: null,
+                    group: 0,
+                    desc: "Unify air, earth, fire, and water into quintessence"
+                }];
+            }
+            return [];
+        }
+    }, {
+        name: "Glyph of Dispersion",
+        groups: ["Disperse"],
+        transforms: () => {
+            if ((atoms.get("quintessence") ?? 0) >= 1) {
+                return [{
+                    inputs: ["quintessence"],
+                    wheelInputs: null,
+                    outputs: ["air", "earth", "fire", "water"],
+                    wheelOutputs: null,
+                    group: 0,
+                    desc: "Disperse quintessence into air, earth, fire, and water"
+                }];
+            }
+            return [];
+        }
     });
-    // Glyph of Unification
-    // Glyph of Dispersion
 
     // Glyph of Halves
     // Quicksilver Sump
