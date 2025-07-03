@@ -1,0 +1,88 @@
+body {
+    font-family: 'Crimson Pro', serif;
+    font-size: medium;
+    font-weight: normal;
+}
+
+.box {
+    max-height: 500px;
+    width: fit-content;
+    overflow-y: auto;
+}
+
+.fail {
+    text-decoration: wavy underline red;
+}
+
+#glyphs {
+    width: fit-content;
+}
+
+.ignore {
+    text-decoration: line-through black;
+}
+
+p {
+    margin: 0;
+}
+
+.pairs {
+    display: grid;
+    gap: 0 10px;
+    grid-template-columns: max-content max-content;
+    justify-items: center;
+}
+
+.pairs>label {
+    margin-right: 0.5em;
+}
+
+.planner {
+    border-collapse: collapse;
+}
+
+select {
+    appearance: none;
+    min-width: 30ch;
+    max-width: 40ch;
+    max-height: none;
+    text-wrap: unset;
+}
+
+table {
+    max-width: 95vw;
+}
+
+tbody {
+    vertical-align: top;
+}
+
+th, td {
+    padding: 0.5ch;
+}
+
+th:nth-last-child(n+2), td:nth-last-child(n+2) {
+    border-right: 2px solid lightgray;
+}
+
+#timeline {
+    padding: 0 10px;
+}
+
+.trays {
+    display: grid;
+    gap: 10px;
+    grid-template-rows: max-content;
+    grid-auto-flow: column;
+    justify-content: start;
+    overflow-x: auto;
+    width: 95vw;
+}
+
+.triplets {
+    align-items: center;
+    display: grid;
+    gap: 3px;
+    grid-template-columns: repeat(3, max-content);
+    justify-items: center;
+}

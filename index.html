@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>OMSC</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+<body class="dark">
+    <!-- Templates -->
+    <fieldset id="moleculeTemplate" class="box" hidden>
+        <legend id="name_[0]_[1]" class="editable" contenteditable="plaintext-only" spellcheck="false">Unnamed group of bonded proxies</legend>
+        <button id="remove_[0]_[1]">Delete</button>
+    </fieldset>
+    <fieldset id="wheelTemplate" hidden>
+        <legend id="name_wheel_[0]"></legend>
+        &circlearrowright;
+        <ol id="atoms_wheel_[0]"></ol>
+    </fieldset>
+    <!-- Menu -->
+    <h1>Opus Magnum Stoichiometry Calculator</h1>
+    <h2>Supported Mods</h2>
+    <ul>
+        <li>Halving Metallurgy (Greenfield)</li>
+        <li>Reductive Metallurgy (Iswaac)</li>
+        <li>True Animismus (ItsKazyen)</li>
+        <li>Unstable Elements (I-Luna)</li>
+    </ul>
+    <fieldset>
+        <legend>Reagents <button id="collapseReagents">\/</button></legend>
+        <button id="addReagent">+</button>
+        <div id="reagentsTray" class="trays">
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Products  <button id="collapseProducts">\/</button></legend>
+        <button id="addProduct">+</button>
+        <div id="productsTray" class="trays">
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Alchemy Planner</legend>
+        <table class="planner">
+            <thead>
+                <tr>
+                    <th>Inputs</th>
+                    <th>Wheels</th>
+                    <th>Atoms</th>
+                    <th>Transformations</th>
+                    <th>Timeline</th>
+                    <th>Outputs</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div id="inputs" class="triplets"></div>
+                    </td>
+                    <td id="wheels"></td> 
+                    <td>
+                        <div id="atoms" class="pairs"></div>
+                    </td>
+                    <td>
+                        <div id="glyphs" class="triplets"></div>
+                    </td>
+                    <td>
+                        <div id="timeline" class="pairs"></div>
+                        <button id="deleteLastEvent">Remove last step</button>
+                    </td>
+                    <td>
+                        <div id="outputs" class="pairs"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </fieldset>
+</body>
+<script src='transformations.js'></script>
+<script src='main.js'></script>
+</html>
