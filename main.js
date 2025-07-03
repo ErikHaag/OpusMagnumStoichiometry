@@ -382,36 +382,6 @@ function updateTimeline() {
         return true
     }
 
-    function addAtomsFromArray(proxies) {
-        for (const aT of proxies) {
-            let current = atoms.get(aT) ?? 0;
-            current++;
-            if (current == 0) {
-                atoms.delete(aT);
-            } else {
-                atoms.set(aT, current);
-            }
-        }
-    }
-
-    function removeAtomsFromArray(proxies) {
-        let atomsCopy = structuredClone(atoms);
-        for (const aT of proxies) {
-            let current = atomsCopy.get(aT) ?? 0;
-            current--;
-            if (current < 0) {
-                return false;
-            }
-            if (current == 0) {
-                atomsCopy.delete(aT);
-            } else {
-                atomsCopy.set(aT, current);
-            }
-        }
-        atoms = atomsCopy;
-        return true;
-    }
-
     function applyWheelChanges(from, to) {
         if (!from) {
             return true;
@@ -425,6 +395,46 @@ function updateTimeline() {
             wheels[from[i].type].atoms[from[i].id] = to[i];
         }
         return true;
+    }
+
+    function simpleDesc(t) {
+        let s = "";
+        let wheelStr = [];
+        if (t.inputs.size) {
+            let i = [];
+            let o = [];
+            for (let aT of atomTypes) {
+                let c = t.inputs.get(aT) ?? 0;
+                if (c == 1) {
+                    i.push(camelToTitle(aT));
+                } else if (c >= 2) {
+                    i.push(camelToTitle(aT) + " x" + c);
+                }
+                c = t.outputs.get(aT) ?? 0;
+                if (c == 1) {
+                    o.push(camelToTitle(aT));
+                } else if (c >= 2) {
+                    o.push(camelToTitle(aT) + " x" + c);
+                }
+            }
+            s = i.join(", ") + " &rightarrow; " + o.join(", ");
+        }
+        if (t.wheelInputs) {
+            let pW = -1
+            for (let i = 0; i < t.wheelInputs.length; i++) {
+                if (t.wheelInputs[i].type != pW) {
+                    pW = t.wheelInputs[i].type;
+                    wheelStr.unshift(wheels[pW].name);
+                }
+                wheelStr[0] += `, ${camelToTitle(t.wheelInputs[i].atomType)} (#${t.wheelInputs[i].id + 1}) &rightarrow; ${camelToTitle(t.wheelOutputs[i])}`
+            }
+            wheelStr.reverse();
+            if (s) {
+                s += "; <br>";
+            }
+            s += wheelStr.join("; ");
+        }
+        return s;
     }
 
     let timelineDiv = document.getElementById("timeline");
@@ -454,10 +464,10 @@ function updateTimeline() {
                 }
                 break;
             case "glyph":
-                s = event.desc;
+                s = simpleDesc(event);
                 if (!failure) {
-                    success &&= removeAtomsFromArray(event.inputs) && applyWheelChanges(event.wheelInputs, event.wheelOutputs);
-                    success && addAtomsFromArray(event.outputs);
+                    success &&= removeAtomsFromMap(event.inputs) && applyWheelChanges(event.wheelInputs, event.wheelOutputs);
+                    success && addAtomsFromMap(event.outputs);
                 }
                 break;
             default:
@@ -468,7 +478,7 @@ function updateTimeline() {
             index.innerText = i + ": ";
             timelineDiv.appendChild(index);
             let item = document.createElement("div");
-            item.innerText = s;
+            item.innerHTML = s;
             if (!success) {
                 item.classList.add(failure ? "ignore" : "fail");
                 failure = true;
@@ -521,8 +531,17 @@ function updateTimeline() {
     }
     // Transformations
     {
+
+        function listToMap(l) {
+            let m = new Map();
+            for (const atomType of l) {
+                m.set(atomType, (m.get(atomType) ?? 0) + 1);
+            }
+            return m;
+        }
+
         const transformColumn = document.getElementById("glyphs");
-        transformColumn.innerHTML = "";   
+        transformColumn.innerHTML = "";
         transformations = [];
         let i = 0;
         let accumulatedLength = 0;
@@ -531,6 +550,11 @@ function updateTimeline() {
             if (transforms.length == 0) {
                 continue;
             }
+            transforms = transforms.map((e) => {
+                e.inputs = listToMap(e.inputs);
+                e.outputs = listToMap(e.outputs);
+                return e;
+            })
             transformations = transformations.concat(transforms);
             let label = document.createElement("label");
             label.setAttribute("for", "glyph_" + i.toFixed());
@@ -549,7 +573,7 @@ function updateTimeline() {
                     lastGroup = transforms[j].group;
                 }
                 let transformOption = document.createElement("option");
-                transformOption.innerText = transforms[j].desc;
+                transformOption.innerHTML = simpleDesc(transforms[j]);
                 transformOption.value = accumulatedLength++;
                 groupLabel.appendChild(transformOption);
             }
@@ -565,7 +589,7 @@ function updateTimeline() {
 function updateOutputs() {
     let outputTray = document.getElementById("outputs");
     outputTray.innerHTML = "";
-        for (const i in products) {
+    for (const i in products) {
         let outputName = document.createElement("p");
         outputName.innerText = document.getElementById("name_product_" + i).innerText;
         outputTray.appendChild(outputName);

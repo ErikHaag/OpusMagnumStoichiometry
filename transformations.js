@@ -88,7 +88,6 @@ let transformationTable = [];
                         wheelInputs: null,
                         outputs: ["salt"],
                         wheelOutputs: null,
-                        desc: "Calcify " + c + " into salt",
                         group: 0
                     });
                 }
@@ -108,7 +107,6 @@ let transformationTable = [];
                             wheelInputs: null,
                             outputs: [c, c],
                             wheelOutputs: null,
-                            desc: `Duplicate ${c}`,
                             group: 0
                         });
                     }
@@ -121,7 +119,6 @@ let transformationTable = [];
                             wheelInputs: [{ type: 0, id: p, atomType: c }],
                             outputs: [c],
                             wheelOutputs: [c],
-                            desc: `Duplicate ${c} via Van Berlo's Wheel`,
                             group: 1
                         });
                     }
@@ -142,7 +139,6 @@ let transformationTable = [];
                             wheelInputs: null,
                             outputs: [promote],
                             wheelOutputs: null,
-                            desc: `Promote ${base} into ${promote}`,
                             group: 0
                         });
                     }
@@ -156,7 +152,6 @@ let transformationTable = [];
                                 wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
                                 outputs: [],
                                 wheelOutputs: [promote],
-                                desc: `Promote ${wheels[1].atoms[i]} on Ravari's wheel in slot ${i + 1} to ${promote}`,
                                 group: 1
                             });
                         }
@@ -174,7 +169,6 @@ let transformationTable = [];
                                     wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
                                     outputs: [promote],
                                     wheelOutputs: [demote],
-                                    desc: `Promote ${base} into ${promote} by demoting ${wheels[1].atoms[i]} on Ravari's wheel in slot ${i + 1}`,
                                     group: 2
                                 });
                             }
@@ -190,7 +184,6 @@ let transformationTable = [];
                             wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [demote, promote],
-                            desc: `Transfer quicksilver from ${wheels[1].atoms[i]} in slot ${i + 1} to ${wheels[1].atoms[(i + 1) % 6]} in slot ${(i + 1) % 6 + 1} on Ravari's Wheel`,
                             group: 3
                         });
                     }
@@ -202,8 +195,8 @@ let transformationTable = [];
                         t.push({
                             inputs: [],
                             wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
-                            outputs: [], wheelOutputs: [promote, demote],
-                            desc: `Transfer quicksilver from ${wheels[1].atoms[(i + 1) % 6]} in slot ${(i + 1) % 6 + 1} to ${wheels[1].atoms[i]} in slot ${i + 1} on Ravari's Wheel`,
+                            outputs: [],
+                            wheelOutputs: [promote, demote],
                             group: 3
                         });
                     }
@@ -223,8 +216,7 @@ let transformationTable = [];
                         wheelInputs: null,
                         outputs: [promote],
                         wheelOutputs: null,
-                        group: 0,
-                        desc: `Purify ${base} into ${promote}`
+                        group: 0
                     });
                 }
             }
@@ -241,8 +233,7 @@ let transformationTable = [];
                     wheelInputs: null,
                     outputs: ["mors", "vitae"],
                     wheelOutputs: null,
-                    group: 0,
-                    desc: "Salts are consumed to become vitae and mors"
+                    group: 0
                 });
             }
             if (atoms.get("salt") >= 1 && (activeWheels & herrimanWheelFlag) != 0n) {
@@ -254,8 +245,7 @@ let transformationTable = [];
                             wheelInputs: [{type: 2, id: i, atomType: wheels[2].atoms[i]}],
                             outputs: ["mors"],
                             wheelOutputs: [vitate],
-                            group: 1,
-                            desc: `Convert salt to mors via ${camelToLower(wheels[2].atoms[i])} in slot ${i + 1} absorbing vitae`
+                            group: 1
                         });
                     }
                 }
@@ -267,8 +257,7 @@ let transformationTable = [];
                             wheelInputs: [{type: 2, id: i, atomType: wheels[2].atoms[i]}],
                             outputs: ["vitae"],
                             wheelOutputs: [morate],
-                            group: 1,
-                            desc: `Convert salt to vitae via ${camelToLower(wheels[2].atoms[i])} in slot ${i + 1} absorbing mors`
+                            group: 2
                         });
                     }
                 }
@@ -287,8 +276,7 @@ let transformationTable = [];
                         wheelInputs: null,
                         outputs: [],
                         wheelOutputs: null,
-                        group: 0,
-                        desc: `Remove an atom of ${camelToLower(aT)}`
+                        group: 0
                     });
                 }
             }
@@ -311,8 +299,7 @@ let transformationTable = [];
                     wheelInputs: null,
                     outputs: ["quintessence"],
                     wheelOutputs: null,
-                    group: 0,
-                    desc: "Unify air, earth, fire, and water into quintessence"
+                    group: 0
                 }];
             }
             return [];
@@ -327,15 +314,55 @@ let transformationTable = [];
                     wheelInputs: null,
                     outputs: ["air", "earth", "fire", "water"],
                     wheelOutputs: null,
-                    group: 0,
-                    desc: "Disperse quintessence into air, earth, fire, and water"
+                    group: 0
                 }];
             }
             return [];
         }
+    }, {
+        name: "Glyph of Halves",
+        groups: ["Half project metals with quicksilver", "Half project wheel and metal with quicksilver", "Half project metals with wheel", "Half project metal from wheel transfer", "Distribute around wheel"],
+        transforms: () => {
+            let t = [];
+            let halfPromotable = Array.from(halvePromotionMap.keys());
+            if ((atoms.get("quicksilver") ?? 0) >= 1) {
+                for (let i = 0; i < halfPromotable.length; i++) {
+                    let baseI = halfPromotable[i];
+                    let promoteI = halvePromotionMap.get(baseI);
+                    if ((atoms.get(baseI) ?? 0) <= 0) {
+                        continue;
+                    }
+                    if ((atoms.get(baseI) ?? 0) >= 2) {
+                        t.push({
+                            inputs: ["quicksilver", baseI, baseI],
+                            wheelInputs: null,
+                            outputs: [promoteI, promoteI],
+                            wheelOutputs: null,
+                            group: 0
+                        });
+                    }
+                    for (let j = i + 1; j < halfPromotable.length; j++) {
+                        let baseJ = halfPromotable[j];
+                        let promoteJ = halvePromotionMap.get(baseJ);
+                        if ((atoms.get(baseJ) ?? 0) >= 1) {
+                            t.push({
+                                inputs: ["quicksilver", baseI, baseJ],
+                                wheelInputs: null,
+                                outputs: [promoteI, promoteJ],
+                                wheelOutputs: null,
+                                group: 0
+                            });
+                        }
+                    }        
+                }
+            }
+            if ((activeWheels & ravariWheelFlag) != 0) {
+                
+            }
+            return t;
+        }
     });
 
-    // Glyph of Halves
     // Quicksilver Sump
 
     // Glyph of Rejection
