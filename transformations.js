@@ -477,12 +477,175 @@ let transformationTable = [];
             }
             return [];
         }
+    }, {
+        name: "Glyph of Rejection",
+        groups: ["Reject metal", "Promote wheel", "Reject wheel", "Transfer around wheel"],
+        transforms: () => {
+            let t = [];
+            for (const [base, demote] of rejectionMap) {
+                if ((atoms.get(base) ?? 0) >= 1) {
+                    t.push({
+                        inputs: [base],
+                        wheelInputs: null,
+                        outputs: ["quicksilver", demote],
+                        wheelOutputs: null,
+                        group: 0
+                    });
+                }
+            }
+            if ((activeWheels & ravariWheelFlag) != 0n) {
+                for (let i = 0; i < 6; i++) {
+                    let promote = projectionMap.get(wheels[1].atoms[i]);
+                    if (promote) {
+                        for (const [base, demote] of rejectionMap) {
+                            if ((atoms.get(base) ?? 0) >= 1) {
+                                t.push({
+                                    inputs: [base],
+                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                    outputs: [demote],
+                                    wheelOutputs: [promote],
+                                    group: 1
+                                });
+                            }
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    if (demote) {
+                        t.push({
+                            inputs: [],
+                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                            outputs: ["quicksilver"],
+                            wheelOutputs: [demote],
+                            group: 2
+                        });
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let promote = projectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    if (promote && demote) {
+                        t.push({
+                            inputs: [],
+                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            outputs: [],
+                            wheelOutputs: [demote, promote],
+                            group: 3
+                        });
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let promote = projectionMap.get(wheels[1].atoms[i]);
+                    let demote = rejectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    if (promote && demote) {
+                        t.push({
+                            inputs: [],
+                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            outputs: [],
+                            wheelOutputs: [promote, demote],
+                            group: 3
+                        });
+                    }
+                }
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Deposition",
+        groups: ["Divide metals"],
+        transforms: () => {
+            let t = [];
+            for (const [base, split] of depositionMap.entries()) {
+                if ((atoms.get(base) ?? 0) >= 1) {
+                    t.push({
+                        inputs: [base],
+                        wheelInputs: null,
+                        outputs: split,
+                        wheelOutputs: null,
+                        group: 0
+                    });
+                }
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Proliferation",
+        groups: ["Clone metal with quicksilver", "Clone from wheel with quicksilver", "Clone metal with wheel", "Clone with wheel"],
+        transforms: () => {
+            let t = [];
+            const metals = ["lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium"];
+            if ((atoms.get("quicksilver") ?? 0) >= 1) {
+                for (const m of metals) {
+                    if ((atoms.get(m) ?? 0) >= 1) {
+                        t.push({
+                            inputs: ["quicksilver", m],
+                            wheelInputs: null,
+                            outputs: [m, m],
+                            wheelOutputs: null,
+                            group: 0
+                        });
+                    }
+                }
+                if ((activeWheels & ravariWheelFlag) != 0n) {
+                    for (let i = 0; i < 6; i++) {
+                        t.push({
+                            inputs: ["quicksilver"],
+                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                            outputs: [wheels[1].atoms[i]],
+                            wheelOutputs: [wheels[1].atoms[i]],
+                            group: 1
+                        });
+                    }
+                }
+            }
+            if ((activeWheels & ravariWheelFlag) != 0n) {
+                for (let i = 0; i < 6; i++) {
+                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    if (demote) {
+                        for (const m of metals) {
+                            if ((atoms.get(m) ?? 0) >= 1) {
+                                t.push({
+                                    inputs: [],
+                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                    outputs: [wheels[1].atoms[i]],
+                                    wheelOutputs: [demote],
+                                    group: 2
+                                });
+                            }
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    if (demote) {
+                        t.push({
+                            inputs: [],
+                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            outputs: [wheels[1].atoms[(i + 1) % 6]],
+                            wheelOutputs: [demote, wheels[1].atoms[(i + 1) % 6]],
+                            group: 3
+                        });
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let demote = rejectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    if (demote) {
+                        t.push({
+                            inputs: [],
+                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            outputs: [wheels[1].atoms[i]],
+                            wheelOutputs: [wheels[1].atoms[i], demote],
+                            group: 3
+                        });
+                    }
+                }
+            }
+            return t;
+        }
     });
 
 
-    // Glyph of Rejection
-    // Glyph of Deposition
-    // Glyph of Proliferation
 
     // Glyph of Disproportion
     // Glyph of the Left Hand

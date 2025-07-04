@@ -428,7 +428,7 @@ function updateTimeline() {
     function simpleDesc(t) {
         let s = "";
         let wheelStr = [];
-        if (t.inputs.size) {
+        if (t.inputs.size + t.outputs.size) {
             let i = [];
             let o = [];
             for (let aT of atomTypes) {
