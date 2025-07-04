@@ -57,7 +57,35 @@ const wheelTable = [
     }
 ];
 
-const atomTypes = atomTypeTable.flatMap((entry) => entry.type == "atom" ? [entry.name] : []);
+const atomTypes = [
+    "trueMors",
+    "greyMors",
+    "mors",
+    "salt",
+    "vitae",
+    "redVitae",
+    "trueVitae",
+    "air",
+    "earth",
+    "fire",
+    "water",
+    "quintessence",
+    "quicksilver",
+    "lead",
+    "wolfram",
+    "tin",
+    "vulcan",
+    "iron",
+    "nickel",
+    "copper",
+    "zinc",
+    "silver",
+    "sednum",
+    "gold",
+    "osmium",
+    "uranium",
+    "aether"
+];
 
 const templates = {
     molecule: document.getElementById("moleculeTemplate"),
@@ -417,7 +445,7 @@ function updateTimeline() {
                     o.push(camelToTitle(aT) + " x" + c);
                 }
             }
-            s = i.join(", ") + " &rightarrow; " + o.join(", ");
+            s = (i.length ? i.join(", ") : "&lt;nothing&gt;") + " &rightarrow; " + (o.length ? o.join(", ") : "&lt;nothing&gt;");
         }
         if (t.wheelInputs) {
             let pW = -1

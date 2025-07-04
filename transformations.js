@@ -44,7 +44,7 @@ let transformationTable = [];
         ["osmium", ["nickel", "iron"]]
     ]);
 
-    const halvePromotionMap = new Map([
+    const halfPromotionMap = new Map([
         ["lead", "wolfram"],
         ["wolfram", "tin"],
         ["tin", "vulcan"],
@@ -80,7 +80,7 @@ let transformationTable = [];
         name: "Glyph of Calcification",
         groups: ["Calcify cardinal"],
         transforms: () => {
-            let t = []; 
+            let t = [];
             for (const c of ["air", "earth", "fire", "water"]) {
                 if ((atoms.get(c) ?? 0) >= 1) {
                     t.push({
@@ -242,7 +242,7 @@ let transformationTable = [];
                     if (vitate) {
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [{type: 2, id: i, atomType: wheels[2].atoms[i]}],
+                            wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }],
                             outputs: ["mors"],
                             wheelOutputs: [vitate],
                             group: 1
@@ -254,7 +254,7 @@ let transformationTable = [];
                     if (morate) {
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [{type: 2, id: i, atomType: wheels[2].atoms[i]}],
+                            wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }],
                             outputs: ["vitae"],
                             wheelOutputs: [morate],
                             group: 2
@@ -321,14 +321,14 @@ let transformationTable = [];
         }
     }, {
         name: "Glyph of Halves",
-        groups: ["Half project metals with quicksilver", "Half project wheel and metal with quicksilver", "Half project metals with wheel", "Half project metal from wheel transfer", "Distribute around wheel"],
+        groups: ["Half project metals with quicksilver", "Half project wheel and metal with quicksilver", "Half project metals with wheel", "Half project metal from wheel transfer", "Distribute quicksilver around wheel"],
         transforms: () => {
             let t = [];
-            let halfPromotable = Array.from(halvePromotionMap.keys());
+            let halfPromotable = Array.from(halfPromotionMap.keys());
             if ((atoms.get("quicksilver") ?? 0) >= 1) {
                 for (let i = 0; i < halfPromotable.length; i++) {
                     let baseI = halfPromotable[i];
-                    let promoteI = halvePromotionMap.get(baseI);
+                    let promoteI = halfPromotionMap.get(baseI);
                     if ((atoms.get(baseI) ?? 0) <= 0) {
                         continue;
                     }
@@ -343,7 +343,7 @@ let transformationTable = [];
                     }
                     for (let j = i + 1; j < halfPromotable.length; j++) {
                         let baseJ = halfPromotable[j];
-                        let promoteJ = halvePromotionMap.get(baseJ);
+                        let promoteJ = halfPromotionMap.get(baseJ);
                         if ((atoms.get(baseJ) ?? 0) >= 1) {
                             t.push({
                                 inputs: ["quicksilver", baseI, baseJ],
@@ -353,17 +353,132 @@ let transformationTable = [];
                                 group: 0
                             });
                         }
-                    }        
+                    }
+                }
+                if ((activeWheels & ravariWheelFlag) != 0n) {
+                    for (let i = 0; i < 6; i++) {
+                        let promoteW = halfPromotionMap.get(wheels[1].atoms[i]);
+                        if (promoteW) {
+                            for (const [baseF, promoteF] of halfPromotionMap.entries()) {
+                                if ((atoms.get(baseF) ?? 0) >= 1) {
+                                    t.push({
+                                        inputs: ["quicksilver", baseF],
+                                        wheelInputs: [
+                                            { type: 1, id: i, atomType: wheels[1].atoms[i] }
+                                        ],
+                                        outputs: [promoteF],
+                                        wheelOutputs: [promoteW],
+                                        group: 1
+                                    });
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            if ((activeWheels & ravariWheelFlag) != 0) {
-                
+            if ((activeWheels & ravariWheelFlag) != 0n) {
+                for (let i = 0; i < 6; i++) {
+                    let demoteW = rejectionMap.get(wheels[1].atoms[i]);
+                    if (demoteW) {
+                        for (let j = 0; j < halfPromotable.length; j++) {
+                            let baseJ = halfPromotable[j];
+                            let promoteJ = halfPromotionMap.get(baseJ);
+                            if ((atoms.get(baseJ) ?? 0) <= 0) {
+                                continue;
+                            }
+                            if ((atoms.get(baseJ) ?? 0) >= 2) {
+                                t.push({
+                                    inputs: [baseJ, baseJ],
+                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                    outputs: [promoteJ, promoteJ],
+                                    wheelOutputs: [demoteW],
+                                    group: 2
+                                });
+                            }
+                            for (let k = j + 1; k < halfPromotable.length; k++) {
+                                let baseK = halfPromotable[k];
+                                let promoteK = halfPromotionMap.get(baseK);
+                                if ((atoms.get(baseK) ?? 0) >= 1) {
+                                    t.push({
+                                        inputs: [baseJ, baseK],
+                                        wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                        outputs: [promoteJ, promoteK],
+                                        wheelOutputs: [demoteW],
+                                        group: 2
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let demoteW = rejectionMap.get(wheels[1].atoms[i]);
+                    let promoteW = halfPromotionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    if (demoteW && promoteW) {
+                        for (const [baseF, promoteF] of halfPromotionMap.entries()) {
+                            if ((atoms.get(baseF) ?? 0) >= 1) {
+                                t.push({
+                                    inputs: [baseF],
+                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                                    outputs: [promoteF],
+                                    wheelOutputs: [demoteW, promoteW],
+                                    group: 3
+                                });
+                            }
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let promoteW = halfPromotionMap.get(wheels[1].atoms[i]);
+                    let demoteW = rejectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    if (demoteW && promoteW) {
+                        for (const [baseF, promoteF] of halfPromotionMap.entries()) {
+                            if ((atoms.get(baseF) ?? 0) >= 1) {
+                                t.push({
+                                    inputs: [baseF],
+                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                                    outputs: [promoteF],
+                                    wheelOutputs: [promoteW, demoteW],
+                                    group: 3
+                                });
+                            }
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let promoteF = halfPromotionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    let promoteB = halfPromotionMap.get(wheels[1].atoms[(i + 5) % 6]);
+                    if (demote && promoteF && promoteB) {
+                        t.push({
+                            inputs: [],
+                            wheelInputs: [{ type: 1, id: (i + 5) % 6, atomType: wheels[1].atoms[(i + 5) % 6] }, { type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            outputs: [],
+                            wheelOutputs: [promoteB, demote, promoteF],
+                            group: 4
+                        });
+                    }
+                }
             }
             return t;
         }
+    }, {
+        name: "Quicksilver Sump",
+        groups: ["Drain quicksilver"],
+        transforms: () => {
+            if ((atoms.get("quicksilver") ?? 0) >= 7) {
+                return [{
+                    inputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver"],
+                    wheelInputs: null,
+                    outputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver"],
+                    wheelOutputs: null,
+                    group: 0
+                }];
+            }
+            return [];
+        }
     });
 
-    // Quicksilver Sump
 
     // Glyph of Rejection
     // Glyph of Deposition
