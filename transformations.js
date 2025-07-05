@@ -904,9 +904,60 @@ let transformationTable = [];
             }
             return t;
         }
+    }, {
+        name: "Glyph of Irradiation",
+        groups: ["Irradiate"],
+        transforms: () => {
+            if ((atoms.get("quicksilver") ?? 0) >= 3 && (atoms.get("gold") ?? 0) >= 1) {
+                return [{
+                    inputs: ["quicksilver", "quicksilver", "quicksilver", "gold"],
+                    wheelInputs: null,
+                    outputs: ["uranium"],
+                    wheelOutputs: null,
+                    group: 0
+                }];
+            }
+            return [];
+        }
+    }, {
+        name: "Glyph of Sublimation",
+        groups: ["Sublimate"],
+        transforms: () => {
+            if ((atoms.get("quintessence") ?? 0) >= 1) {
+                return [{
+                    inputs: ["quintessence"],
+                    wheelInputs: null,
+                    outputs: ["aether", "aether", "salt", "salt"],
+                    wheelOutputs: null,
+                    group: 0
+                }];
+            }
+            return [];
+        }
+    }, {
+        name: "Atom Decay",
+        groups: ["Decay"],
+        transforms: () => {
+            let t = [];
+            if ((atoms.get("aether") ?? 0) >= 1) {
+                t.push({
+                    inputs: ["aether"],
+                    wheelInputs: null,
+                    outputs: [],
+                    wheelOutputs: null,
+                    group: 0
+                });
+            }
+            if ((atoms.get("uranium") ?? 0) >= 1) {
+                t.push({
+                    inputs: ["uranium"],
+                    wheelInputs: null,
+                    outputs: ["lead"],
+                    wheelOutputs: null,
+                    group: 0
+                });
+            }
+            return t;
+        }
     });
-
-    // Glyph of Irradiation
-    // Glyph of Sublimation
-    // Atom Decay
 }
