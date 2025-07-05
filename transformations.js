@@ -4,6 +4,11 @@ const herrimanWheelFlag = 4n;
 
 let transformationTable = [];
 
+let allowedTransformations = new Map([
+    ["Glyph of Calcification", true],
+    ["Glyph of Duplication", true]
+]);
+
 {
     const projectionMap = new Map([
         ["lead", "tin"],

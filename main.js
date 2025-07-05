@@ -2,7 +2,7 @@ let reagents = [];
 let products = [];
 let wheels = [];
 let atoms = new Map();
-let activeWheels = -1n;
+let activeWheels = 0n;
 
 let transformations = [];
 
@@ -94,9 +94,9 @@ const templates = {
 
 const reagentsTray = document.getElementById("reagentsTray");
 const productsTray = document.getElementById("productsTray");
+const settingsTray = document.getElementById("settingsTray");
 
 document.addEventListener("DOMContentLoaded", () => {
-    /* Template setup */
     /* Molecule template */
     {
         templates.molecule.id = "molecule_[0]_[1]";
@@ -127,6 +127,42 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         templates.molecule.appendChild(section);
+    }
+    /* Settings */
+    {
+        const transformSettingsDiv = document.getElementById("tSettings");
+        let i = 0;
+        for (let t of transformationTable) {
+            let id = "toggle_glyph_" + i.toFixed();
+            let label = document.createElement("label");
+            label.innerText = t.name;
+            label.setAttribute("for", id);
+            transformSettingsDiv.appendChild(label);
+            let checkbox = document.createElement("input");
+            checkbox.id = id;
+            checkbox.setAttribute("type", "checkbox");
+            if (allowedTransformations.get(t.name)) {
+                checkbox.setAttribute("checked", "")
+            } else {
+                allowedTransformations.set(t.name, false);
+            }
+            transformSettingsDiv.appendChild(checkbox);
+            i++;
+        }
+        const wheelSettingsDiv = document.getElementById("wSettings");
+        i = 0;
+        for (let w of wheelTable) {
+            let id = "toggle_wheel_" + i.toFixed();
+            let label = document.createElement("label");
+            label.innerText = w.name;
+            label.setAttribute("for", id);
+            wheelSettingsDiv.appendChild(label);
+            let checkbox = document.createElement("input");
+            checkbox.id = id;
+            checkbox.setAttribute("type", "checkbox");
+            wheelSettingsDiv.appendChild(checkbox);
+            i++;
+        }
     }
 });
 
@@ -172,6 +208,13 @@ document.addEventListener("click", (e) => {
                 element.innerText = currentlyHidden ? "\\/" : "/\\";
                 document.getElementById("addProduct").hidden = !currentlyHidden;
                 productsTray.style.display = currentlyHidden ? "" : "none";
+            }
+            break;
+        case "collapseSettings":
+            {
+                let currentlyHidden = settingsTray.style.display == "none";
+                element.innerText = currentlyHidden ? "\\/" : "/\\";
+                settingsTray.style.display = currentlyHidden ? "" : "none";
             }
             break;
         case "deleteLastEvent":
@@ -237,7 +280,6 @@ document.addEventListener("click", (e) => {
                     updateTimeline();
                     break;
                 default:
-                    console.log(type);
                     break;
             }
             break;
@@ -270,6 +312,18 @@ document.addEventListener("change", (e) => {
                 products[id].delete(type);
             } else {
                 products[id].set(type, v);
+            }
+            updateTimeline();
+        }
+    } else if (type == "toggle") {
+        if (subject == "glyph") {
+            allowedTransformations.set(transformationTable[id].name, element.checked);
+            updateTimeline();
+        } else if (subject == "wheel") {
+            if (element.checked) {
+                activeWheels |= (1n << BigInt(id));
+            } else {
+                activeWheels &= ~(1n << BigInt(id));
             }
             updateTimeline();
         }
@@ -415,8 +469,11 @@ function updateTimeline() {
             return true;
         }
         for (let i = 0; i < from.length; i++) {
+            if ((activeWheels & (1n << BigInt(from[i].type))) == 0n) {
+                return false;
+            }
             if (wheels[from[i].type].atoms[from[i].id] != from[i].atomType) {
-                valid = false;
+                return false;
             }
         }
         for (let i = 0; i < from.length; i++) {
@@ -494,6 +551,7 @@ function updateTimeline() {
             case "glyph":
                 s = simpleDesc(event);
                 if (!failure) {
+                    success &&= allowedTransformations.get(event.glyph);
                     success &&= removeAtomsFromMap(event.inputs) && applyWheelChanges(event.wheelInputs, event.wheelOutputs);
                     success && addAtomsFromMap(event.outputs);
                 }
@@ -574,6 +632,9 @@ function updateTimeline() {
         let i = 0;
         let accumulatedLength = 0;
         for (const glyph of transformationTable) {
+            if (!allowedTransformations.get(glyph.name)) {
+                continue;
+            }
             let transforms = glyph.transforms();
             if (transforms.length == 0) {
                 continue;
@@ -581,6 +642,7 @@ function updateTimeline() {
             transforms = transforms.map((e) => {
                 e.inputs = listToMap(e.inputs);
                 e.outputs = listToMap(e.outputs);
+                e.glyph = glyph.name;
                 return e;
             })
             transformations = transformations.concat(transforms);
