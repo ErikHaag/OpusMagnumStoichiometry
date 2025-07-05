@@ -76,6 +76,33 @@ let transformationTable = [];
         ["trueVitae", "redVitae"]
     ]);
 
+    const disproportionMap = new Map([
+        ["greyMors", ["trueMors", "mors"]],
+        ["mors", ["greyMors", "salt"]],
+        ["vitae", ["redVitae", "salt"]],
+        ["redVitae", ["trueVitae", "vitae"]],
+    ]);
+
+    const animismusToStrengthMap = new Map([
+        ["trueMors", -3],
+        ["greyMors", -2],
+        ["mors", -1],
+        ["salt", 0],
+        ["vitae", 1],
+        ["redVitae", 2],
+        ["trueVitae", 3]
+    ]);
+
+    const strengthToAnimismusMap = new Map([
+        [-3, "trueMors"],
+        [-2, "greyMors"],
+        [-1, "mors"],
+        [0, "salt"],
+        [1, "vitae"],
+        [2, "redVitae"],
+        [3, "trueVitae"]
+    ]);
+
     transformationTable.push({
         name: "Glyph of Calcification",
         groups: ["Calcify cardinal"],
@@ -643,13 +670,241 @@ let transformationTable = [];
             }
             return t;
         }
+    }, {
+        name: "Glyph of Disproportion",
+        groups: ["Wheelless", "Wheel captures dilute", "Wheel captures potent"],
+        transforms: () => {
+            let t = [];
+            for (const [equals, divided] of disproportionMap.entries()) {
+                if ((atoms.get(equals) ?? 0) >= 2) {
+                    t.push({
+                        inputs: [equals, equals],
+                        wheelInputs: null,
+                        outputs: divided,
+                        wheelOutputs: null,
+                        group: 0
+                    });
+                }
+            }
+            if ((activeWheels & herrimanWheelFlag) != 0n) {
+                for (let i = 0; i < 6; i++) {
+                    for (const [equals, divided] of disproportionMap.entries()) {
+                        if ((atoms.get(equals) ?? 0) >= 1) {
+                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[i]) - animismusToStrengthMap.get(equals));
+                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]) + animismusToStrengthMap.get(divided[1]));
+                            if (wheelDilute && wheelConcentrate) {
+                                t.push({
+                                    inputs: [equals],
+                                    wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    outputs: [divided[0]],
+                                    wheelOutputs: [wheelDilute, wheelConcentrate],
+                                    group: 1
+                                });
+                            }
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    for (const [equals, divided] of disproportionMap.entries()) {
+                        if ((atoms.get(equals) ?? 0) >= 1) {
+                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[i]) + animismusToStrengthMap.get(divided[1]));
+                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]) - animismusToStrengthMap.get(equals));
+                            if (wheelDilute && wheelConcentrate) {
+                                t.push({
+                                    inputs: [equals],
+                                    wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    outputs: [divided[0]],
+                                    wheelOutputs: [wheelConcentrate, wheelDilute],
+                                    group: 1
+                                });
+                            }
+                        }
+                    }
+                }
+
+                for (let i = 0; i < 6; i++) {
+                    for (const [equals, divided] of disproportionMap.entries()) {
+                        if ((atoms.get(equals) ?? 0) >= 1) {
+                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[i]) - animismusToStrengthMap.get(equals));
+                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]) + animismusToStrengthMap.get(divided[0]));
+                            if (wheelDilute && wheelConcentrate) {
+                                t.push({
+                                    inputs: [equals],
+                                    wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    outputs: [divided[1]],
+                                    wheelOutputs: [wheelDilute, wheelConcentrate],
+                                    group: 2
+                                });
+                            }
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    for (const [equals, divided] of disproportionMap.entries()) {
+                        if ((atoms.get(equals) ?? 0) >= 1) {
+                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[i]) + animismusToStrengthMap.get(divided[0]));
+                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]) - animismusToStrengthMap.get(equals));
+                            if (wheelDilute && wheelConcentrate) {
+                                t.push({
+                                    inputs: [equals],
+                                    wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    outputs: [divided[1]],
+                                    wheelOutputs: [wheelConcentrate, wheelDilute],
+                                    group: 2
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of the Left Hand",
+        groups: ["Inversion"],
+        transforms: () => {
+            let t = [];
+            for (const [s, a] of strengthToAnimismusMap.entries()) {
+                if (s == 0) {
+                    continue;
+                }
+                let inverse = strengthToAnimismusMap.get(-s);
+                if (inverse && (atoms.get(a) ?? 0) >= 1) {
+                    t.push({
+                        inputs: [a],
+                        wheelInputs: null,
+                        outputs: [inverse],
+                        wheelOutputs: null,
+                        group: 0
+                    });
+                }
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Infusion",
+        groups: ["Transfer between atoms", "Concentrate wheel", "Dilute wheel", "Distribute around wheel"],
+        transforms: () => {
+            let t = [];
+            for (const [sI, aI] of strengthToAnimismusMap.entries()) {
+                for (const [sJ, aJ] of strengthToAnimismusMap.entries()) {
+                    if (Math.abs(sI) >= Math.abs(sJ)) {
+                        continue;
+                    }
+                    if (sI < 0 && sJ > 0 || sI > 0 && sJ < 0) {
+                        continue;
+                    }
+                    if (sI + 1 == sJ || sI - 1 == sJ) {
+                        continue;
+                    }
+                    if ((atoms.get(aI) ?? 0) >= 1 && (atoms.get(aJ) ?? 0) >= 1) {
+                        let concentrateDirection = sJ > 0 ? 1 : -1;
+                        let dilute = strengthToAnimismusMap.get(sJ - concentrateDirection);
+                        let concentrate = strengthToAnimismusMap.get(sI + concentrateDirection);
+                        t.push({
+                            inputs: [aI, aJ],
+                            wheelInputs: null,
+                            outputs: [dilute, concentrate],
+                            wheelOutputs: null,
+                            group: 0
+                        });
+                    }
+                }
+            }
+            if ((activeWheels & herrimanWheelFlag) != 0n) {
+                for (let i = 0; i < 6; i++) {
+                    let strength = animismusToStrengthMap.get(wheels[2].atoms[i]);
+                    for (const [s, a] of strengthToAnimismusMap.entries()) {
+                        if (s == 0) {
+                            continue;
+                        }
+                        if ((atoms.get(a) ?? 0) >= 1) {
+                            let concentrateDirection = s > 0 ? 1 : -1;
+                            if (s > 0 ? strength >= s : strength <= s) {
+                                continue;
+                            }
+                            let concentrate = strengthToAnimismusMap.get(strength + concentrateDirection);
+                            let dilute = strengthToAnimismusMap.get(s - concentrateDirection);
+                            t.push({
+                                inputs: [a],
+                                wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }],
+                                outputs: [dilute],
+                                wheelOutputs: [concentrate],
+                                group: 1
+                            });
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let strength = animismusToStrengthMap.get(wheels[2].atoms[i]);
+                    if (strength == 0) {
+                        continue;
+                    }
+                    for (const [s, a] of strengthToAnimismusMap.entries()) {
+                        if (s != 0 && ((s > 0) != (strength > 0))) {
+                            continue;
+                        }
+                        if (Math.abs(s) >= Math.abs(strength)) {
+                            continue;
+                        }
+                        if ((atoms.get(a) ?? 0) >= 1) {
+                            let concentrateDirection = strength > 0 ? 1 : -1;
+                            let concentrate = strengthToAnimismusMap.get(s + concentrateDirection);
+                            let dilute = strengthToAnimismusMap.get(strength - concentrateDirection);
+                            t.push({
+                                inputs: [a],
+                                wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }],
+                                outputs: [concentrate],
+                                wheelOutputs: [dilute],
+                                group: 2
+                            });
+                        }
+                    }
+                }
+                for (let i = 0; i < 6; i++) {
+                    let toDiluteStrength = animismusToStrengthMap.get(wheels[2].atoms[i]);
+                    let toConcentrateStrength = animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]);
+                    if (Math.abs(toDiluteStrength) <= Math.abs(toConcentrateStrength)) {
+                        continue;
+                    }
+                    if (toConcentrateStrength != 0 && ((toDiluteStrength > 0) != (toConcentrateStrength > 0))) {
+                        continue;
+                    }
+                    let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
+                    let dilute = strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
+                    let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
+                    t.push({
+                        inputs: [],
+                        wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                        outputs: [],
+                        wheelOutputs: [dilute, concentrate],
+                        group: 3
+                    });
+                }
+                for (let i = 0; i < 6; i++) {
+                    let toConcentrateStrength = animismusToStrengthMap.get(wheels[2].atoms[i]);
+                    let toDiluteStrength = animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]);
+                    if (Math.abs(toDiluteStrength) <= Math.abs(toConcentrateStrength)) {
+                        continue;
+                    }
+                    if (toConcentrateStrength != 0 && ((toDiluteStrength > 0) != (toConcentrateStrength > 0))) {
+                        continue;
+                    }
+                    let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
+                    let dilute = strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
+                    let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
+                    t.push({
+                        inputs: [],
+                        wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                        outputs: [],
+                        wheelOutputs: [concentrate, dilute],
+                        group: 3
+                    });
+                }
+            }
+            return t;
+        }
     });
-
-
-
-    // Glyph of Disproportion
-    // Glyph of the Left Hand
-    // Glyph of Infusion
 
     // Glyph of Irradiation
     // Glyph of Sublimation
