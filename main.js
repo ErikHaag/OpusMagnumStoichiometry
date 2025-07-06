@@ -537,28 +537,30 @@ function updateTimeline() {
     let success = true;
     let failure = false;
     for (let event of timeline) {
-        let s = "";
+        let description = "";
+        let glyphName = "";
         switch (event.action ?? "glyph") {
             case "inject":
-                s = "Add " + document.getElementById("name_reagent_" + event.reagent.toFixed()).innerText;
+                description = "Add " + document.getElementById("name_reagent_" + event.reagent.toFixed()).innerText;
                 if (!failure) {
                     addAtomsFromMap(reagents[event.reagent]);
                 }
                 break;
             case "retract":
-                s = "Return " + document.getElementById("name_reagent_" + event.reagent.toFixed()).innerText;
+                description = "Return " + document.getElementById("name_reagent_" + event.reagent.toFixed()).innerText;
                 if (!failure) {
                     success &&= removeAtomsFromMap(reagents[event.reagent]);
                 }
                 break;
             case "submit":
-                s = "Output " + document.getElementById("name_product_" + event.product.toFixed()).innerText;
+                description = "Output " + document.getElementById("name_product_" + event.product.toFixed()).innerText;
                 if (!failure) {
                     success &&= removeAtomsFromMap(products[event.product]);
                 }
                 break;
             case "glyph":
-                s = simpleDesc(event);
+                description = simpleDesc(event);
+                glyphName = event.glyph;
                 if (!failure) {
                     success &&= allowedTransformations.get(event.glyph);
                     success &&= removeAtomsFromMap(event.inputs) && applyWheelChanges(event.wheelInputs, event.wheelOutputs);
@@ -568,17 +570,20 @@ function updateTimeline() {
             default:
                 break;
         }
-        if (s) {
+        if (description) {
             let index = document.createElement("div");
             index.innerText = i + ": ";
             timelineDiv.appendChild(index);
             let item = document.createElement("div");
-            item.innerHTML = s;
+            item.innerHTML = description;
             if (!success) {
                 item.classList.add(failure ? "ignore" : "fail");
                 failure = true;
             }
             timelineDiv.appendChild(item);
+            let glyphTag = document.createElement("div");
+            glyphTag.innerText = glyphName;
+            timelineDiv.appendChild(glyphTag);
         }
         i++;
     }
