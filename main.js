@@ -32,6 +32,11 @@ const atomTypeTable = [
     { type: "atom", name: "zinc" },
     { type: "atom", name: "sednum" },
     { type: "atom", name: "osmium" },
+    { type: "section", name: "Noble Elements" },
+    { type: "atom", name: "nobilis"},
+    { type: "atom", name: "alpha"},
+    { type: "atom", name: "beta"},
+    { type: "atom", name: "gamma"},
     { type: "section", name: "True Animismus" },
     { type: "atom", name: "greyMors" },
     { type: "atom", name: "redVitae" },
@@ -83,6 +88,10 @@ const atomTypes = [
     "sednum",
     "gold",
     "osmium",
+    "nobilis",
+    "alpha",
+    "beta",
+    "gamma",
     "uranium",
     "aether"
 ];

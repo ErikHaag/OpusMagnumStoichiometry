@@ -510,6 +510,51 @@ let allowedTransformations = new Map([
             return [];
         }
     }, {
+        name: "Glyph of Coronation",
+        groups: ["Coronate"],
+        transforms: () => {
+            let t = [];
+            for (const a of ["alpha", "beta", "gamma"]) {
+                if ((atoms.get(a) ?? 0) >= 1) {
+                    t.push({
+                        inputs: [a],
+                        wheelInputs: null,
+                        outputs: ["nobilis"],
+                        wheelOutputs: null,
+                        group: 0
+                    })
+                }
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Reactivity",
+        groups: ["React"],
+        transforms: () => {
+            let t = [];
+            if ((atoms.get("nobilis") ?? 0) >= 1) {
+                const nobles = ["alpha", "beta", "gamma"];
+                for (const n of nobles) {
+                    if ((atoms.get(n) ?? 0) >= 1) {
+                        for (let j = 0; j < 2; j++) {
+                            let aJ = nobles[j];
+                            for (let k = j + 1; k < 3; k++) {
+                                let aK = nobles[k];
+                                t.push({
+                                    inputs: ["nobilis", n],
+                                    wheelInputs: null,
+                                    outputs: [aJ, aK],
+                                    wheelOutputs: null,
+                                    group: 0
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+            return t;
+        }
+    }, {
         name: "Glyph of Rejection",
         groups: ["Reject metal", "Promote wheel", "Reject wheel", "Transfer around wheel"],
         transforms: () => {
