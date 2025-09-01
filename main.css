@@ -14,23 +14,23 @@ body.dark {
     color: white;
 }
 
-body.light svg circle, body.light svg ellipse, body.light svg line, body.light svg path {
+body.light svg#symbols symbol * {
     stroke: black;
 }
 
-body.dark svg circle, body.dark svg ellipse, body.dark svg line, body.dark svg path {
+body.dark svg#symbols symbol * {
     stroke: white;
 }
 
-body.light svg *.backgroundFill {
+body.light svg#symbols symbol *.backgroundFill {
     fill: white;
 }
 
-body.dark svg path.backgroundFill {
+body.dark svg#symbols symbol *.backgroundFill {
     fill: lab(3.24% 20 -28.28);;
 }
 
-circle.noFill, ellipse.noFill, path.noFill {
+svg#symbols symbol .noFill {
     fill: none;
 }
 
