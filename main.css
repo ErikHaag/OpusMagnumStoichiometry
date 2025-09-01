@@ -14,11 +14,11 @@ body.dark {
     color: white;
 }
 
-body.light svg circle, body.light svg line, body.light svg path {
+body.light svg circle, body.light svg ellipse, body.light svg line, body.light svg path {
     stroke: black;
 }
 
-body.dark svg circle, body.dark svg line, body.dark svg path {
+body.dark svg circle, body.dark svg ellipse, body.dark svg line, body.dark svg path {
     stroke: white;
 }
 
@@ -28,6 +28,18 @@ body.light svg *.backgroundFill {
 
 body.dark svg path.backgroundFill {
     fill: lab(3.24% 20 -28.28);;
+}
+
+circle.noFill, ellipse.noFill, path.noFill {
+    fill: none;
+}
+
+.symbol>use {
+    transform: scale(0.5);
+}
+
+.symbol.hide, #symbols {
+    display: none;
 }
 
 .box {
@@ -46,6 +58,10 @@ body.dark svg path.backgroundFill {
 
 .ignore {
     text-decoration: line-through black;
+}
+
+label {
+    vertical-align: center;
 }
 
 p {

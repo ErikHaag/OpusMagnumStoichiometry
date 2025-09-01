@@ -10,11 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
 </head>
-<body class="dark">
+<body class="light">
     <!-- SVGs -->
-     <svg id="symbols" width="0" height="0">
-
-     </svg>
+     <svg id="symbols" width="0" height="0"></svg>
     <!-- Templates -->
     <fieldset id="moleculeTemplate" class="box" hidden>
         <legend id="name_[0]_[1]" class="editable" contenteditable="plaintext-only" spellcheck="false">Unnamed group of bonded proxies</legend>
@@ -52,6 +50,12 @@
         <div id="settingsTray" class="trays">
             <div id="tSettings" class="pairs"></div>
             <div id="wSettings" class="pairs"></div>
+            <div class="pairs">
+                <label for="darkMode">Dark Mode:</label>
+                <input id="darkMode" type="checkbox">
+                <label for="useSymbols">Use Symbols</label>
+                <input id="useSymbols" type="checkbox" checked>
+            </div>
         </div>
     </fieldset>
     <fieldset>

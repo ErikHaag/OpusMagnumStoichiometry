@@ -105,6 +105,8 @@ const reagentsTray = document.getElementById("reagentsTray");
 const productsTray = document.getElementById("productsTray");
 const settingsTray = document.getElementById("settingsTray");
 
+let usingSymbols = true;
+
 document.addEventListener("DOMContentLoaded", () => {
     async function loadSVGs() {
         // semi-inelegant hack
@@ -134,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 let id = entry.name + "_[0]_[1]";
                 let label = document.createElement("label");
                 label.setAttribute("for", id);
-                label.innerText = camelToTitle(entry.name) + ":";
+                label.innerHTML = camelToTitle(entry.name) + elementToSVG(entry.name) + ":";
                 section.appendChild(label);
                 let input = document.createElement("input");
                 input.id = id;
@@ -197,7 +199,7 @@ document.addEventListener("click", (e) => {
     switch (elementId) {
         case "addReagent":
             {
-                let reagent = useTemplate(templates.molecule, "reagent", reagents.length.toFixed());
+                let reagent = useTemplate(templates.molecule, "reagent", reagents.length.toFixed(), " [3]");
                 reagent.hidden = false;
                 reagentsTray.appendChild(reagent);
                 reagents.push(new Map());
@@ -206,7 +208,7 @@ document.addEventListener("click", (e) => {
             break;
         case "addProduct":
             {
-                let product = useTemplate(templates.molecule, "product", products.length.toFixed());
+                let product = useTemplate(templates.molecule, "product", products.length.toFixed(), " [3]");
                 product.hidden = false;
                 productsTray.appendChild(product);
                 products.push(new Map());
@@ -314,6 +316,24 @@ document.addEventListener("change", (e) => {
     if (!elementId) {
         return;
     }
+    if (elementId == "darkMode") {
+        document.body.className = element.checked ? "dark" : "light";
+        return;
+    }
+    if (elementId == "useSymbols") {
+        usingSymbols = element.checked;
+        if (usingSymbols) {
+            for (let e of document.querySelectorAll("svg.symbol")) {
+                e.classList.remove("hide");
+            }
+        } else {
+            for (let e of document.querySelectorAll("svg.symbol")) {
+                e.classList.add("hide");
+            }
+        }
+        updateTimeline();
+        return;
+    }
     let [type, subject, id] = elementId.split("_");
     if (atomTypes.includes(type)) {
         let v = Number.parseInt(element.value) || 0;
@@ -394,7 +414,7 @@ function useTemplate(template, ...replacements) {
             node.setAttribute("for", replaceTags(node.getAttribute("for")));
         }
         if (node.childElementCount == 0) {
-            node.innerText = replaceTags(node.innerText);
+            node.innerHTML = replaceTags(node.innerHTML);
         }
     }
     Array.from(clone.getElementsByClassName("editable")).forEach(element => {
@@ -424,6 +444,11 @@ function capitalize(s) {
 function camelToTitle(s) {
     s = s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + " " + b);
     return capitalize(s);
+}
+
+function elementToSVG(s) {
+    s = s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase());
+    return "<svg width=\"30\" height=\"30\" class=\"symbol\"><use href=\"#" + s + "_symbol\"/></svg>";
 }
 
 function camelToLower(s) {
@@ -501,7 +526,7 @@ function updateTimeline() {
         return true;
     }
 
-    function simpleDesc(t) {
+    function simpleDesc(t, useSymbols = false) {
         let s = "";
         let wheelStr = [];
         if (t.inputs.size + t.outputs.size) {
@@ -509,16 +534,22 @@ function updateTimeline() {
             let o = [];
             for (let aT of atomTypes) {
                 let c = t.inputs.get(aT) ?? 0;
+                let word = ""
+                if (useSymbols) {
+                    word = elementToSVG(aT);
+                } else {
+                    word = camelToTitle(aT);
+                }
                 if (c == 1) {
-                    i.push(camelToTitle(aT));
+                    i.push(word);
                 } else if (c >= 2) {
-                    i.push(camelToTitle(aT) + " x" + c);
+                    i.push(word + " x" + c);
                 }
                 c = t.outputs.get(aT) ?? 0;
                 if (c == 1) {
-                    o.push(camelToTitle(aT));
+                    o.push(word);
                 } else if (c >= 2) {
-                    o.push(camelToTitle(aT) + " x" + c);
+                    o.push(word + " x" + c);
                 }
             }
             s = (i.length ? i.join(", ") : "&lt;nothing&gt;") + " &rightarrow; " + (o.length ? o.join(", ") : "&lt;nothing&gt;");
@@ -569,7 +600,7 @@ function updateTimeline() {
                 }
                 break;
             case "glyph":
-                description = simpleDesc(event);
+                description = simpleDesc(event, usingSymbols);
                 glyphName = event.glyph;
                 if (!failure) {
                     success &&= allowedTransformations.get(event.glyph);
@@ -629,7 +660,11 @@ function updateTimeline() {
                 continue;
             }
             let entry = document.createElement("div");
-            entry.innerText = camelToTitle(aT);
+            if (usingSymbols) {
+                entry.innerHTML = elementToSVG(aT);
+            } else {
+                entry.innerText = camelToTitle(aT);
+            }
             atomColumn.appendChild(entry);
             let count = document.createElement("div");
             count.innerText = "x " + c.toFixed();
