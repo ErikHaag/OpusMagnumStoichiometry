@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
 <svg width="60" height="60" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
- <use href="air.svg" transform="rotate(180, 30, 30)"/>
+ <use href="symbols/air.svg" transform="rotate(180, 30, 30)"/>
 </svg>
