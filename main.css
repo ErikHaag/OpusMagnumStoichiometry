@@ -4,6 +4,16 @@ body {
     font-weight: normal;
 }
 
+body.light {
+    background-color: white;
+    color: black;
+}
+
+body.dark {
+    background-color: lab(3.24% 20 -28.28);
+    color: white;
+}
+
 .box {
     max-height: 500px;
     width: fit-content;
