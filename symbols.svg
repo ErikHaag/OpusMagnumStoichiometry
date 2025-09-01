@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <svg width="60" height="60" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
     <symbol id="aether_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 15,35 c -2,-3,-5,-10,5,-10 s 10,10,20,10 s 7,-13,5,-10" class="noFill" stroke-width="3"/>
+        <path d="M 15,35 c -2,-3,-5,-10,5,-10 s 10,10,20,10 s 7,-7,5,-10" class="noFill" stroke-width="3"/>
     </symbol>
     <symbol id="air_symbol" width="60" height="60" viewBox="0 0 60 60">
         <use href="#fire_symbol"/>
