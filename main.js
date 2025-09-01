@@ -106,6 +106,16 @@ const productsTray = document.getElementById("productsTray");
 const settingsTray = document.getElementById("settingsTray");
 
 document.addEventListener("DOMContentLoaded", () => {
+    async function loadSVGs() {
+        // semi-inelegant hack
+        let response = await fetch("./symbols.svg");
+        let data = await response.text();
+        let info = /<symbol[\s\S]*<\/symbol>/.exec(data);
+        document.getElementById("symbols").innerHTML = info[0];
+    }
+
+    loadSVGs();
+
     /* Molecule template */
     {
         templates.molecule.id = "molecule_[0]_[1]";

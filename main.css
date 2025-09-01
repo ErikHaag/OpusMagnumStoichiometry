@@ -14,6 +14,22 @@ body.dark {
     color: white;
 }
 
+body.light svg circle, body.light svg line, body.light svg path {
+    stroke: black;
+}
+
+body.dark svg circle, body.dark svg line, body.dark svg path {
+    stroke: white;
+}
+
+body.light svg *.backgroundFill {
+    fill: white;
+}
+
+body.dark svg path.backgroundFill {
+    fill: lab(3.24% 20 -28.28);;
+}
+
 .box {
     max-height: 500px;
     width: fit-content;
