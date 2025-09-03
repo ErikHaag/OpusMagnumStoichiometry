@@ -22,12 +22,12 @@ body.dark svg#symbols symbol * {
     stroke: white;
 }
 
-body.light svg#symbols symbol *.backgroundFill {
-    fill: white;
+body.light svg#symbols symbol *.strokeFill {
+    fill: black;
 }
 
-body.dark svg#symbols symbol *.backgroundFill {
-    fill: lab(3.24% 20 -28.28);;
+body.dark svg#symbols symbol *.strokeFill {
+    fill: white;
 }
 
 svg#symbols symbol .noFill {
@@ -49,7 +49,7 @@ svg#symbols symbol .noFill {
 }
 
 .fail {
-    text-decoration: wavy underline red;
+    border-bottom: 1px solid red ;
 }
 
 #glyphs {
@@ -57,7 +57,7 @@ svg#symbols symbol .noFill {
 }
 
 .ignore {
-    text-decoration: line-through black;
+    background-color: gray;
 }
 
 label {

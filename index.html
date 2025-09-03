@@ -54,7 +54,10 @@
                 <label for="darkMode">Dark Mode:</label>
                 <input id="darkMode" type="checkbox">
                 <label for="useSymbols">Use Symbols</label>
-                <input id="useSymbols" type="checkbox" checked>
+                <input id="useSymbols" type="checkbox">
+                <button id="save">Save</button>
+                <a id="download" download="alchemical_plan.json"></a>
+                <input id="load" type="file" accept=".json" style="grid-column: auto / span 2;">
             </div>
         </div>
     </fieldset>
@@ -95,6 +98,8 @@
         </table>
     </fieldset>
 </body>
+<script src='tables.js'></script>
 <script src='transformations.js'></script>
 <script src='main.js'></script>
+<script src='files.js'></script>
 </html>

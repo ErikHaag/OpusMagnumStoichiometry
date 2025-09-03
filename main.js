@@ -8,94 +8,6 @@ let transformations = [];
 
 let timeline = [];
 
-const atomTypeTable = [
-    { type: "section", name: "Opus Magnum" },
-    { type: "atom", name: "salt" },
-    { type: "atom", name: "air" },
-    { type: "atom", name: "earth" },
-    { type: "atom", name: "fire" },
-    { type: "atom", name: "water" },
-    { type: "atom", name: "quintessence" },
-    { type: "atom", name: "mors" },
-    { type: "atom", name: "vitae" },
-    { type: "atom", name: "quicksilver" },
-    { type: "atom", name: "lead" },
-    { type: "atom", name: "tin" },
-    { type: "atom", name: "iron" },
-    { type: "atom", name: "copper" },
-    { type: "atom", name: "silver" },
-    { type: "atom", name: "gold" },
-    { type: "section", name: "Halving Metallurgy" },
-    { type: "atom", name: "wolfram" },
-    { type: "atom", name: "vulcan" },
-    { type: "atom", name: "nickel" },
-    { type: "atom", name: "zinc" },
-    { type: "atom", name: "sednum" },
-    { type: "atom", name: "osmium" },
-    { type: "section", name: "Noble Elements" },
-    { type: "atom", name: "nobilis" },
-    { type: "atom", name: "alpha" },
-    { type: "atom", name: "beta" },
-    { type: "atom", name: "gamma" },
-    { type: "section", name: "True Animismus" },
-    { type: "atom", name: "greyMors" },
-    { type: "atom", name: "redVitae" },
-    { type: "atom", name: "trueMors" },
-    { type: "atom", name: "trueVitae" },
-    { type: "section", name: "Unstable Elements" },
-    { type: "atom", name: "aether" },
-    { type: "atom", name: "uranium" }
-];
-
-const wheelTable = [
-    {
-        name: "Van Berlo's Wheel",
-        atoms: ["water", "salt", "earth", "fire", "salt", "air"]
-    },
-    {
-        name: "Ravari's Wheel",
-        atoms: ["lead", "tin", "iron", "copper", "silver", "gold"]
-    },
-    {
-        name: "Herriman's Wheel",
-        atoms: ["trueVitae", "redVitae", "vitae", "mors", "greyMors", "trueMors"]
-    }
-];
-
-const atomTypes = [
-    "trueMors",
-    "greyMors",
-    "mors",
-    "salt",
-    "vitae",
-    "redVitae",
-    "trueVitae",
-    "air",
-    "earth",
-    "fire",
-    "water",
-    "quintessence",
-    "quicksilver",
-    "lead",
-    "wolfram",
-    "tin",
-    "vulcan",
-    "iron",
-    "nickel",
-    "copper",
-    "zinc",
-    "silver",
-    "sednum",
-    "gold",
-    "osmium",
-    "nobilis",
-    "alpha",
-    "beta",
-    "gamma",
-    "uranium",
-    "aether"
-];
-
 const templates = {
     molecule: document.getElementById("moleculeTemplate"),
     wheel: document.getElementById("wheelTemplate")
@@ -105,19 +17,12 @@ const reagentsTray = document.getElementById("reagentsTray");
 const productsTray = document.getElementById("productsTray");
 const settingsTray = document.getElementById("settingsTray");
 
-let usingSymbols = true;
+let usingSymbols = false;
+let loadedSymbols = false;
+
+let loadPromise = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-    async function loadSVGs() {
-        // semi-inelegant hack
-        let response = await fetch("./symbols.svg");
-        let data = await response.text();
-        let info = /<symbol[\s\S]*<\/symbol>/.exec(data);
-        document.getElementById("symbols").innerHTML = info[0];
-    }
-
-    loadSVGs();
-
     /* Molecule template */
     {
         templates.molecule.id = "molecule_[0]_[1]";
@@ -162,10 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
             let checkbox = document.createElement("input");
             checkbox.id = id;
             checkbox.setAttribute("type", "checkbox");
-            if (allowedTransformations.get(t.name)) {
+            if (allowedTransformations.has(t.name)) {
                 checkbox.setAttribute("checked", "")
-            } else {
-                allowedTransformations.set(t.name, false);
             }
             transformSettingsDiv.appendChild(checkbox);
             i++;
@@ -188,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("click", (e) => {
-    let element = document.elementFromPoint(e.clientX, e.clientY);
+    let element = e.target;
     if (!element) {
         return;
     }
@@ -241,6 +144,9 @@ document.addEventListener("click", (e) => {
         case "deleteLastEvent":
             timeline.pop();
             updateTimeline();
+            break;
+        case "save":
+            saveState();
             break;
         default:
             // handle dynamically created elements
@@ -297,7 +203,9 @@ document.addEventListener("click", (e) => {
                     break;
                 case "use":
                     let glyphSelect = document.getElementById("glyph_" + id.toFixed());
-                    timeline.push(transformations[glyphSelect.value]);
+                    let action = transformations[glyphSelect.value];
+                    delete action.group;
+                    timeline.push(action);
                     updateTimeline();
                     break;
                 default:
@@ -323,6 +231,7 @@ document.addEventListener("change", (e) => {
     if (elementId == "useSymbols") {
         usingSymbols = element.checked;
         if (usingSymbols) {
+            loadSVGs();
             for (let e of document.querySelectorAll("svg.symbol")) {
                 e.classList.remove("hide");
             }
@@ -332,6 +241,15 @@ document.addEventListener("change", (e) => {
             }
         }
         updateTimeline();
+        return;
+    }
+    if (elementId == "load") {
+        let f = element.files[0];
+        if (!f) {
+            return;
+        }
+        loadPromise = f.text()
+        loadPromise.then(loadState);
         return;
     }
     let [type, subject, id] = elementId.split("_");
@@ -356,7 +274,11 @@ document.addEventListener("change", (e) => {
         }
     } else if (type == "toggle") {
         if (subject == "glyph") {
-            allowedTransformations.set(transformationTable[id].name, element.checked);
+            if (element.checked) {
+                allowedTransformations.add(transformationTable[id].name);
+            } else {
+                allowedTransformations.delete(transformationTable[id].name);
+            }
             updateTimeline();
         } else if (subject == "wheel") {
             if (element.checked) {
@@ -437,6 +359,23 @@ function updateTemplateId(template, newID) {
     }
 }
 
+async function loadSVGs() {
+    // semi-inelegant hack
+    let symbolsElement = document.getElementById("symbols");
+    if (!loadedSymbols && !symbolsElement.childElementCount) {
+        loadedSymbols = true;
+        try {
+            let response = await fetch("./symbols.svg");
+            let data = await response.text();
+            let info = /<symbol[\s\S]*<\/symbol>/.exec(data);
+            symbolsElement.innerHTML = info[0];
+        } catch {
+
+            loadedSymbols = false;
+        }
+    }
+}
+
 function capitalize(s) {
     return s[0].toUpperCase() + s.substring(1);
 }
@@ -448,7 +387,11 @@ function camelToTitle(s) {
 
 function elementToSVG(s) {
     s = s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase());
-    return "<svg width=\"30\" height=\"30\" class=\"symbol\"><use href=\"#" + s + "_symbol\"/></svg>";
+    let svg = "<svg width=\"30\" height=\"30\" class=\"symbol";
+    if (!usingSymbols) {
+        svg += " hide";
+    }
+    return svg + "\"><use href=\"#" + s + "_symbol\"/></svg>";
 }
 
 function camelToLower(s) {
@@ -561,7 +504,17 @@ function updateTimeline() {
                     pW = t.wheelInputs[i].type;
                     wheelStr.unshift(wheels[pW].name);
                 }
-                wheelStr[0] += `, ${camelToTitle(t.wheelInputs[i].atomType)} (#${t.wheelInputs[i].id + 1}) &rightarrow; ${camelToTitle(t.wheelOutputs[i])}`
+                let [wInput, wOutput] = [t.wheelInputs[i].atomType, t.wheelOutputs[i]];
+
+                if (useSymbols) {
+                    wInput = elementToSVG(wInput);
+                    wOutput = elementToSVG(wOutput);
+                } else {
+                    wInput = camelToTitle(wInput);
+                    wOutput = camelToTitle(wOutput);
+                }
+
+                wheelStr[0] += `, ${wInput} (#${t.wheelInputs[i].id + 1}) &rightarrow; ${wOutput}`
             }
             wheelStr.reverse();
             if (s) {
@@ -603,7 +556,7 @@ function updateTimeline() {
                 description = simpleDesc(event, usingSymbols);
                 glyphName = event.glyph;
                 if (!failure) {
-                    success &&= allowedTransformations.get(event.glyph);
+                    success &&= allowedTransformations.has(event.glyph);
                     success &&= removeAtomsFromMap(event.inputs) && applyWheelChanges(event.wheelInputs, event.wheelOutputs);
                     success && addAtomsFromMap(event.outputs);
                 }
@@ -645,7 +598,11 @@ function updateTimeline() {
             let atomList = document.getElementById("atoms_wheel_" + i);
             for (let j = 0; j < 6; j++) {
                 let atomItem = document.createElement("li");
-                atomItem.innerText = camelToTitle(wheels[i].atoms[j]);
+                if (usingSymbols) {
+                    atomItem.innerHTML = elementToSVG(wheels[i].atoms[j]);
+                } else {
+                    atomItem.innerText = camelToTitle(wheels[i].atoms[j]);
+                }
                 atomList.appendChild(atomItem);
             }
         }
@@ -691,7 +648,7 @@ function updateTimeline() {
         let i = 0;
         let accumulatedLength = 0;
         for (const glyph of transformationTable) {
-            if (!allowedTransformations.get(glyph.name)) {
+            if (!allowedTransformations.has(glyph.name)) {
                 continue;
             }
             let transforms = glyph.transforms();

@@ -1,13 +1,6 @@
-const berloWheelFlag = 1n;
-const ravariWheelFlag = 2n;
-const herrimanWheelFlag = 4n;
-
 let transformationTable = [];
 
-let allowedTransformations = new Map([
-    ["Glyph of Calcification", true],
-    ["Glyph of Duplication", true]
-]);
+let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplication"]);
 
 {
     const projectionMap = new Map([
@@ -143,12 +136,12 @@ let allowedTransformations = new Map([
                         });
                     }
                 }
-                if ((activeWheels & berloWheelFlag) != 0) {
+                if ((activeWheels & wheelTypeTable.berlo.flag) != 0) {
                     for (const c of ["air", "earth", "fire", "water"]) {
                         let p = wheels[0].atoms.indexOf(c);
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [{ type: 0, id: p, atomType: c }],
+                            wheelInputs: [{ type: wheelTypeTable.berlo.type, id: p, atomType: c }],
                             outputs: [c],
                             wheelOutputs: [c],
                             group: 1
@@ -175,13 +168,13 @@ let allowedTransformations = new Map([
                         });
                     }
                 }
-                if ((activeWheels & ravariWheelFlag) != 0n) {
+                if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                     for (let i = 0; i < 6; i++) {
                         let promote = projectionMap.get(wheels[1].atoms[i]);
                         if (promote) {
                             t.push({
                                 inputs: ["quicksilver"],
-                                wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
                                 outputs: [],
                                 wheelOutputs: [promote],
                                 group: 1
@@ -190,7 +183,7 @@ let allowedTransformations = new Map([
                     }
                 }
             }
-            if ((activeWheels & ravariWheelFlag) != 0n) {
+            if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
                     let demote = rejectionMap.get(wheels[1].atoms[i]);
                     if (demote) {
@@ -198,7 +191,7 @@ let allowedTransformations = new Map([
                             if ((atoms.get(base) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [base],
-                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
                                     outputs: [promote],
                                     wheelOutputs: [demote],
                                     group: 2
@@ -213,7 +206,7 @@ let allowedTransformations = new Map([
                     if (promote && demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [demote, promote],
                             group: 3
@@ -226,7 +219,7 @@ let allowedTransformations = new Map([
                     if (promote && demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [promote, demote],
                             group: 3
@@ -268,13 +261,13 @@ let allowedTransformations = new Map([
                     group: 0
                 });
             }
-            if (atoms.get("salt") >= 1 && (activeWheels & herrimanWheelFlag) != 0n) {
+            if (atoms.get("salt") >= 1 && (activeWheels & wheelTypeTable.herriman.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
                     let vitate = vitaeAbsorbitionMap.get(wheels[2].atoms[i]);
                     if (vitate) {
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }],
+                            wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }],
                             outputs: ["mors"],
                             wheelOutputs: [vitate],
                             group: 1
@@ -286,7 +279,7 @@ let allowedTransformations = new Map([
                     if (morate) {
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }],
+                            wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }],
                             outputs: ["vitae"],
                             wheelOutputs: [morate],
                             group: 2
@@ -387,7 +380,7 @@ let allowedTransformations = new Map([
                         }
                     }
                 }
-                if ((activeWheels & ravariWheelFlag) != 0n) {
+                if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                     for (let i = 0; i < 6; i++) {
                         let promoteW = halfPromotionMap.get(wheels[1].atoms[i]);
                         if (promoteW) {
@@ -396,7 +389,7 @@ let allowedTransformations = new Map([
                                     t.push({
                                         inputs: ["quicksilver", baseF],
                                         wheelInputs: [
-                                            { type: 1, id: i, atomType: wheels[1].atoms[i] }
+                                            { type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }
                                         ],
                                         outputs: [promoteF],
                                         wheelOutputs: [promoteW],
@@ -408,7 +401,7 @@ let allowedTransformations = new Map([
                     }
                 }
             }
-            if ((activeWheels & ravariWheelFlag) != 0n) {
+            if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
                     let demoteW = rejectionMap.get(wheels[1].atoms[i]);
                     if (demoteW) {
@@ -421,7 +414,7 @@ let allowedTransformations = new Map([
                             if ((atoms.get(baseJ) ?? 0) >= 2) {
                                 t.push({
                                     inputs: [baseJ, baseJ],
-                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
                                     outputs: [promoteJ, promoteJ],
                                     wheelOutputs: [demoteW],
                                     group: 2
@@ -433,7 +426,7 @@ let allowedTransformations = new Map([
                                 if ((atoms.get(baseK) ?? 0) >= 1) {
                                     t.push({
                                         inputs: [baseJ, baseK],
-                                        wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                        wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
                                         outputs: [promoteJ, promoteK],
                                         wheelOutputs: [demoteW],
                                         group: 2
@@ -451,7 +444,7 @@ let allowedTransformations = new Map([
                             if ((atoms.get(baseF) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [baseF],
-                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                                     outputs: [promoteF],
                                     wheelOutputs: [demoteW, promoteW],
                                     group: 3
@@ -468,7 +461,7 @@ let allowedTransformations = new Map([
                             if ((atoms.get(baseF) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [baseF],
-                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                                     outputs: [promoteF],
                                     wheelOutputs: [promoteW, demoteW],
                                     group: 3
@@ -484,7 +477,7 @@ let allowedTransformations = new Map([
                     if (demote && promoteF && promoteB) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: 1, id: (i + 5) % 6, atomType: wheels[1].atoms[(i + 5) % 6] }, { type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: (i + 5) % 6, atomType: wheels[1].atoms[(i + 5) % 6] }, { type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [promoteB, demote, promoteF],
                             group: 4
@@ -570,7 +563,7 @@ let allowedTransformations = new Map([
                     });
                 }
             }
-            if ((activeWheels & ravariWheelFlag) != 0n) {
+            if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
                     let promote = projectionMap.get(wheels[1].atoms[i]);
                     if (promote) {
@@ -578,7 +571,7 @@ let allowedTransformations = new Map([
                             if ((atoms.get(base) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [base],
-                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
                                     outputs: [demote],
                                     wheelOutputs: [promote],
                                     group: 1
@@ -592,7 +585,7 @@ let allowedTransformations = new Map([
                     if (demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
                             outputs: ["quicksilver"],
                             wheelOutputs: [demote],
                             group: 2
@@ -605,7 +598,7 @@ let allowedTransformations = new Map([
                     if (promote && demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [demote, promote],
                             group: 3
@@ -618,7 +611,7 @@ let allowedTransformations = new Map([
                     if (promote && demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [promote, demote],
                             group: 3
@@ -664,11 +657,11 @@ let allowedTransformations = new Map([
                         });
                     }
                 }
-                if ((activeWheels & ravariWheelFlag) != 0n) {
+                if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                     for (let i = 0; i < 6; i++) {
                         t.push({
                             inputs: ["quicksilver"],
-                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
                             outputs: [wheels[1].atoms[i]],
                             wheelOutputs: [wheels[1].atoms[i]],
                             group: 1
@@ -676,7 +669,7 @@ let allowedTransformations = new Map([
                     }
                 }
             }
-            if ((activeWheels & ravariWheelFlag) != 0n) {
+            if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
                     let demote = rejectionMap.get(wheels[1].atoms[i]);
                     if (demote) {
@@ -684,7 +677,7 @@ let allowedTransformations = new Map([
                             if ((atoms.get(m) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [],
-                                    wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
                                     outputs: [wheels[1].atoms[i]],
                                     wheelOutputs: [demote],
                                     group: 2
@@ -698,7 +691,7 @@ let allowedTransformations = new Map([
                     if (demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                             outputs: [wheels[1].atoms[(i + 1) % 6]],
                             wheelOutputs: [demote, wheels[1].atoms[(i + 1) % 6]],
                             group: 3
@@ -710,7 +703,7 @@ let allowedTransformations = new Map([
                     if (demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: 1, id: i, atomType: wheels[1].atoms[i] }, { type: 1, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
                             outputs: [wheels[1].atoms[i]],
                             wheelOutputs: [wheels[1].atoms[i], demote],
                             group: 3
@@ -736,7 +729,7 @@ let allowedTransformations = new Map([
                     });
                 }
             }
-            if ((activeWheels & herrimanWheelFlag) != 0n) {
+            if ((activeWheels & wheelTypeTable.herriman.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
                     for (const [equals, divided] of disproportionMap.entries()) {
                         if ((atoms.get(equals) ?? 0) >= 1) {
@@ -745,7 +738,7 @@ let allowedTransformations = new Map([
                             if (wheelDilute && wheelConcentrate) {
                                 t.push({
                                     inputs: [equals],
-                                    wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
                                     outputs: [divided[0]],
                                     wheelOutputs: [wheelDilute, wheelConcentrate],
                                     group: 1
@@ -762,7 +755,7 @@ let allowedTransformations = new Map([
                             if (wheelDilute && wheelConcentrate) {
                                 t.push({
                                     inputs: [equals],
-                                    wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
                                     outputs: [divided[0]],
                                     wheelOutputs: [wheelConcentrate, wheelDilute],
                                     group: 1
@@ -780,7 +773,7 @@ let allowedTransformations = new Map([
                             if (wheelDilute && wheelConcentrate) {
                                 t.push({
                                     inputs: [equals],
-                                    wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
                                     outputs: [divided[1]],
                                     wheelOutputs: [wheelDilute, wheelConcentrate],
                                     group: 2
@@ -797,7 +790,7 @@ let allowedTransformations = new Map([
                             if (wheelDilute && wheelConcentrate) {
                                 t.push({
                                     inputs: [equals],
-                                    wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
                                     outputs: [divided[1]],
                                     wheelOutputs: [wheelConcentrate, wheelDilute],
                                     group: 2
@@ -861,7 +854,7 @@ let allowedTransformations = new Map([
                     }
                 }
             }
-            if ((activeWheels & herrimanWheelFlag) != 0n) {
+            if ((activeWheels & wheelTypeTable.herriman.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
                     let strength = animismusToStrengthMap.get(wheels[2].atoms[i]);
                     for (const [s, a] of strengthToAnimismusMap.entries()) {
@@ -877,7 +870,7 @@ let allowedTransformations = new Map([
                             let dilute = strengthToAnimismusMap.get(s - concentrateDirection);
                             t.push({
                                 inputs: [a],
-                                wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }],
+                                wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }],
                                 outputs: [dilute],
                                 wheelOutputs: [concentrate],
                                 group: 1
@@ -903,7 +896,7 @@ let allowedTransformations = new Map([
                             let dilute = strengthToAnimismusMap.get(strength - concentrateDirection);
                             t.push({
                                 inputs: [a],
-                                wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }],
+                                wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }],
                                 outputs: [concentrate],
                                 wheelOutputs: [dilute],
                                 group: 2
@@ -925,7 +918,7 @@ let allowedTransformations = new Map([
                     let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
                     t.push({
                         inputs: [],
-                        wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                        wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
                         outputs: [],
                         wheelOutputs: [dilute, concentrate],
                         group: 3
@@ -945,7 +938,7 @@ let allowedTransformations = new Map([
                     let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
                     t.push({
                         inputs: [],
-                        wheelInputs: [{ type: 2, id: i, atomType: wheels[2].atoms[i] }, { type: 2, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                        wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
                         outputs: [],
                         wheelOutputs: [concentrate, dilute],
                         group: 3
