@@ -39,9 +39,9 @@ function saveState() {
 
 function loadState(data) {
     let state = JSON.parse(data);
-    console.log(state);
     const clickEvent = new Event("click", { bubbles: true });
     const changeEvent = new Event("change", { bubbles: true });
+    allowUpdates = false;
     // reagents
     let i = 0;
     for (i = reagents.length - 1; i >= 0; i--) {
@@ -98,7 +98,8 @@ function loadState(data) {
         }
     });
     timeline = state.timeline;
+    allowUpdates = true;
+    updateTimeline();
     updateInputs();
     updateOutputs();
-    updateTimeline();
 }

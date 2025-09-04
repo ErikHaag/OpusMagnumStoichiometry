@@ -129,3 +129,11 @@ th:nth-last-child(n+2), td:nth-last-child(n+2) {
     grid-template-columns: repeat(3, max-content);
     justify-items: center;
 }
+
+.quadruplets {
+    align-items: center;
+    display: grid;
+    gap: 3px;
+    grid-template-columns: repeat(4, max-content);
+    justify-items: center;
+}

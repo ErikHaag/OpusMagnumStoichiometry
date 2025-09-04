@@ -1,5 +1,7 @@
 let reagents = [];
+let reagentsUsed = [];
 let products = [];
+let productsUsed = [];
 let wheels = [];
 let atoms = new Map();
 let activeWheels = 0n;
@@ -19,6 +21,7 @@ const settingsTray = document.getElementById("settingsTray");
 
 let usingSymbols = false;
 let loadedSymbols = false;
+let allowUpdates = true;
 
 let loadPromise = null;
 
@@ -106,6 +109,7 @@ document.addEventListener("click", (e) => {
                 reagent.hidden = false;
                 reagentsTray.appendChild(reagent);
                 reagents.push(new Map());
+                reagentsUsed.push(0n);
                 updateInputs();
             }
             break;
@@ -115,6 +119,7 @@ document.addEventListener("click", (e) => {
                 product.hidden = false;
                 productsTray.appendChild(product);
                 products.push(new Map());
+                productsUsed.push(0n);
                 updateOutputs();
             }
             break;
@@ -141,10 +146,6 @@ document.addEventListener("click", (e) => {
                 settingsTray.style.display = currentlyHidden ? "" : "none";
             }
             break;
-        case "deleteLastEvent":
-            timeline.pop();
-            updateTimeline();
-            break;
         case "save":
             saveState();
             break;
@@ -154,52 +155,85 @@ document.addEventListener("click", (e) => {
             id = Number.parseInt(id);
             switch (type) {
                 case "remove":
-                    if (subject == "reagent") {
-                        reagents.splice(id, 1);
-                        reagentsTray.children[id].remove();
-                        for (let i = id; i < reagentsTray.children.length; i++) {
-                            updateTemplateId(reagentsTray.children[i], i.toFixed());
-                        }
-                        for (let i = 0; i < timeline.length; i++) {
-                            if (timeline[i].action != "inject" && timeline[i].action != "retract") {
-                                continue;
+                    switch (subject) {
+                        case "reagent":
+                            reagents.splice(id, 1);
+                            reagentsUsed.splice(id, 1);
+                            reagentsTray.children[id].remove();
+                            for (let i = id; i < reagentsTray.children.length; i++) {
+                                updateTemplateId(reagentsTray.children[i], i.toFixed());
                             }
-                            if (timeline[i].reagent == id) {
-                                timeline.splice(id, 1);
-                            } else if (timeline[i].reagent > id) {
-                                timeline[i].reagent--;
+                            for (let i = 0; i < timeline.length; i++) {
+                                if (timeline[i].action != "inject" && timeline[i].action != "retract") {
+                                    continue;
+                                }
+                                if (timeline[i].reagent == id) {
+                                    timeline.splice(id, 1);
+                                } else if (timeline[i].reagent > id) {
+                                    timeline[i].reagent--;
+                                }
                             }
-                        }
-                        updateInputs();
-                        updateTimeline();
-                    } else if (subject == "product") {
-                        products.splice(id, 1);
-                        productsTray.children[id].remove();
-                        for (let i = id; i < productsTray.children.length; i++) {
-                            updateTemplateId(productsTray.children[i], i.toFixed());
-                        }
-                        for (let i = 0; i < timeline.length; i++) {
-                            if (timeline[i].action != "submit") {
-                                continue;
+                            updateTimeline();
+                            updateInputs();
+                            break;
+                        case "product":
+                            products.splice(id, 1);
+                            productsUsed.splice(id, 1);
+                            productsTray.children[id].remove();
+                            for (let i = id; i < productsTray.children.length; i++) {
+                                updateTemplateId(productsTray.children[i], i.toFixed());
                             }
-                            if (timeline[i].product == id) {
-                                timeline.splice(id, 1);
-                            } else if (timeline[i].product > id) {
-                                timeline[i].reagent--;
+                            for (let i = 0; i < timeline.length; i++) {
+                                if (timeline[i].action != "submit") {
+                                    continue;
+                                }
+                                if (timeline[i].product == id) {
+                                    timeline.splice(id, 1);
+                                } else if (timeline[i].product > id) {
+                                    timeline[i].reagent--;
+                                }
                             }
-                        }
-                        updateOutputs();
-                        updateTimeline();
+                            updateTimeline();
+                            updateOutputs();
+                            break;
+                        case "event":
+                            timeline.splice(id, 1);
+                            updateTimeline();
+                            updateInputs();
+                            updateOutputs();
+                            break;
+                        default:
+                            break;
                     }
+                    break;
+                case "event":
+                    switch (subject) {
+                        case "delay":
+                            timeline.splice(id, 0, ...timeline.splice(id + 1, 1));
+                            break;
+                        case "expedite":
+                            timeline.splice(id - 1, 0, ...timeline.splice(id, 1));
+                            break;
+                        case "remove":
+                            timeline.splice(id, 1);
+                            break;
+                        default:
+                            break;
+                    }
+                    updateTimeline();
+                    updateInputs();
+                    updateOutputs();
                     break;
                 case "inject":
                 case "retract":
                     timeline.push({ action: type, reagent: id });
                     updateTimeline();
+                    updateInputs();
                     break;
                 case "submit":
                     timeline.push({ action: "submit", product: id });
                     updateTimeline();
+                    updateOutputs();
                     break;
                 case "use":
                     let glyphSelect = document.getElementById("glyph_" + id.toFixed());
@@ -264,6 +298,8 @@ document.addEventListener("change", (e) => {
                 reagents[id].set(type, v);
             }
             updateTimeline();
+            updateInputs();
+            updateOutputs();
         } else if (subject == "product") {
             if (v == 0) {
                 products[id].delete(type);
@@ -271,6 +307,8 @@ document.addEventListener("change", (e) => {
                 products[id].set(type, v);
             }
             updateTimeline();
+            updateInputs();
+            updateOutputs();
         }
     } else if (type == "toggle") {
         if (subject == "glyph") {
@@ -296,12 +334,13 @@ function blurHandler(e) {
     let elementId = element.id;
     let [subject, type, id] = elementId.split("_");
     if (subject == "name") {
+        element.innerText = element.innerText.trim();
+        updateTimeline();
         if (type == "reagent") {
             updateInputs();
         } else if (type == "product") {
             updateOutputs();
         }
-        updateTimeline();
     }
 }
 
@@ -399,11 +438,14 @@ function camelToLower(s) {
 }
 
 function updateInputs() {
+    if (!allowUpdates) {
+        return;
+    }
     let inputTray = document.getElementById("inputs");
     inputTray.innerHTML = "";
     for (const i in reagents) {
         let inputName = document.createElement("p");
-        inputName.innerText = document.getElementById("name_reagent_" + i).innerText;
+        inputName.innerText = document.getElementById("name_reagent_" + i).innerText + " x" + reagentsUsed[i];
         inputTray.appendChild(inputName);
         let retractButton = document.createElement("button");
         retractButton.id = "retract_reagent_" + i;
@@ -417,18 +459,19 @@ function updateInputs() {
 }
 
 function updateTimeline() {
+    if (!allowUpdates) {
+        return;
+    }
     atoms.clear();
     wheels = structuredClone(wheelTable);
+    reagentsUsed = reagentsUsed.fill(0n);
+    productsUsed = productsUsed.fill(0n);
 
     function addAtomsFromMap(molecule) {
         for (const [aT, c] of molecule.entries()) {
             let current = atoms.get(aT) ?? 0;
             current += c;
-            if (current == 0) {
-                atoms.delete(aT);
-            } else {
-                atoms.set(aT, current);
-            }
+            atoms.set(aT, current);
         }
     }
 
@@ -442,7 +485,7 @@ function updateTimeline() {
         for (const [aT, c] of molecule.entries()) {
             let current = atoms.get(aT) ?? 0;
             current -= c;
-            if (c == 0) {
+            if (current == 0) {
                 atoms.delete(aT);
             } else {
                 atoms.set(aT, current);
@@ -527,10 +570,9 @@ function updateTimeline() {
 
     let timelineDiv = document.getElementById("timeline");
     timelineDiv.innerHTML = "";
-    let i = 1;
     let success = true;
     let failure = false;
-    for (let event of timeline) {
+    for (const [i, event] of timeline.entries()) {
         let description = "";
         let glyphName = "";
         switch (event.action ?? "glyph") {
@@ -538,18 +580,21 @@ function updateTimeline() {
                 description = "Add " + document.getElementById("name_reagent_" + event.reagent.toFixed()).innerText;
                 if (!failure) {
                     addAtomsFromMap(reagents[event.reagent]);
+                    reagentsUsed[event.reagent]++;
                 }
                 break;
             case "retract":
                 description = "Return " + document.getElementById("name_reagent_" + event.reagent.toFixed()).innerText;
                 if (!failure) {
                     success &&= removeAtomsFromMap(reagents[event.reagent]);
+                    reagentsUsed[event.reagent]--;
                 }
                 break;
             case "submit":
                 description = "Output " + document.getElementById("name_product_" + event.product.toFixed()).innerText;
                 if (!failure) {
                     success &&= removeAtomsFromMap(products[event.product]);
+                    productsUsed[event.product]++;
                 }
                 break;
             case "glyph":
@@ -564,22 +609,111 @@ function updateTimeline() {
             default:
                 break;
         }
-        if (description) {
-            let index = document.createElement("div");
-            index.innerText = i + ": ";
-            timelineDiv.appendChild(index);
-            let item = document.createElement("div");
-            item.innerHTML = description;
-            if (!success) {
-                item.classList.add(failure ? "ignore" : "fail");
-                failure = true;
-            }
-            timelineDiv.appendChild(item);
-            let glyphTag = document.createElement("div");
-            glyphTag.innerText = glyphName;
-            timelineDiv.appendChild(glyphTag);
+        if (!description) {
+            description = "<missing>";
         }
-        i++;
+        let index = document.createElement("div");
+        index.id = "timeline_event_" + i.toFixed();
+        index.innerText = (i + 1) + ": ";
+        timelineDiv.appendChild(index);
+        let item = document.createElement("div");
+        item.innerHTML = description;
+        if (!success) {
+            item.classList.add(failure ? "ignore" : "fail");
+            failure = true;
+        }
+        timelineDiv.appendChild(item);
+        let glyphTag = document.createElement("div");
+        glyphTag.innerText = glyphName;
+        timelineDiv.appendChild(glyphTag);
+        let buttonDiv = document.createElement("div");
+        timelineDiv.appendChild(buttonDiv);
+        if (i > 0) {
+            let upEventButton = document.createElement("button");
+            upEventButton.id = "event_expedite_" + i.toFixed();
+            upEventButton.innerHTML = "&#x2191;"
+            buttonDiv.appendChild(upEventButton);
+        }
+        if (i < timeline.length - 1) {
+            let upEventButton = document.createElement("button");
+            upEventButton.id = "event_delay_" + i.toFixed();
+            upEventButton.innerHTML = "&#x2193;"
+            buttonDiv.appendChild(upEventButton);
+        }
+        let deleteEventButton = document.createElement("button");
+        deleteEventButton.id = "event_remove_" + i.toFixed();
+        deleteEventButton.innerHTML = "&#x1F5D1;"
+        buttonDiv.appendChild(deleteEventButton);
+    }
+
+    // Looping check
+    if (success && productsUsed.length > 0 && productsUsed.reduce((min, v) => min > v ? v : min) >= 1n) {
+        let endAtoms = structuredClone(atoms);
+        let endWheels = structuredClone(wheels);
+        atoms.clear();
+        wheels = structuredClone(wheelTable);
+        let repeatStart = timeline.length - 1;
+        for (const [i, event] of timeline.entries()) {
+            let match = true;
+
+            for (const [aT, c] of atoms.entries()) {
+                if (c != (endAtoms.get(aT) ?? 0)) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                for (const [aT, c] of endAtoms.entries()) {
+                    if (c != (atoms.get(aT) ?? 0)) {
+                        match = false;
+                        break;
+                    }
+                }
+            }
+            if (match) {
+                wheelLoop: for (const j in wheels) {
+                    nextKOff: for (let kOff = 0; kOff < 6; kOff++) {
+                        for (let k = 0; k < 6; k++) {
+                            if (wheels[j].atoms[k] != endWheels[j].atoms[(k + kOff) % 6]) {
+                                continue nextKOff;
+                            }
+                        }
+                        continue wheelLoop;
+                    }
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                repeatStart = i;
+                break;
+            }
+
+            switch (event.action ?? "glyph") {
+                case "inject":
+                    addAtomsFromMap(reagents[event.reagent]);
+                    break;
+                case "retract":
+                    removeAtomsFromMap(reagents[event.reagent]);
+                    break;
+                case "submit":
+                    removeAtomsFromMap(products[event.product]);
+                    break;
+                case "glyph":
+                    removeAtomsFromMap(event.inputs)
+                    applyWheelChanges(event.wheelInputs, event.wheelOutputs);
+                    addAtomsFromMap(event.outputs);
+                    break;
+                default:
+                    break;
+            }
+        }
+        atoms = endAtoms;
+        wheels = endWheels;
+        if (repeatStart != timeline.length - 1) {
+            let eventIndex = document.getElementById("timeline_event_" + repeatStart.toFixed());
+            eventIndex.innerHTML = "&#x21B1; " + eventIndex.innerHTML;
+        }
     }
 
     // Wheels
@@ -693,11 +827,14 @@ function updateTimeline() {
 }
 
 function updateOutputs() {
+    if (!allowUpdates) {
+        return;
+    }
     let outputTray = document.getElementById("outputs");
     outputTray.innerHTML = "";
     for (const i in products) {
         let outputName = document.createElement("p");
-        outputName.innerText = document.getElementById("name_product_" + i).innerText;
+        outputName.innerText = document.getElementById("name_product_" + i).innerText + " x" + productsUsed[i];
         outputTray.appendChild(outputName);
         let addButton = document.createElement("button");
         addButton.id = "submit_product_" + i;
