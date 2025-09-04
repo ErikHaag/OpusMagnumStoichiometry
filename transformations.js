@@ -676,9 +676,9 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                         for (const m of metals) {
                             if ((atoms.get(m) ?? 0) >= 1) {
                                 t.push({
-                                    inputs: [],
+                                    inputs: [m],
                                     wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
-                                    outputs: [wheels[1].atoms[i]],
+                                    outputs: [m, wheels[1].atoms[i]],
                                     wheelOutputs: [demote],
                                     group: 2
                                 });
