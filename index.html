@@ -58,7 +58,7 @@
                 <input id="useSymbols" type="checkbox">
                 <button id="save">Save</button>
                 <a id="download" download="alchemical_plan.json"></a>
-                <input id="load" type="file" accept=".json" style="grid-column: auto / span 2;">
+                <input id="load" type="file" accept=".json" style="grid-column: span 2;">
             </div>
         </div>
     </fieldset>
@@ -88,7 +88,13 @@
                         <div id="glyphs" class="triplets"></div>
                     </td>
                     <td>
-                        <div id="timeline" class="quadruplets"></div>
+                        <label for="editMode">Edit Mode:</label>
+                        <select id="editMode">
+                            <option value="normal" selected>Normal</option>
+                            <option value="tweak">Tweak</option>
+                        </select>
+                        <div id="timeline" class="triplets"></div>
+                        <button id="deleteLastEvent">Remove last step</button>
                     </td>
                     <td>
                         <div id="outputs" class="pairs"></div>

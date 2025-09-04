@@ -19,6 +19,8 @@ const reagentsTray = document.getElementById("reagentsTray");
 const productsTray = document.getElementById("productsTray");
 const settingsTray = document.getElementById("settingsTray");
 
+const editModeSelect = document.getElementById("editMode");
+
 let usingSymbols = false;
 let loadedSymbols = false;
 let allowUpdates = true;
@@ -146,6 +148,9 @@ document.addEventListener("click", (e) => {
                 settingsTray.style.display = currentlyHidden ? "" : "none";
             }
             break;
+        case "deleteLastEvent":
+
+            break;
         case "save":
             saveState();
             break;
@@ -251,80 +256,93 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("change", (e) => {
     let element = e.target;
-    if (element.tagName != "INPUT") {
-        return;
-    }
     let elementId = element.id;
     if (!elementId) {
         return;
     }
-    if (elementId == "darkMode") {
-        document.body.className = element.checked ? "dark" : "light";
-        return;
-    }
-    if (elementId == "useSymbols") {
-        usingSymbols = element.checked;
-        if (usingSymbols) {
-            loadSVGs();
-            for (let e of document.querySelectorAll("svg.symbol")) {
-                e.classList.remove("hide");
-            }
-        } else {
-            for (let e of document.querySelectorAll("svg.symbol")) {
-                e.classList.add("hide");
-            }
-        }
-        updateTimeline();
-        return;
-    }
-    if (elementId == "load") {
-        let f = element.files[0];
-        if (!f) {
+    if (element.tagName == "INPUT") {
+        if (elementId == "darkMode") {
+            document.body.className = element.checked ? "dark" : "light";
             return;
         }
-        loadPromise = f.text()
-        loadPromise.then(loadState);
-        return;
-    }
-    let [type, subject, id] = elementId.split("_");
-    if (atomTypes.includes(type)) {
-        let v = Number.parseInt(element.value) || 0;
-        v = Math.abs(v);
-        element.value = v.toFixed();
-        if (subject == "reagent") {
-            if (v == 0) {
-                reagents[id].delete(type);
+        if (elementId == "useSymbols") {
+            usingSymbols = element.checked;
+            if (usingSymbols) {
+                loadSVGs();
+                for (let e of document.querySelectorAll("svg.symbol")) {
+                    e.classList.remove("hide");
+                }
             } else {
-                reagents[id].set(type, v);
+                for (let e of document.querySelectorAll("svg.symbol")) {
+                    e.classList.add("hide");
+                }
             }
             updateTimeline();
-            updateInputs();
-            updateOutputs();
-        } else if (subject == "product") {
-            if (v == 0) {
-                products[id].delete(type);
-            } else {
-                products[id].set(type, v);
-            }
-            updateTimeline();
-            updateInputs();
-            updateOutputs();
+            return;
         }
-    } else if (type == "toggle") {
-        if (subject == "glyph") {
-            if (element.checked) {
-                allowedTransformations.add(transformationTable[id].name);
-            } else {
-                allowedTransformations.delete(transformationTable[id].name);
+        if (elementId == "load") {
+            let f = element.files[0];
+            if (!f) {
+                return;
             }
-            updateTimeline();
-        } else if (subject == "wheel") {
-            if (element.checked) {
-                activeWheels |= (1n << BigInt(id));
-            } else {
-                activeWheels &= ~(1n << BigInt(id));
+            loadPromise = f.text()
+            loadPromise.then(loadState);
+            return;
+        }
+        let [type, subject, id] = elementId.split("_");
+        if (atomTypes.includes(type)) {
+            let v = Number.parseInt(element.value) || 0;
+            v = Math.abs(v);
+            element.value = v.toFixed();
+            if (subject == "reagent") {
+                if (v == 0) {
+                    reagents[id].delete(type);
+                } else {
+                    reagents[id].set(type, v);
+                }
+                updateTimeline();
+                updateInputs();
+                updateOutputs();
+            } else if (subject == "product") {
+                if (v == 0) {
+                    products[id].delete(type);
+                } else {
+                    products[id].set(type, v);
+                }
+                updateTimeline();
+                updateInputs();
+                updateOutputs();
             }
-            updateTimeline();
+        } else if (type == "toggle") {
+            if (subject == "glyph") {
+                if (element.checked) {
+                    allowedTransformations.add(transformationTable[id].name);
+                } else {
+                    allowedTransformations.delete(transformationTable[id].name);
+                }
+                updateTimeline();
+            } else if (subject == "wheel") {
+                if (element.checked) {
+                    activeWheels |= (1n << BigInt(id));
+                } else {
+                    activeWheels &= ~(1n << BigInt(id));
+                }
+                updateTimeline();
+            }
+        }
+    } else if (element.tagName == "SELECT" /* * FROM jokes WHERE subject = "SQL"*/) {
+        if (element.id == "editMode") {
+            const timelineElement = document.getElementById("timeline");
+            timelineElement.className = ""
+            if (element.value == "normal") {
+                document.getElementById("deleteLastEvent").hidden = false;
+                timelineElement.classList.add("triplets")
+            } else {
+                document.getElementById("deleteLastEvent").hidden = true;
+                timelineElement.classList.add("quadruplets");
+
+            }
+            updateTimeline(); 
         }
     }
 });
@@ -626,24 +644,26 @@ function updateTimeline() {
         let glyphTag = document.createElement("div");
         glyphTag.innerText = glyphName;
         tempElement.appendChild(glyphTag);
-        let buttonDiv = document.createElement("div");
-        tempElement.appendChild(buttonDiv);
-        if (i > 0) {
-            let upEventButton = document.createElement("button");
-            upEventButton.id = "event_expedite_" + i.toFixed();
-            upEventButton.innerHTML = "&#x2191;"
-            buttonDiv.appendChild(upEventButton);
+        if (editModeSelect.value == "tweak") {
+            let buttonDiv = document.createElement("div");
+            tempElement.appendChild(buttonDiv);
+            if (i > 0) {
+                let upEventButton = document.createElement("button");
+                upEventButton.id = "event_expedite_" + i.toFixed();
+                upEventButton.innerHTML = "&#x2191;"
+                buttonDiv.appendChild(upEventButton);
+            }
+            if (i < timeline.length - 1) {
+                let upEventButton = document.createElement("button");
+                upEventButton.id = "event_delay_" + i.toFixed();
+                upEventButton.innerHTML = "&#x2193;"
+                buttonDiv.appendChild(upEventButton);
+            }
+            let deleteEventButton = document.createElement("button");
+            deleteEventButton.id = "event_remove_" + i.toFixed();
+            deleteEventButton.innerHTML = "&#x1F5D1;"
+            buttonDiv.appendChild(deleteEventButton);
         }
-        if (i < timeline.length - 1) {
-            let upEventButton = document.createElement("button");
-            upEventButton.id = "event_delay_" + i.toFixed();
-            upEventButton.innerHTML = "&#x2193;"
-            buttonDiv.appendChild(upEventButton);
-        }
-        let deleteEventButton = document.createElement("button");
-        deleteEventButton.id = "event_remove_" + i.toFixed();
-        deleteEventButton.innerHTML = "&#x1F5D1;"
-        buttonDiv.appendChild(deleteEventButton);
     }
     [document.getElementById("timeline").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
 
