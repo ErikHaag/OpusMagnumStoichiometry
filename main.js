@@ -568,8 +568,8 @@ function updateTimeline() {
         return s;
     }
 
-    let timelineDiv = document.getElementById("timeline");
-    timelineDiv.innerHTML = "";
+    const tempElement = document.getElementById("temp");
+    tempElement.innerHTML = "";
     let success = true;
     let failure = false;
     for (const [i, event] of timeline.entries()) {
@@ -615,19 +615,19 @@ function updateTimeline() {
         let index = document.createElement("div");
         index.id = "timeline_event_" + i.toFixed();
         index.innerText = (i + 1) + ": ";
-        timelineDiv.appendChild(index);
+        tempElement.appendChild(index);
         let item = document.createElement("div");
         item.innerHTML = description;
         if (!success) {
             item.classList.add(failure ? "ignore" : "fail");
             failure = true;
         }
-        timelineDiv.appendChild(item);
+        tempElement.appendChild(item);
         let glyphTag = document.createElement("div");
         glyphTag.innerText = glyphName;
-        timelineDiv.appendChild(glyphTag);
+        tempElement.appendChild(glyphTag);
         let buttonDiv = document.createElement("div");
-        timelineDiv.appendChild(buttonDiv);
+        tempElement.appendChild(buttonDiv);
         if (i > 0) {
             let upEventButton = document.createElement("button");
             upEventButton.id = "event_expedite_" + i.toFixed();
@@ -645,6 +645,7 @@ function updateTimeline() {
         deleteEventButton.innerHTML = "&#x1F5D1;"
         buttonDiv.appendChild(deleteEventButton);
     }
+    [document.getElementById("timeline").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
 
     // Looping check
     if (success && productsUsed.length > 0 && productsUsed.reduce((min, v) => min > v ? v : min) >= 1n) {
@@ -718,8 +719,6 @@ function updateTimeline() {
 
     // Wheels
     {
-        const wheelColumn = document.getElementById("wheels");
-        wheelColumn.innerHTML = "";
         for (const i in wheels) {
             if ((activeWheels & (1n << BigInt(i))) == 0n) {
                 continue;
@@ -727,7 +726,7 @@ function updateTimeline() {
             let wheelElement = useTemplate(templates.wheel, i);
             wheelElement.id = "";
             wheelElement.hidden = false;
-            wheelColumn.appendChild(wheelElement);
+            tempElement.appendChild(wheelElement);
             document.getElementById("name_wheel_" + i).innerText = wheels[i].name;
             let atomList = document.getElementById("atoms_wheel_" + i);
             for (let j = 0; j < 6; j++) {
@@ -740,11 +739,10 @@ function updateTimeline() {
                 atomList.appendChild(atomItem);
             }
         }
+        [document.getElementById("wheels").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
     }
     // Atoms
     {
-        const atomColumn = document.getElementById("atoms");
-        atomColumn.innerHTML = "";
         for (const aT of atomTypes) {
             let c = atoms.get(aT) ?? 0;
             if (c == 0) {
@@ -756,14 +754,16 @@ function updateTimeline() {
             } else {
                 entry.innerText = camelToTitle(aT);
             }
-            atomColumn.appendChild(entry);
+            tempElement.appendChild(entry);
             let count = document.createElement("div");
             count.innerText = "x " + c.toFixed();
             if (c < 0) {
                 count.classList.add("negative");
             }
-            atomColumn.appendChild(count);
+            tempElement.appendChild(count);
         }
+
+        [document.getElementById("atoms").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
     }
     // Transformations
     {
@@ -776,8 +776,6 @@ function updateTimeline() {
             return m;
         }
 
-        const transformColumn = document.getElementById("glyphs");
-        transformColumn.innerHTML = "";
         transformations = [];
         let i = 0;
         let accumulatedLength = 0;
@@ -799,10 +797,10 @@ function updateTimeline() {
             let label = document.createElement("label");
             label.setAttribute("for", "glyph_" + i.toFixed());
             label.innerText = glyph.name;
-            transformColumn.appendChild(label);
+            tempElement.appendChild(label);
             let select = document.createElement("select");
             select.id = "glyph_" + i.toFixed();
-            transformColumn.appendChild(select);
+            tempElement.appendChild(select);
             let lastGroup = -1;
             let groupLabel;
             for (let j = 0; j < transforms.length; j++) {
@@ -820,9 +818,10 @@ function updateTimeline() {
             let button = document.createElement("button");
             button.id = "use_glyph_" + i.toFixed();
             button.innerHTML = "&Rightarrow;";
-            transformColumn.appendChild(button);
+            tempElement.appendChild(button);
             i++;
         }
+        [document.getElementById("glyphs").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
     }
 }
 
