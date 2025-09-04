@@ -678,7 +678,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                                 t.push({
                                     inputs: [m],
                                     wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
-                                    outputs: [m, wheels[1].atoms[i]],
+                                    outputs: [m, m],
                                     wheelOutputs: [demote],
                                     group: 2
                                 });
