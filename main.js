@@ -149,7 +149,10 @@ document.addEventListener("click", (e) => {
             }
             break;
         case "deleteLastEvent":
-
+            timeline.pop();
+            updateTimeline();
+            updateInputs();
+            updateOutputs();
             break;
         case "save":
             saveState();
