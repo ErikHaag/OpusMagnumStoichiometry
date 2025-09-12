@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="wolfram_lighting" cx="0.66" cy="0.33" r="0.5" fx="0.75" fy="0.25">
+            <stop offset="0%" stop-color="#728C94"/>
+            <stop offset="100%" stop-color="#35424A"/>
+        </radialGradient>
+    </defs>
+    <circle cx="30" cy="30" r="30" fill="url(#wolfram_lighting)"/>
+    <path d="M 21.29,25 q -10,15,5,20 l 5,-10 l 5,10 q 15,-10,-5,-30" fill="none" stroke="#EEEEAA" stroke-width="3"/>
+</svg>

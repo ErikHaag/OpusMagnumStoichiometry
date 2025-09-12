@@ -125,7 +125,7 @@
         <use href="#fire_symbol" transform="rotate(180, 30, 30)"/>
     </symbol>
     <symbol id="wolfram_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 20,30 q -10,15,5,20 l 5,-10 l 5,10 q 15,-10,-5,-30" class="noFill" stroke-width="3"/>
+        <path d="M 21.29,25 q -10,15,5,20 l 5,-10 l 5,10 q 15,-10,-5,-30" class="noFill" stroke-width="3"/>
     </symbol>
     <symbol id="zinc_symbol" width="60" height="60" viewBox="0 0 60 60">
         <path d="M 17.5,25 l 22.5,22.5 h -22.5 l 25,-25" class="noFill" stroke-width="3"/>

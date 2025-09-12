@@ -430,7 +430,6 @@ async function loadSVGs() {
             let info = /<symbol[\s\S]*<\/symbol>/.exec(data);
             symbolsElement.innerHTML = info[0];
         } catch {
-
             loadedSymbols = false;
         }
     }
