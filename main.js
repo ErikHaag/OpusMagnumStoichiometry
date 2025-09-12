@@ -423,14 +423,54 @@ async function loadSVGs() {
     // semi-inelegant hack
     let symbolsElement = document.getElementById("symbols");
     if (!loadedSymbols && !symbolsElement.childElementCount) {
-        loadedSymbols = true;
         try {
             let response = await fetch("./symbols.svg");
             let data = await response.text();
             let info = /<symbol[\s\S]*<\/symbol>/.exec(data);
             symbolsElement.innerHTML = info[0];
+            let useElem;
+            while (useElem = symbolsElement.querySelector("use")) {
+                const T = useElem.getAttribute("transform");
+                const symbolChildren = symbolsElement.getElementById(useElem.getAttribute("href").substring(1)).children;
+                if (T) {
+                    for (const c of symbolChildren) {
+                        let cClone = c.cloneNode();
+                        cClone.setAttribute("transform", T + " " + (cClone.getAttribute("transform") ?? ""));
+                        useElem.insertAdjacentElement("beforebegin", cClone);
+                    }
+                } else {
+                    for (const c of symbolChildren) {
+                        useElem.insertAdjacentElement("beforebegin", c.cloneNode());
+                    }
+                }
+                useElem.remove();
+            }
+            loadedSymbols = true;
+            distributeSVG();
         } catch {
             loadedSymbols = false;
+        }
+    }
+}
+
+function elementToSVG(s) {
+    s = s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase());
+    let svg = "<svg width=\"30\" height=\"30\" class=\"symbol symbol_" + s;
+    if (!usingSymbols) {
+        svg += " hide";
+    }
+    return svg + "\" viewBox=\"0 0 60 60\"></svg>";
+}
+
+function distributeSVG() {
+    let symbolsElement = document.getElementById("symbols");
+    for (let a of atomTypesSVGNames) {
+        let stamp = symbolsElement.getElementById(a + "_symbol");
+        for (const target of document.querySelectorAll("svg.symbol_" + a)) {
+            if (target.childElementCount > 0) {
+                continue;
+            }
+            target.replaceChildren(...Array.from(stamp.children).map((e) => e.cloneNode()));
         }
     }
 }
@@ -442,15 +482,6 @@ function capitalize(s) {
 function camelToTitle(s) {
     s = s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + " " + b);
     return capitalize(s);
-}
-
-function elementToSVG(s) {
-    s = s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase());
-    let svg = "<svg width=\"30\" height=\"30\" class=\"symbol";
-    if (!usingSymbols) {
-        svg += " hide";
-    }
-    return svg + "\"><use href=\"#" + s + "_symbol\"/></svg>";
 }
 
 function camelToLower(s) {
@@ -844,6 +875,9 @@ function updateTimeline() {
             i++;
         }
         [document.getElementById("glyphs").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
+    }
+    if (loadedSymbols && usingSymbols) {
+        distributeSVG();
     }
 }
 

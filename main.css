@@ -1,3 +1,15 @@
+:root {
+    --light_background_color: white;
+    --light_text_color: black;
+    --light_ignore_background_color: #525252;
+    --light_ignore_text_color: #dedede;
+
+    --dark_background_color: hsl(260, 100%, 10%);;
+    --dark_text_color: white;
+    --dark_ignore_background_color: #423658;
+    --dark_ignore_text_color: #c7c7c7;
+}
+
 body {
     font-family: 'Crimson Pro', serif;
     font-size: medium;
@@ -5,40 +17,44 @@ body {
 }
 
 body.light {
-    background-color: white;
-    color: black;
+    background-color: var(--light_background_color);
+    color: var(--light_text_color);
 }
 
 body.dark {
-    background-color: lab(3.24% 20 -28.28);
-    color: white;
+    background-color: var(--dark_background_color);
+    color: var(--dark_text_color);
 }
 
-body.light svg#symbols symbol * {
-    stroke: black;
+body.light svg.symbol * {
+    stroke: var(--light_text_color);
 }
 
-body.dark svg#symbols symbol * {
-    stroke: white;
+body.dark svg.symbol * {
+    stroke: var(--dark_text_color);
 }
 
-body.light svg#symbols symbol *.strokeFill {
-    fill: black;
+body.light .ignore>svg.symbol * {
+    stroke: var(--light_ignore_text_color);
 }
 
-body.dark svg#symbols symbol *.strokeFill {
-    fill: white;
+body.dark .ignore>svg.symbol * {
+    stroke: var(--dark_ignore_text_color)
 }
 
-svg#symbols symbol .noFill {
+body.light svg.symbol *.strokeFill {
+    fill: var(--light_text_color);
+}
+
+body.dark svg.symbol *.strokeFill {
+    fill: var(--dark_text_color);;
+}
+
+svg.symbol .noFill {
     fill: none;
 }
 
-.symbol>use {
-    transform: scale(0.5);
-}
-
-.symbol.hide, #symbols {
+svg.symbol.hide, #symbols {
     display: none;
 }
 
@@ -49,7 +65,7 @@ svg#symbols symbol .noFill {
 }
 
 .fail {
-    border-bottom: 1px solid red ;
+    border-bottom: 1px solid red;
 }
 
 #glyphs {
@@ -57,7 +73,17 @@ svg#symbols symbol .noFill {
 }
 
 .ignore {
-    background-color: gray;
+    padding: 5px;
+}
+
+body.light .ignore {
+    background-color: var(--light_ignore_background_color);
+    color: var(--light_ignore_text_color);
+}
+
+body.dark .ignore {
+    background-color: var(--dark_ignore_background_color);
+    color: var(--dark_ignore_text_color);
 }
 
 label {

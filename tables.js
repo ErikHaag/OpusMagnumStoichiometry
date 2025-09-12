@@ -71,6 +71,8 @@ const atomTypes = [
     "aether"
 ];
 
+const atomTypesSVGNames = atomTypes.map((s) => s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase()));
+
 const wheelTable = [
     {
         name: "Van Berlo's Wheel",
