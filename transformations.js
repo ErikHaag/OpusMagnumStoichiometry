@@ -491,16 +491,30 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         name: "Quicksilver Sump",
         groups: ["Drain quicksilver"],
         transforms: () => {
+            let t = [];
+            if ((atoms.get("quicksilver") ?? 0) >= 6) {
+                for (const [aT, c] of atoms.entries()) {
+                    if (aT != "quicksilver" && c >= 1) {
+                        t.push({
+                            inputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", aT],
+                            wheelInputs: null,
+                            outputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", aT],
+                            wheelOutputs: null,
+                            group: 0
+                        });
+                    }
+                }
+            }
             if ((atoms.get("quicksilver") ?? 0) >= 7) {
-                return [{
+                t.push({
                     inputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver"],
                     wheelInputs: null,
                     outputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver"],
                     wheelOutputs: null,
                     group: 0
-                }];
+                });
             }
-            return [];
+            return t;
         }
     }, {
         name: "Glyph of Coronation",

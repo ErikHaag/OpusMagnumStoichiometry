@@ -6,7 +6,7 @@ let wheels = [];
 let atoms = new Map();
 let activeWheels = 0n;
 
-let transformations = [];
+let validTransformations = [];
 
 let timeline = [];
 
@@ -245,7 +245,7 @@ document.addEventListener("click", (e) => {
                     break;
                 case "use":
                     let glyphSelect = document.getElementById("glyph_" + id.toFixed());
-                    let action = transformations[glyphSelect.value];
+                    let action = validTransformations[glyphSelect.value];
                     delete action.group;
                     timeline.push(action);
                     updateTimeline();
@@ -829,24 +829,23 @@ function updateTimeline() {
             return m;
         }
 
-        transformations = [];
+        validTransformations = [];
         let i = 0;
         let accumulatedLength = 0;
         for (const glyph of transformationTable) {
             if (!allowedTransformations.has(glyph.name)) {
                 continue;
             }
-            let transforms = glyph.transforms();
-            if (transforms.length == 0) {
+            let glyphsAllowedTransformations = glyph.transforms();
+            if (glyphsAllowedTransformations.length == 0) {
                 continue;
             }
-            transforms = transforms.map((e) => {
+            glyphsAllowedTransformations.forEach((e) => {
                 e.inputs = listToMap(e.inputs);
                 e.outputs = listToMap(e.outputs);
                 e.glyph = glyph.name;
-                return e;
             })
-            transformations = transformations.concat(transforms);
+            validTransformations = validTransformations.concat(glyphsAllowedTransformations);
             let label = document.createElement("label");
             label.setAttribute("for", "glyph_" + i.toFixed());
             label.innerText = glyph.name;
@@ -856,15 +855,15 @@ function updateTimeline() {
             tempElement.appendChild(select);
             let lastGroup = -1;
             let groupLabel;
-            for (let j = 0; j < transforms.length; j++) {
-                if (transforms[j].group != lastGroup) {
+            for (let j = 0; j < glyphsAllowedTransformations.length; j++) {
+                if (glyphsAllowedTransformations[j].group != lastGroup) {
                     groupLabel = document.createElement("optgroup");
-                    groupLabel.setAttribute("label", glyph.groups[transforms[j].group]);
+                    groupLabel.setAttribute("label", glyph.groups[glyphsAllowedTransformations[j].group]);
                     select.appendChild(groupLabel);
-                    lastGroup = transforms[j].group;
+                    lastGroup = glyphsAllowedTransformations[j].group;
                 }
                 let transformOption = document.createElement("option");
-                transformOption.innerHTML = simpleDesc(transforms[j]);
+                transformOption.innerHTML = simpleDesc(glyphsAllowedTransformations[j]);
                 transformOption.value = accumulatedLength++;
                 groupLabel.appendChild(transformOption);
             }

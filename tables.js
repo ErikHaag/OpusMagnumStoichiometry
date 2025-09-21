@@ -37,6 +37,7 @@ const atomTypeTable = [
     { type: "atom", name: "uranium" }
 ];
 
+// display ordering
 const atomTypes = [
     "trueMors",
     "greyMors",
