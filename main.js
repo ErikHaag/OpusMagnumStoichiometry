@@ -21,6 +21,8 @@ const settingsTray = document.getElementById("settingsTray");
 
 const editModeSelect = document.getElementById("editMode");
 
+let hasInteracted = false;
+
 let usingSymbols = false;
 let loadedSymbols = false;
 let allowUpdates = true;
@@ -107,6 +109,7 @@ document.addEventListener("click", (e) => {
     switch (elementId) {
         case "addReagent":
             {
+                hasInteracted = true;
                 let reagent = useTemplate(templates.molecule, "reagent", reagents.length.toFixed(), " [3]");
                 reagent.hidden = false;
                 reagentsTray.appendChild(reagent);
@@ -117,6 +120,7 @@ document.addEventListener("click", (e) => {
             break;
         case "addProduct":
             {
+                hasInteracted = true;
                 let product = useTemplate(templates.molecule, "product", products.length.toFixed(), " [3]");
                 product.hidden = false;
                 productsTray.appendChild(product);
@@ -233,17 +237,20 @@ document.addEventListener("click", (e) => {
                     updateOutputs();
                     break;
                 case "inject":
-                case "retract":
+                    case "retract":
+                    hasInteracted = true;
                     timeline.push({ action: type, reagent: id });
                     updateTimeline();
                     updateInputs();
                     break;
                 case "submit":
+                    hasInteracted = true;
                     timeline.push({ action: "submit", product: id });
                     updateTimeline();
                     updateOutputs();
                     break;
                 case "use":
+                    hasInteracted = true;
                     let glyphSelect = document.getElementById("glyph_" + id.toFixed());
                     let action = validTransformations[glyphSelect.value];
                     delete action.group;
@@ -294,6 +301,7 @@ document.addEventListener("change", (e) => {
         }
         let [type, subject, id] = elementId.split("_");
         if (atomTypes.includes(type)) {
+            hasInteracted = true;
             let v = Number.parseInt(element.value) || 0;
             v = Math.abs(v);
             element.value = v.toFixed();
@@ -317,6 +325,7 @@ document.addEventListener("change", (e) => {
                 updateOutputs();
             }
         } else if (type == "toggle") {
+            hasInteracted = true;
             if (subject == "glyph") {
                 if (element.checked) {
                     allowedTransformations.add(transformationTable[id].name);
@@ -333,8 +342,9 @@ document.addEventListener("change", (e) => {
                 updateTimeline();
             }
         }
-    } else if (element.tagName == "SELECT" /* * FROM jokes WHERE subject = "SQL"*/) {
+    } else if (element.tagName == "SELECT") {
         if (element.id == "editMode") {
+            hasInteracted = true;
             const timelineElement = document.getElementById("timeline");
             timelineElement.className = ""
             if (element.value == "normal") {
@@ -350,11 +360,18 @@ document.addEventListener("change", (e) => {
     }
 });
 
+window.addEventListener("beforeunload", (e) => {
+    if (hasInteracted) {
+        e.preventDefault();
+    }
+});
+
 function blurHandler(e) {
     let element = e.target;
     let elementId = element.id;
     let [subject, type, id] = elementId.split("_");
     if (subject == "name") {
+        hasInteracted = true;
         element.innerText = element.innerText.trim();
         updateTimeline();
         if (type == "reagent") {
