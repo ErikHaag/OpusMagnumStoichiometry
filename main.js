@@ -254,6 +254,11 @@ document.addEventListener("click", (e) => {
                     let glyphSelect = document.getElementById("glyph_" + id.toFixed());
                     let action = validTransformations[glyphSelect.value];
                     delete action.group;
+                    if (action.requires) {
+                        if (action.requires.length == 0) {
+                            delete action.requires;
+                        }
+                    }
                     timeline.push(action);
                     updateTimeline();
                     break;
@@ -670,6 +675,9 @@ function updateTimeline() {
                 glyphName = event.glyph;
                 if (!failure) {
                     success &&= allowedTransformations.has(event.glyph);
+                    if (event.requires) {
+                        success &&= event.requires.every((g) => allowedTransformations.has(g));
+                    }
                     success &&= removeAtomsFromMap(event.inputs) && applyWheelChanges(event.wheelInputs, event.wheelOutputs);
                     success && addAtomsFromMap(event.outputs);
                 }

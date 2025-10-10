@@ -34,7 +34,9 @@ const atomTypeTable = [
     { type: "atom", name: "trueVitae" },
     { type: "section", name: "Unstable Elements" },
     { type: "atom", name: "aether" },
-    { type: "atom", name: "uranium" }
+    { type: "atom", name: "uranium" },
+    { type: "section", name: "Vacancy" },
+    { type: "atom", name: "vaca" }
 ];
 
 // display ordering
@@ -52,6 +54,7 @@ const atomTypes = [
     "water",
     "quintessence",
     "quicksilver",
+    "vaca",
     "lead",
     "wolfram",
     "tin",
