@@ -15,6 +15,10 @@ const atomTypeTable = [
     { type: "atom", name: "copper" },
     { type: "atom", name: "silver" },
     { type: "atom", name: "gold" },
+    { type: "section", name: "Complicated Elements" },
+    { type: "atom", name: "amethyst" },
+    { type: "atom", name: "azurine" },
+    { type: "atom", name: "citrine" },
     { type: "section", name: "Halving Metallurgy" },
     { type: "atom", name: "wolfram" },
     { type: "atom", name: "vulcan" },
@@ -71,6 +75,9 @@ const atomTypes = [
     "alpha",
     "beta",
     "gamma",
+    "amethyst",
+    "azurine",
+    "citrine",
     "uranium",
     "aether"
 ];

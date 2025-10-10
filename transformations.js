@@ -21,6 +21,12 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         "osmium"
     ];
 
+    const crystallizationList = [
+        ["fire", "water", "amethyst"],
+        ["earth", "air", "azurine"],
+        ["fire", "air", "citrine"]
+    ]; 
+
     const projectionMap = new Map([
         ["vaca", "lead"],
         ["lead", "tin"],
@@ -135,7 +141,11 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         [3, "trueVitae"]
     ]);
 
-    transformationTable.push({
+    const metalsList = ["vaca", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium"];
+    const noblesList = ["alpha", "beta", "gamma"];
+
+    transformationTable.push(
+        /* Vanilla */ {
         name: "Glyph of Calcification",
         groups: ["Calcify cardinal"],
         transforms: () => {
@@ -406,7 +416,25 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             return [];
         }
-    }, {
+    }, /* Complicated Elements */ {
+        name: "Glyph of Crystallization",
+        groups: ["Crystallize"],
+        transforms: () => {
+            let t = [];
+            for ( const [target, project, output] of crystallizationList) {
+                if ((atoms.get(target) ?? 0) >= 1 && (atoms.get(project) ?? 0) >= 1) {
+                    t.push({
+                        inputs: [target, project],
+                        wheelInputs: null,
+                        outputs: [output],
+                        wheelOutputs: null,
+                        group: 0
+                    });
+                }
+            }
+            return t;
+        }
+    }, /* Halving Metallurgy */ {
         name: "Glyph of Halves",
         groups: ["Half project metals with quicksilver", "Half project wheel and metal with quicksilver", "Half project metals with wheel", "Half project metal from wheel transfer", "Distribute quicksilver around wheel"],
         transforms: () => {
@@ -671,12 +699,12 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             return t;
         }
-    }, {
+    }, /* Noble Elements */ {
         name: "Glyph of Coronation",
         groups: ["Coronate"],
         transforms: () => {
             let t = [];
-            for (const a of ["alpha", "beta", "gamma"]) {
+            for (const a of noblesList) {
                 if ((atoms.get(a) ?? 0) >= 1) {
                     t.push({
                         inputs: [a],
@@ -694,14 +722,13 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         groups: ["React"],
         transforms: () => {
             let t = [];
-            if ((atoms.get("nobilis") ?? 0) >= 1) {
-                const nobles = ["alpha", "beta", "gamma"];
-                for (const n of nobles) {
+            if ((atoms.get("nobilis") ?? 0) >= 1) {;
+                for (const n of noblesList) {
                     if ((atoms.get(n) ?? 0) >= 1) {
                         for (let j = 0; j < 2; j++) {
-                            let aJ = nobles[j];
+                            let aJ = noblesList[j];
                             for (let k = j + 1; k < 3; k++) {
-                                let aK = nobles[k];
+                                let aK = noblesList[k];
                                 t.push({
                                     inputs: ["nobilis", n],
                                     wheelInputs: null,
@@ -716,7 +743,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             return t;
         }
-    }, {
+    }, /* Reductive Metallurgy */ {
         name: "Glyph of Rejection",
         groups: ["Reject metal", "Promote wheel", "Reject wheel", "Transfer around wheel"],
         transforms: () => {
@@ -861,9 +888,8 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         groups: ["Clone metal with quicksilver", "Clone from wheel with quicksilver", "Clone metal with wheel", "Clone with wheel"],
         transforms: () => {
             let t = [];
-            const metals = ["vaca", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium"];
             if ((atoms.get("quicksilver") ?? 0) >= 1) {
-                for (const m of metals) {
+                for (const m of metalsList) {
                     if ((atoms.get(m) ?? 0) >= 1) {
                         t.push({
                             inputs: ["quicksilver", m],
@@ -893,7 +919,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                         continue;
                     }
                     if (demote) {
-                        for (const m of metals) {
+                        for (const m of metalsList) {
                             if ((atoms.get(m) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [m],
@@ -939,7 +965,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             return t;
         }
-    }, {
+    }, /* True Animismus */ {
         name: "Glyph of Disproportion",
         groups: ["Wheelless", "Wheel captures dilute", "Wheel captures potent"],
         transforms: () => {
@@ -1173,7 +1199,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             return t;
         }
-    }, {
+    }, /* Unstable Elements */ {
         name: "Glyph of Irradiation",
         groups: ["Irradiate"],
         transforms: () => {
@@ -1228,7 +1254,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             return t;
         }
-    }, {
+    }, /* Vacancy */ {
         name: "Glyph of Hollowing",
         groups: ["Dude, you need to dust in here"],
         transforms: () => {
