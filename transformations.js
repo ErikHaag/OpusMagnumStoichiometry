@@ -4,22 +4,22 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
 
 {
 
-    const metallicity = new Map([
-        ["vaca", 0],
-        ["lead", 2],
-        ["wolfram", 3],
-        ["tin", 4],
-        ["vulcan", 5],
-        ["iron", 6],
-        ["nickel", 7],
-        ["copper", 8],
-        ["zinc", 9],
-        ["silver", 10],
-        ["sednum", 11],
-        ["gold", 12],
-        ["osmium", 13]
-    ]);
-
+    const metallicity = [
+        "vaca",
+        ,
+        "lead",
+        "wolfram",
+        "tin",
+        "vulcan",
+        "iron",
+        "nickel",
+        "copper",
+        "zinc",
+        "silver",
+        "sednum",
+        "gold",
+        "osmium"
+    ];
 
     const projectionMap = new Map([
         ["vaca", "lead"],
@@ -58,6 +58,19 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         ["copper", ["tin", "tin"]],
         ["zinc", ["vulcan", "tin"]],
         ["silver", ["iron", "tin"]],
+        ["sednum", ["iron", "vulcan"]],
+        ["gold", ["iron", "iron"]],
+        ["osmium", ["nickel", "iron"]]
+    ]);
+
+    const shearingMap = new Map([
+        ["tin", ["lead", "lead"]],
+        ["vulcan", ["wolfram", "lead"]],
+        ["iron", ["wolfram", "wolfram"]],
+        ["nickel", ["tin", "wolfram"]],
+        ["copper", ["tin", "tin"]],
+        ["zinc", ["vulcan", "tin"]],
+        ["silver", ["vulcan", "vulcan"]],
         ["sednum", ["iron", "vulcan"]],
         ["gold", ["iron", "iron"]],
         ["osmium", ["nickel", "iron"]]
@@ -159,7 +172,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                 }
                 if ((activeWheels & wheelTypeTable.berlo.flag) != 0) {
                     for (const c of ["air", "earth", "fire", "water"]) {
-                        let p = wheels[0].atoms.indexOf(c);
+                        let p = wheels[wheelTypeTable.berlo.type].atoms.indexOf(c);
                         t.push({
                             inputs: ["salt"],
                             wheelInputs: [{ type: wheelTypeTable.berlo.type, id: p, atomType: c }],
@@ -191,11 +204,11 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                 }
                 if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                     for (let i = 0; i < 6; i++) {
-                        let promote = projectionMap.get(wheels[1].atoms[i]);
+                        let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                         if (promote) {
                             t.push({
                                 inputs: ["quicksilver"],
-                                wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
+                                wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
                                 outputs: [],
                                 wheelOutputs: [promote],
                                 group: 1
@@ -206,7 +219,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     let BWTM = [];
                     if (demote == "vaca") {
                         if (!allowedTransformations.has("Glyph of Extraction")) {
@@ -219,7 +232,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                             if ((atoms.get(base) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [base],
-                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
                                     outputs: [promote],
                                     wheelOutputs: [demote],
                                     group: 2,
@@ -230,7 +243,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     let BWTM = [];
                     if (demote == "vaca") {
                         if (!allowedTransformations.has("Glyph of Extraction")) {
@@ -238,11 +251,11 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                         }
                         BWTM.push("Glyph of Extraction");
                     }
-                    let promote = projectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
                     if (promote && demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [demote, promote],
                             group: 3,
@@ -251,7 +264,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
                     let BWTM = [];
                     if (demote == "vaca") {
                         if (!allowedTransformations.has("Glyph of Extraction")) {
@@ -259,11 +272,11 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                         }
                         BWTM.push("Glyph of Extraction");
                     }
-                    let promote = projectionMap.get(wheels[1].atoms[i]);
+                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (promote && demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [promote, demote],
                             group: 3,
@@ -312,11 +325,11 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             if (atoms.get("salt") >= 1 && (activeWheels & wheelTypeTable.herriman.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
-                    let vitate = vitaeAbsorbitionMap.get(wheels[2].atoms[i]);
+                    let vitate = vitaeAbsorbitionMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
                     if (vitate) {
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }],
+                            wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }],
                             outputs: ["mors"],
                             wheelOutputs: [vitate],
                             group: 1
@@ -324,11 +337,11 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let morate = morsAbsorbitionMap.get(wheels[2].atoms[i]);
+                    let morate = morsAbsorbitionMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
                     if (morate) {
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }],
+                            wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }],
                             outputs: ["vitae"],
                             wheelOutputs: [morate],
                             group: 2
@@ -431,14 +444,14 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                 }
                 if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                     for (let i = 0; i < 6; i++) {
-                        let promoteW = halfPromotionMap.get(wheels[1].atoms[i]);
+                        let promoteW = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                         if (promoteW) {
                             for (const [baseF, promoteF] of halfPromotionMap.entries()) {
                                 if ((atoms.get(baseF) ?? 0) >= 1) {
                                     t.push({
                                         inputs: ["quicksilver", baseF],
                                         wheelInputs: [
-                                            { type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }
+                                            { type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }
                                         ],
                                         outputs: [promoteF],
                                         wheelOutputs: [promoteW],
@@ -452,7 +465,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
-                    let demoteW = rejectionMap.get(wheels[1].atoms[i]);
+                    let demoteW = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (demoteW == "vaca") {
                         continue;
                     }
@@ -466,7 +479,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                             if ((atoms.get(baseJ) ?? 0) >= 2) {
                                 t.push({
                                     inputs: [baseJ, baseJ],
-                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
                                     outputs: [promoteJ, promoteJ],
                                     wheelOutputs: [demoteW],
                                     group: 2
@@ -478,7 +491,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                                 if ((atoms.get(baseK) ?? 0) >= 1) {
                                     t.push({
                                         inputs: [baseJ, baseK],
-                                        wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
+                                        wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
                                         outputs: [promoteJ, promoteK],
                                         wheelOutputs: [demoteW],
                                         group: 2
@@ -489,17 +502,17 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demoteW = rejectionMap.get(wheels[1].atoms[i]);
+                    let demoteW = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (demoteW == "vaca") {
                         continue;
                     }
-                    let promoteW = halfPromotionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    let promoteW = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
                     if (demoteW && promoteW) {
                         for (const [baseF, promoteF] of halfPromotionMap.entries()) {
                             if ((atoms.get(baseF) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [baseF],
-                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                                     outputs: [promoteF],
                                     wheelOutputs: [demoteW, promoteW],
                                     group: 3
@@ -509,17 +522,17 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demoteW = rejectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    let demoteW = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
                     if (demoteW == "vaca") {
                         continue;
                     }
-                    let promoteW = halfPromotionMap.get(wheels[1].atoms[i]);
+                    let promoteW = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (demoteW && promoteW) {
                         for (const [baseF, promoteF] of halfPromotionMap.entries()) {
                             if ((atoms.get(baseF) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [baseF],
-                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                                     outputs: [promoteF],
                                     wheelOutputs: [promoteW, demoteW],
                                     group: 3
@@ -529,16 +542,16 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (demote == "vaca") {
                         continue;
                     }
-                    let promoteF = halfPromotionMap.get(wheels[1].atoms[(i + 1) % 6]);
-                    let promoteB = halfPromotionMap.get(wheels[1].atoms[(i + 5) % 6]);
+                    let promoteF = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
+                    let promoteB = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 5) % 6]);
                     if (demote && promoteF && promoteB) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: (i + 5) % 6, atomType: wheels[1].atoms[(i + 5) % 6] }, { type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: (i + 5) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 5) % 6] }, { type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [promoteB, demote, promoteF],
                             group: 4
@@ -574,6 +587,87 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     wheelOutputs: null,
                     group: 0
                 });
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Remission",
+        groups: ["Project metal", "Project wheel"],
+        transforms: () => {
+            let t = [];
+            for (const [base, promote] of projectionMap) {
+                if ((atoms.get(base) ?? 0) >= 2) {
+                    for (const [bM, b] of metallicity.entries()) {
+                        if ((atoms.get(b) ?? 0) <= (b == base ? 2 : 0)) {
+                            continue;
+                        }
+                        let remainder = bM + (metallicity.indexOf(base) - 2);
+                        let newBowl = metallicity[remainder];
+                        if (newBowl) {
+                            t.push({
+                                inputs: [base, base, b],
+                                wheelInputs: null,
+                                outputs: [promote, newBowl],
+                                wheelOutputs: null,
+                                group: 0
+                            });
+                        }
+                    }
+                }
+            }
+            if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
+                for (const [base, promote] of projectionMap) {
+                    if ((atoms.get(base) ?? 0) >= 2) {
+                        for (let i = 0; i < 6; i++) {
+                            const b = wheels[wheelTypeTable.ravari.type].atoms[i];
+                            const bM = metallicity.indexOf(b);
+                            let remainder = bM + (metallicity.indexOf(base) - 2);
+                            let newBowl = metallicity[remainder];
+                            if (newBowl) {
+                                t.push({
+                                    inputs: [base, base],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: b }],
+                                    outputs: [promote],
+                                    wheelOutputs: [newBowl],
+                                    group: 1
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Shearing",
+        groups: ["Shear metal", "Shear wheel"],
+        transforms: () => {
+            let t = [];
+            for (const [bowl, [newBowl, output]] of shearingMap.entries()) {
+                if ((atoms.get(bowl) ?? 0) >= 1) {
+                    t.push({
+                        inputs: [bowl],
+                        wheelInputs: null,
+                        outputs: [newBowl, output],
+                        wheelOutputs: null,
+                        group: 0
+                    });
+                }
+            }
+            if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
+                for (let i = 0; i < 6; i++) {
+                    const b = wheels[wheelTypeTable.ravari.type].atoms[i];
+                    if (shearingMap.has(b)) {
+                        const [newBowl, output] = shearingMap.get(b);
+                        t.push({
+                            inputs: [],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: b }],
+                            outputs: [output],
+                            wheelOutputs: [newBowl],
+                            group: 1
+                        });
+                    }
+                }
             }
             return t;
         }
@@ -629,12 +723,12 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             let t = [];
             for (const [base, demote] of rejectionMap) {
                 let BWTM = [];
-                    if (demote == "vaca") {
-                        if (!allowedTransformations.has("Glyph of Extraction")) {
-                            continue;
-                        }
-                        BWTM.push("Glyph of Extraction");
+                if (demote == "vaca") {
+                    if (!allowedTransformations.has("Glyph of Extraction")) {
+                        continue;
                     }
+                    BWTM.push("Glyph of Extraction");
+                }
                 if ((atoms.get(base) ?? 0) >= 1) {
                     t.push({
                         inputs: [base],
@@ -648,7 +742,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
-                    let promote = projectionMap.get(wheels[1].atoms[i]);
+                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (promote) {
                         for (const [base, demote] of rejectionMap) {
                             let BWTM = [];
@@ -661,7 +755,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                             if ((atoms.get(base) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [base],
-                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
                                     outputs: [demote],
                                     wheelOutputs: [promote],
                                     group: 1,
@@ -672,7 +766,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     let BWTM = [];
                     if (demote == "vaca") {
                         if (!allowedTransformations.has("Glyph of Extraction")) {
@@ -683,7 +777,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     if (demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
                             outputs: ["quicksilver"],
                             wheelOutputs: [demote],
                             group: 2,
@@ -692,7 +786,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     let BWTM = [];
                     if (demote == "vaca") {
                         if (!allowedTransformations.has("Glyph of Extraction")) {
@@ -700,11 +794,11 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                         }
                         BWTM.push("Glyph of Extraction");
                     }
-                    let promote = projectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
                     if (promote && demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [demote, promote],
                             group: 3,
@@ -713,7 +807,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
                     let BWTM = [];
                     if (demote == "vaca") {
                         if (!allowedTransformations.has("Glyph of Extraction")) {
@@ -721,11 +815,11 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                         }
                         BWTM.push("Glyph of Extraction");
                     }
-                    let promote = projectionMap.get(wheels[1].atoms[i]);
+                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (promote && demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [promote, demote],
                             group: 3,
@@ -743,12 +837,12 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             let t = [];
             for (const [base, split] of depositionMap.entries()) {
                 let BWTM = [];
-                    if (base == "lead") {
-                        if (!allowedTransformations.has("Glyph of Extraction")) {
-                            continue;
-                        }
-                        BWTM.push("Glyph of Extraction");
+                if (base == "lead") {
+                    if (!allowedTransformations.has("Glyph of Extraction")) {
+                        continue;
                     }
+                    BWTM.push("Glyph of Extraction");
+                }
                 if ((atoms.get(base) ?? 0) >= 1) {
                     t.push({
                         inputs: [base],
@@ -784,9 +878,9 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     for (let i = 0; i < 6; i++) {
                         t.push({
                             inputs: ["quicksilver"],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
-                            outputs: [wheels[1].atoms[i]],
-                            wheelOutputs: [wheels[1].atoms[i]],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
+                            outputs: [wheels[wheelTypeTable.ravari.type].atoms[i]],
+                            wheelOutputs: [wheels[wheelTypeTable.ravari.type].atoms[i]],
                             group: 1
                         });
                     }
@@ -794,7 +888,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (demote == "vaca") {
                         continue;
                     }
@@ -803,7 +897,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                             if ((atoms.get(m) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [m],
-                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }],
+                                    wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
                                     outputs: [m, m],
                                     wheelOutputs: [demote],
                                     group: 2
@@ -813,31 +907,31 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[i]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (demote == "vaca") {
                         continue;
                     }
                     if (demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
-                            outputs: [wheels[1].atoms[(i + 1) % 6]],
-                            wheelOutputs: [demote, wheels[1].atoms[(i + 1) % 6]],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
+                            outputs: [wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]],
+                            wheelOutputs: [demote, wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]],
                             group: 3
                         });
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[1].atoms[(i + 1) % 6]);
+                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
                     if (demote == "vaca") {
                         continue;
                     }
                     if (demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[1].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[1].atoms[(i + 1) % 6] }],
-                            outputs: [wheels[1].atoms[i]],
-                            wheelOutputs: [wheels[1].atoms[i], demote],
+                            wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
+                            outputs: [wheels[wheelTypeTable.ravari.type].atoms[i]],
+                            wheelOutputs: [wheels[wheelTypeTable.ravari.type].atoms[i], demote],
                             group: 3
                         });
                     }
@@ -865,12 +959,12 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                 for (let i = 0; i < 6; i++) {
                     for (const [equals, divided] of disproportionMap.entries()) {
                         if ((atoms.get(equals) ?? 0) >= 1) {
-                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[i]) - animismusToStrengthMap.get(equals));
-                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]) + animismusToStrengthMap.get(divided[1]));
+                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) - animismusToStrengthMap.get(equals));
+                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]) + animismusToStrengthMap.get(divided[1]));
                             if (wheelDilute && wheelConcentrate) {
                                 t.push({
                                     inputs: [equals],
-                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6] }],
                                     outputs: [divided[0]],
                                     wheelOutputs: [wheelDilute, wheelConcentrate],
                                     group: 1
@@ -882,12 +976,12 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                 for (let i = 0; i < 6; i++) {
                     for (const [equals, divided] of disproportionMap.entries()) {
                         if ((atoms.get(equals) ?? 0) >= 1) {
-                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[i]) + animismusToStrengthMap.get(divided[1]));
-                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]) - animismusToStrengthMap.get(equals));
+                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) + animismusToStrengthMap.get(divided[1]));
+                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]) - animismusToStrengthMap.get(equals));
                             if (wheelDilute && wheelConcentrate) {
                                 t.push({
                                     inputs: [equals],
-                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6] }],
                                     outputs: [divided[0]],
                                     wheelOutputs: [wheelConcentrate, wheelDilute],
                                     group: 1
@@ -900,12 +994,12 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                 for (let i = 0; i < 6; i++) {
                     for (const [equals, divided] of disproportionMap.entries()) {
                         if ((atoms.get(equals) ?? 0) >= 1) {
-                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[i]) - animismusToStrengthMap.get(equals));
-                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]) + animismusToStrengthMap.get(divided[0]));
+                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) - animismusToStrengthMap.get(equals));
+                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]) + animismusToStrengthMap.get(divided[0]));
                             if (wheelDilute && wheelConcentrate) {
                                 t.push({
                                     inputs: [equals],
-                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6] }],
                                     outputs: [divided[1]],
                                     wheelOutputs: [wheelDilute, wheelConcentrate],
                                     group: 2
@@ -917,12 +1011,12 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                 for (let i = 0; i < 6; i++) {
                     for (const [equals, divided] of disproportionMap.entries()) {
                         if ((atoms.get(equals) ?? 0) >= 1) {
-                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[i]) + animismusToStrengthMap.get(divided[0]));
-                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]) - animismusToStrengthMap.get(equals));
+                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) + animismusToStrengthMap.get(divided[0]));
+                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]) - animismusToStrengthMap.get(equals));
                             if (wheelDilute && wheelConcentrate) {
                                 t.push({
                                     inputs: [equals],
-                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                                    wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6] }],
                                     outputs: [divided[1]],
                                     wheelOutputs: [wheelConcentrate, wheelDilute],
                                     group: 2
@@ -988,7 +1082,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             if ((activeWheels & wheelTypeTable.herriman.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
-                    let strength = animismusToStrengthMap.get(wheels[2].atoms[i]);
+                    let strength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
                     for (const [s, a] of strengthToAnimismusMap.entries()) {
                         if (s == 0) {
                             continue;
@@ -1002,7 +1096,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                             let dilute = strengthToAnimismusMap.get(s - concentrateDirection);
                             t.push({
                                 inputs: [a],
-                                wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }],
+                                wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }],
                                 outputs: [dilute],
                                 wheelOutputs: [concentrate],
                                 group: 1
@@ -1011,7 +1105,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let strength = animismusToStrengthMap.get(wheels[2].atoms[i]);
+                    let strength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
                     if (strength == 0) {
                         continue;
                     }
@@ -1028,7 +1122,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                             let dilute = strengthToAnimismusMap.get(strength - concentrateDirection);
                             t.push({
                                 inputs: [a],
-                                wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }],
+                                wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }],
                                 outputs: [concentrate],
                                 wheelOutputs: [dilute],
                                 group: 2
@@ -1037,8 +1131,8 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let toDiluteStrength = animismusToStrengthMap.get(wheels[2].atoms[i]);
-                    let toConcentrateStrength = animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]);
+                    let toDiluteStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
+                    let toConcentrateStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]);
                     if (Math.abs(toDiluteStrength) <= Math.abs(toConcentrateStrength)) {
                         continue;
                     }
@@ -1050,15 +1144,15 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
                     t.push({
                         inputs: [],
-                        wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                        wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6] }],
                         outputs: [],
                         wheelOutputs: [dilute, concentrate],
                         group: 3
                     });
                 }
                 for (let i = 0; i < 6; i++) {
-                    let toConcentrateStrength = animismusToStrengthMap.get(wheels[2].atoms[i]);
-                    let toDiluteStrength = animismusToStrengthMap.get(wheels[2].atoms[(i + 1) % 6]);
+                    let toConcentrateStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
+                    let toDiluteStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]);
                     if (Math.abs(toDiluteStrength) <= Math.abs(toConcentrateStrength)) {
                         continue;
                     }
@@ -1070,7 +1164,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
                     t.push({
                         inputs: [],
-                        wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[2].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[2].atoms[(i + 1) % 6] }],
+                        wheelInputs: [{ type: wheelTypeTable.herriman.type, id: i, atomType: wheels[wheelTypeTable.herriman.type].atoms[i] }, { type: wheelTypeTable.herriman.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6] }],
                         outputs: [],
                         wheelOutputs: [concentrate, dilute],
                         group: 3
