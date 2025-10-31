@@ -1,12 +1,12 @@
 let transformationTable = [];
 
-let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplication"]);
+let allowedTransformations = new Set(["Glyph of Calcification"]);
 
 {
 
     const metallicity = [
         "vaca",
-        ,
+        "beryl",
         "lead",
         "wolfram",
         "tin",
@@ -23,12 +23,27 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
 
     const crystallizationList = [
         ["fire", "water", "amethyst"],
-        ["earth", "air", "azurine"],
-        ["fire", "air", "citrine"]
+        ["fire", "air", "citrine"],
+        ["earth", "air", "azurine"]
     ]; 
 
     const projectionMap = new Map([
         ["vaca", "lead"],
+        ["lead", "tin"],
+        ["wolfram", "vulcan"],
+        ["tin", "iron"],
+        ["vulcan", "nickel"],
+        ["iron", "copper"],
+        ["nickel", "zinc"],
+        ["copper", "silver"],
+        ["zinc", "sednum"],
+        ["silver", "gold"],
+        ["sednum", "osmium"]
+    ]);
+
+    const purificationMap = new Map([
+        ["vaca", "vaca"],
+        ["beryl", "lead"],
         ["lead", "tin"],
         ["wolfram", "vulcan"],
         ["tin", "iron"],
@@ -70,6 +85,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
     ]);
 
     const shearingMap = new Map([
+        ["quicksilver", ["quickcopper", "quickcopper"]],
         ["tin", ["lead", "lead"]],
         ["vulcan", ["wolfram", "lead"]],
         ["iron", ["wolfram", "wolfram"]],
@@ -83,6 +99,8 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
     ]);
 
     const halfPromotionMap = new Map([
+        ["vaca", "beryl"],
+        ["beryl", "lead"],
         ["lead", "wolfram"],
         ["wolfram", "tin"],
         ["tin", "vulcan"],
@@ -94,6 +112,22 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         ["silver", "sednum"],
         ["sednum", "gold"],
         ["gold", "osmium"]
+    ]);
+
+    const osmosisMap = new Map([
+        ["beryl", "vaca"],
+        ["lead", "beryl"],
+        ["wolfram", "lead"],
+        ["tin", "wolfram"],
+        ["vulcan", "tin"],
+        ["iron", "vulcan"],
+        ["nickel", "iron"],
+        ["copper", "nickel"],
+        ["zinc", "copper"],
+        ["silver", "zinc"],
+        ["sednum", "silver"],
+        ["gold", "sednum"],
+        ["osmium", "gold"]
     ]);
 
     const vitaeAbsorbitionMap = new Map([
@@ -141,6 +175,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         [3, "trueVitae"]
     ]);
 
+    const cardinalsList = ["air", "earth", "fire", "water", "amethyst", "citrine", "azurine"];
     const metalsList = ["vaca", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium"];
     const noblesList = ["alpha", "beta", "gamma"];
 
@@ -150,7 +185,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         groups: ["Calcify cardinal"],
         transforms: () => {
             let t = [];
-            for (const c of ["air", "earth", "fire", "water"]) {
+            for (const c of cardinalsList) {
                 if ((atoms.get(c) ?? 0) >= 1) {
                     t.push({
                         inputs: [c],
@@ -169,7 +204,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         transforms: () => {
             let t = [];
             if ((atoms.get("salt") ?? 0) >= 1) {
-                for (const c of ["air", "earth", "fire", "water"]) {
+                for (const c of cardinalsList) {
                     if ((atoms.get(c) ?? 0) >= 1) {
                         t.push({
                             inputs: [c, "salt"],
@@ -197,7 +232,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         }
     }, {
         name: "Glyph of Projection",
-        groups: ["Project metal with quicksilver", "Project wheel with quicksilver", "Project metal from wheel", "Transfer quicksilver around wheel"],
+        groups: ["Project metal with quicksilver", "Project wheel with quicksilver", "Project metal with quickcopper", "Project wheel with quickcopper", "Project metal from wheel", "Transfer quicksilver around wheel"],
         transforms: () => {
             let t = [];
             if ((atoms.get("quicksilver") ?? 0) >= 1) {
@@ -227,15 +262,38 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                     }
                 }
             }
+            if ((atoms.get("quickcopper") ?? 0) >= 1) {
+                for (const [base, promote] of halfPromotionMap.entries()) {
+                    if ((atoms.get(base) ?? 0) >= 1) {
+                        t.push({
+                            inputs: ["quickcopper", base],
+                            wheelInputs: null,
+                            outputs: [promote],
+                            wheelOutputs: null,
+                            group: 2
+                        });
+                    }
+                }
+                if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
+                    for (let i = 0; i < 6; i++) {
+                        let promote = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
+                        if (promote) {
+                            t.push({
+                                inputs: ["quickcopper"],
+                                wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
+                                outputs: [],
+                                wheelOutputs: [promote],
+                                group: 3
+                            });
+                        }
+                    }
+                }
+            }
             if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
                     let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    let BWTM = [];
                     if (demote == "vaca") {
-                        if (!allowedTransformations.has("Glyph of Extraction")) {
-                            continue;
-                        }
-                        BWTM.push("Glyph of Extraction");
+                        continue;
                     }
                     if (demote) {
                         for (const [base, promote] of projectionMap.entries()) {
@@ -245,8 +303,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                                     wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
                                     outputs: [promote],
                                     wheelOutputs: [demote],
-                                    group: 2,
-                                    requires: BWTM
+                                    group: 4
                                 });
                             }
                         }
@@ -254,12 +311,8 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                 }
                 for (let i = 0; i < 6; i++) {
                     let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    let BWTM = [];
                     if (demote == "vaca") {
-                        if (!allowedTransformations.has("Glyph of Extraction")) {
-                            continue;
-                        }
-                        BWTM.push("Glyph of Extraction");
+                        continue;
                     }
                     let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
                     if (promote && demote) {
@@ -268,19 +321,14 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                             wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [demote, promote],
-                            group: 3,
-                            requires: BWTM
+                            group: 5
                         });
                     }
                 }
                 for (let i = 0; i < 6; i++) {
                     let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
-                    let BWTM = [];
                     if (demote == "vaca") {
-                        if (!allowedTransformations.has("Glyph of Extraction")) {
-                            continue;
-                        }
-                        BWTM.push("Glyph of Extraction");
+                        continue;
                     }
                     let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                     if (promote && demote) {
@@ -289,8 +337,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
                             wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }, { type: wheelTypeTable.ravari.type, id: (i + 1) % 6, atomType: wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6] }],
                             outputs: [],
                             wheelOutputs: [promote, demote],
-                            group: 3,
-                            requires: BWTM
+                            group: 5
                         });
                     }
                 }
@@ -302,10 +349,7 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
         groups: ["Purify metal"],
         transforms: () => {
             t = [];
-            for (let [base, promote] of projectionMap) {
-                if (base == "vaca") {
-                    promote = "vaca";
-                }
+            for (let [base, promote] of purificationMap) {
 
                 if ((atoms.get(base) ?? 0) >= 2) {
                     t.push({
@@ -699,7 +743,57 @@ let allowedTransformations = new Set(["Glyph of Calcification", "Glyph of Duplic
             }
             return t;
         }
-    }, /* Noble Elements */ {
+    }, {
+        name: "Glyph of Osmosis",
+        groups: ["Absorb quickcopper from metal", "Absorb quickcopper from wheel"],
+        transforms: () => {
+            let t = [];
+            if ((atoms.get("quickcopper") ?? 0) >= 1) {
+                for (const [base, demote] of osmosisMap) {
+                    if ((atoms.get(base) ?? 0) >= 1) {
+                        let BWTM = [];
+                        if (demote == "vaca") {
+                            if (!allowedTransformations.has("Glyph of Extraction")) {
+                                continue;
+                            }
+                            BWTM.push("Glyph of Extraction");
+                        }
+                        t.push({
+                            inputs: ["quickcopper", base],
+                            wheelInputs: null,
+                            outputs: ["quicksilver", demote],
+                            wheelOutputs: null,
+                            group: 0,
+                            requires: BWTM
+                        });
+                    }
+                }
+                if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
+                    for (let i = 0; i < 6; i++) {
+                        let demote = osmosisMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
+                        if (demote) {
+                            let BWTM = [];
+                            if (demote == "vaca") {
+                                if (!allowedTransformations.has("Glyph of Extraction")) {
+                                    continue;
+                                }
+                                BWTM.push("Glyph of Extraction");
+                            }
+                            t.push({
+                                inputs: ["quickcopper"],
+                                wheelInputs: [{ type: wheelTypeTable.ravari.type, id: i, atomType: wheels[wheelTypeTable.ravari.type].atoms[i] }],
+                                outputs: ["quicksilver"],
+                                wheelOutputs: [demote],
+                                group: 1,
+                                requires: BWTM
+                            });
+                        }
+                    }
+                }
+            }
+            return t;
+        }
+    },/* Noble Elements */ {
         name: "Glyph of Coronation",
         groups: ["Coronate"],
         transforms: () => {

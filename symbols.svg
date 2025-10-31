@@ -19,6 +19,10 @@
     <symbol id="azurine_symbol" width="60" height="60" viewBox="0 0 60 60">
         <path d="M 10,10 h 40 v 40 h -40 v -40" class="noFill" stroke-width="3">
     </symbol>
+    <symbol id="beryl_symbol" width="60" height="60" viewBox="0 0 60 60">
+        <use href="#fire_symbol" />
+        <path d="M 30,12.68 v 23.09 l -20,11.55 m 20,-11.55 l 20,11.55" class="noFill" stroke-width="3">
+    <symbol>
     <symbol id="beta_symbol" width="60" height="60" viewBox="0 0 60 60">
         <path d="M 24,50 v -30 q 0,-10,5,-10 a 7,7,0,0,1,0,14 7,7,0,0,1,0,14" class="noFill" stroke-width="3"/>
     </symbol>
@@ -74,6 +78,10 @@
         <path d="M 30,6.91 l -20,11.55 v 23.09 l 20,11.55 l 20,-11.55 v -23.09 z" class="noFill" stroke-width="3"/>
         <path d="M 10,18.46 l 20,11.55 l 20,-11.55" class="noFill" stroke-width="3"/>
         <path d="M 30,30.01 v 23.09" class="noFill" stroke-width="3"/>
+    </symbol>
+    <symbol id="quickcopper_symbol" width="60" height="60" viewBox="0 0 60 60">
+        <path d="M 30 50 v -20 a 10,10,225,1,1,7.07,-17.07" class="noFill" stroke-width="3"/>
+        <path d="M 22.5 42.5 l 15,-5" class="noFill" stroke-width="3"/>
     </symbol>
     <symbol id="quicksilver_symbol" width="60" height="60" viewBox="0 0 60 60">
         <path d="M 35,10 a 5 5 0 0 1 -10 0" class="noFill" stroke-width="3"/>
