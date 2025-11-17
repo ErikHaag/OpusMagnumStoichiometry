@@ -22,7 +22,7 @@
     <symbol id="beryl_symbol" width="60" height="60" viewBox="0 0 60 60">
         <use href="#fire_symbol" />
         <path d="M 30,12.68 v 23.09 l -20,11.55 m 20,-11.55 l 20,11.55" class="noFill" stroke-width="3"/>
-    <symbol>
+    </symbol>
     <symbol id="beta_symbol" width="60" height="60" viewBox="0 0 60 60">
         <path d="M 24,50 v -30 q 0,-10,5,-10 a 7,7,0,0,1,0,14 7,7,0,0,1,0,14" class="noFill" stroke-width="3"/>
     </symbol>
@@ -84,7 +84,7 @@
         <path d="M 23.07 44.37 l 13.86,-5.74" class="noFill" stroke-width="3"/>
     </symbol>
     <symbol id="quicklime_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 30 50 v -15 m -10 -10 a 10 10 0 0 0 20 0" class="noFill", stroke-width="3" />
+        <path d="M 30 50 v -15 m -10 -10 a 10 10 0 0 0 20 0" class="noFill" stroke-width="3" />
         <path d="M 24.7 46.80 l 10.61,-10.61" class="noFill" stroke-width="3"/>
     </symbol>
     <symbol id="quicksilver_symbol" width="60" height="60" viewBox="0 0 60 60">
