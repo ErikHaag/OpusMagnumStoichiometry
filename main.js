@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     {
         templates.molecule.id = "molecule_[0]_[1]";
         let section = null;
-        for (const entry of atomTypeTable) {
+        for (const entry of atomSectionTable) {
             if (entry.type == "section") {
                 if (section) {
                     templates.molecule.appendChild(section);
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const wheelSettingsDiv = document.getElementById("wSettings");
         i = 0;
-        for (let w of wheelTable) {
+        for (let w of initalWheelTable) {
             let id = "toggle_wheel_" + i.toFixed();
             let label = document.createElement("label");
             label.innerText = w.name;
@@ -536,7 +536,7 @@ function updateTimeline() {
         return;
     }
     atoms.clear();
-    wheels = structuredClone(wheelTable);
+    wheels = structuredClone(initalWheelTable);
     reagentsUsed = reagentsUsed.fill(0n);
     productsUsed = productsUsed.fill(0n);
 
@@ -730,7 +730,7 @@ function updateTimeline() {
         let endAtoms = structuredClone(atoms);
         let endWheels = structuredClone(wheels);
         atoms.clear();
-        wheels = structuredClone(wheelTable);
+        wheels = structuredClone(initalWheelTable);
         let repeatStart = timeline.length - 1;
         for (const [i, event] of timeline.entries()) {
             let match = true;

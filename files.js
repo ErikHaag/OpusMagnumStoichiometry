@@ -25,7 +25,7 @@ function saveState() {
                 t.inputs = Object.fromEntries(t.inputs);
                 t.outputs = Object.fromEntries(t.outputs);
                 t.wheelInputs?.forEach((e) => {
-                    e.type = wheelTable[e.type].name;
+                    e.type = initalWheelTable[e.type].name;
                 })
             }
             return t;
@@ -33,6 +33,7 @@ function saveState() {
     };
 
     let downloadAnchor = document.getElementById("download");
+    // TODO: dynamic file name?
     downloadAnchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
     downloadAnchor.click();
 }
@@ -82,7 +83,7 @@ function loadState(data) {
         i++;
     }
     i = 0;
-    for (const w of wheelTable) {
+    for (const w of initalWheelTable) {
         let cB = document.getElementById("toggle_wheel_" + i.toFixed());
         cB.checked = state.wheels.includes(w.name);
         cB.dispatchEvent(changeEvent);
@@ -93,7 +94,7 @@ function loadState(data) {
             e.inputs = new Map(Object.entries(e.inputs));
             e.outputs = new Map(Object.entries(e.outputs));
             e.wheelInputs?.forEach((w) => {
-                w.type = wheelTable.findIndex((v) => v.name == w.type);
+                w.type = initalWheelTable.findIndex((v) => v.name == w.type);
             });
         }
     });

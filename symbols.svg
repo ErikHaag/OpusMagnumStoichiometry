@@ -1,122 +1,130 @@
 <?xml version="1.0"?>
 <svg width="60" height="60" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
     <symbol id="aether_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 15,35 c -2,-3,-5,-10,5,-10 s 10,10,20,10 s 7,-7,5,-10" class="noFill" stroke-width="3"/>
+        <path d="M 15,35 c -2,-3,-5,-10,5,-10 s 10,10,20,10 s 7,-7,5,-10" class="noFill" stroke-width="3" />
+    </symbol>
+    <symbol id="aerolith_symbol" width="60" height="60" viewBox="0 0 60 60">
+        <path d="M 10,37.93 a 14.14 14.14 0 0 0 20,-20 14.14 14.14 0 0 0 20,20" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="air_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <use href="#fire_symbol"/>
-        <line x1="10" y1="30" x2="50" y2="30" stroke-width="3"/>
-    </symbol>
-    <symbol id="amethyst_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 20 30 l 8.42 -8.42 10.53,10.53 -12.63,12.63 -14.74,-14.74 16.84,-16.84 18.95,18.95 -21.05,21.05" class="noFill" stroke-width="3"/>
+        <use href="#fire_symbol" />
+        <line x1="10" y1="30" x2="50" y2="30" stroke-width="3" />
     </symbol>
     <symbol id="alpha_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 40,20 q -7,20,-14,22 a 10,10,0,0,1,0,-20 c 10,0,10,20,20,20" class="noFill" stroke-width="3"/>
+        <path d="M 40,20 q -7,20,-14,22 a 10,10,0,0,1,0,-20 c 10,0,10,20,20,20" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="animismus_triangle" width="60" height="60" viewBox="0 0 60 60">
-         <path d="M 30,10 l -12.99,22.5 h 25.98 z" class="noFill" stroke-width="3"/>
-    </symbol>
-    <symbol id="azurine_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 10,10 h 40 v 40 h -40 v -40" class="noFill" stroke-width="3"/>
+         <path d="M 30,10 l -12.99,22.5 h 25.98 z" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="beryl_symbol" width="60" height="60" viewBox="0 0 60 60">
         <use href="#fire_symbol" />
-        <path d="M 30,12.68 v 23.09 l -20,11.55 m 20,-11.55 l 20,11.55" class="noFill" stroke-width="3"/>
+        <path d="M 30,12.68 v 23.09 l -20,11.55 m 20,-11.55 l 20,11.55" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="beta_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 24,50 v -30 q 0,-10,5,-10 a 7,7,0,0,1,0,14 7,7,0,0,1,0,14" class="noFill" stroke-width="3"/>
-    </symbol>
-    <symbol id="citrine_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 30,10 a 20,20,90,0,1,-20,20 20,20,90,0,1,20,20 20,20,90,0,1,20,-20 20,20,90,0,1,-20,-20" class="noFill" stroke-width="3"/>
+        <path d="M 24,50 v -30 q 0,-10,5,-10 a 7,7,0,0,1,0,14 7,7,0,0,1,0,14" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="copper_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <circle cx="30" cy="25" r="10" class="noFill" stroke-width="3"/>
-        <line x1="30" y1="35" x2="30" y2="50" stroke-width="3"/>
-        <line x1="22" y1="41.5" x2="38" y2="41.5" stroke-width="3"/>
+        <circle cx="30" cy="25" r="10" class="noFill" stroke-width="3" />
+        <line x1="30" y1="35" x2="30" y2="50" stroke-width="3" />
+        <line x1="22" y1="41.5" x2="38" y2="41.5" stroke-width="3" />
     </symbol>
     <symbol id="earth_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <use href="#air_symbol" transform="rotate(180, 30, 30)"/>
+        <use href="#air_symbol" transform="rotate(180, 30, 30)" />
     </symbol>
     <symbol id="fire_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 30,12.68 l -20,34.64 h 40 z" class="noFill" stroke-width="3"/>
+        <path d="M 30,12.68 l -20,34.64 h 40 z" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="gamma_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 22.5,20 c 20,40,-5,40,15,0" class="noFill" stroke-width="3"/>
+        <path d="M 22.5,20 c 20,40,-5,40,15,0" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="gold_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="20" class="noFill" stroke-width="3"/>
-        <circle cx="30" cy="30" r="1" class="strokeFill" stroke-width="3"/>
+        <circle cx="30" cy="30" r="20" class="noFill" stroke-width="3" />
+        <circle cx="30" cy="30" r="1" class="strokeFill" stroke-width="3" />
     </symbol>
     <symbol id="grey_mors_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <use href="#red_vitae_symbol" transform="rotate(180, 30, 30)"/>
+        <use href="#red_vitae_symbol" transform="rotate(180, 30, 30)" />
+    </symbol>
+    <symbol id="ignistal_symbol" width="60" height="60" viewBox="0 0 60 60">
+        <path d="M 30,10 a 20,20,90,0,1,-20,20 20,20,90,0,1,20,20 20,20,90,0,1,20,-20 20,20,90,0,1,-20,-20" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="iron_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <circle cx="25" cy="35" r="10" class="noFill" stroke-width="3"/>
-        <line x1="32.07" y1="28.92" x2="45" y2="15" stroke-width="3"/>
-        <path d="M 35,15 h 10 v 10" class="noFill" stroke-width="3"/>
+        <circle cx="25" cy="35" r="10" class="noFill" stroke-width="3" />
+        <line x1="32.07" y1="28.92" x2="45" y2="15" stroke-width="3" />
+        <path d="M 35,15 h 10 v 10" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="lead_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <line x1="23.84" y1="10" x2="23.84" y2="50" stroke-width="3"/>
-        <line x1="18.84" y1="16" x2="28.84" y2="16" stroke-width="3"/>
-        <path d="M 23.34,30 c 12,-20,22,2,15,10 q -4,4,0,10" class="noFill" stroke-width="3"/>
+        <line x1="23.84" y1="10" x2="23.84" y2="50" stroke-width="3" />
+        <line x1="18.84" y1="16" x2="28.84" y2="16" stroke-width="3" />
+        <path d="M 23.34,30 c 12,-20,22,2,15,10 q -4,4,0,10" class="noFill" stroke-width="3" />
+    </symbol>
+    <symbol id="mistaline_symbol" width="60" height="60" viewBox="0 0 60 60">
+        <use href="#water_symbol" />
+        <path d="M 10,45 a 20 20 0 0 1 40,0" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="mors_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <use href="#vitae_symbol" transform="rotate(180, 30, 30)"/>
+        <use href="#vitae_symbol" transform="rotate(180, 30, 30)" />
     </symbol>
     <symbol id="nickel_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <circle cx="30" cy="17.5" r="7.5" class="noFill" stroke-width="3"/>
-        <circle cx="30" cy="42.5" r="7.5" class="noFill" stroke-width="3"/>
-        <line x1="30" y1="25" x2="30" y2="35" stroke-width="3"/>
+        <circle cx="30" cy="17.5" r="7.5" class="noFill" stroke-width="3" />
+        <circle cx="30" cy="42.5" r="7.5" class="noFill" stroke-width="3" />
+        <line x1="30" y1="25" x2="30" y2="35" stroke-width="3" />
     </symbol>
     <symbol id="nobilis_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="12" class="noFill" stroke-width="3"/>
-        <circle cx="30" cy="15" r="3" class="noFill" stroke-width="3"/>
-        <circle cx="17.01" cy="37.5" r="3" class="noFill" stroke-width="3"/>
-        <circle cx="42.99" cy="37.5" r="3" class="noFill" stroke-width="3"/>
+        <circle cx="30" cy="30" r="12" class="noFill" stroke-width="3" />
+        <circle cx="30" cy="15" r="3" class="noFill" stroke-width="3" />
+        <circle cx="17.01" cy="37.5" r="3" class="noFill" stroke-width="3" />
+        <circle cx="42.99" cy="37.5" r="3" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="osmium_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 30,6.91 l -20,11.55 v 23.09 l 20,11.55 l 20,-11.55 v -23.09 z" class="noFill" stroke-width="3"/>
-        <path d="M 10,18.46 l 20,11.55 l 20,-11.55" class="noFill" stroke-width="3"/>
-        <path d="M 30,30.01 v 23.09" class="noFill" stroke-width="3"/>
+        <path d="M 30,6.91 l -20,11.55 v 23.09 l 20,11.55 l 20,-11.55 v -23.09 z" class="noFill" stroke-width="3" />
+        <path d="M 10,18.46 l 20,11.55 l 20,-11.55" class="noFill" stroke-width="3" />
+        <path d="M 30,30.01 v 23.09" class="noFill" stroke-width="3" />
+    </symbol>
+    <symbol id="pyrolite_symbol" width="60" height="60" viewBox="0 0 60 60">
+        <use href="#fire_symbol" />
+        <path d="M 10,25 l 20,10 20,-10" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="quickcopper_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 30 50 v -15 a 10,10,0,1,1,7.07,-17.07 l -7,-7" class="noFill" stroke-width="3"/>
-        <path d="M 23.07 44.37 l 13.86,-5.74" class="noFill" stroke-width="3"/>
+        <path d="M 30 50 v -15 a 10,10,0,1,1,7.07,-17.07 l -7,-7" class="noFill" stroke-width="3" />
+        <path d="M 23.07 44.37 l 13.86,-5.74" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="quicklime_symbol" width="60" height="60" viewBox="0 0 60 60">
         <path d="M 30 50 v -15 m -10 -10 a 10 10 0 0 0 20 0" class="noFill" stroke-width="3" />
-        <path d="M 24.7 46.80 l 10.61,-10.61" class="noFill" stroke-width="3"/>
+        <path d="M 24.7 46.80 l 10.61,-10.61" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="quicksilver_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 35,10 a 5 5 0 0 1 -10 0" class="noFill" stroke-width="3"/>
-        <use href="#copper_symbol"/>
+        <path d="M 35,10 a 5 5 0 0 1 -10 0" class="noFill" stroke-width="3" />
+        <use href="#copper_symbol" />
     </symbol>
     <symbol id="quintessence_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 30,10 l -17.32,30 h 34.64 z" class="noFill" stroke-width="3"/>
-        <path d="M 24.23,20 h -11.55 l 5.77 10" class="noFill" stroke-width="3"/>
-        <path d="M 35.77,20 h 11.55 l -5.77 10" class="noFill" stroke-width="3"/>
-        <path d="M 24.23,40 l 5.77 10 l 5.77 -10" class="noFill" stroke-width="3"/>
+        <path d="M 30,10 l -17.32,30 h 34.64 z" class="noFill" stroke-width="3" />
+        <path d="M 24.23,20 h -11.55 l 5.77 10" class="noFill" stroke-width="3" />
+        <path d="M 35.77,20 h 11.55 l -5.77 10" class="noFill" stroke-width="3" />
+        <path d="M 24.23,40 l 5.77 10 l 5.77 -10" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="red_vitae_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <use href="#animismus_triangle"/>
-        <line x1="25" y1="32.5" x2="25" y2="50" stroke-width="3"/>
-        <line x1="35" y1="32.5" x2="35" y2="50" stroke-width="3"/>
+        <use href="#animismus_triangle" />
+        <line x1="25" y1="32.5" x2="25" y2="50" stroke-width="3" />
+        <line x1="35" y1="32.5" x2="35" y2="50" stroke-width="3" />
     </symbol>
     <symbol id="salt_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <ellipse cx="30" cy="30" rx="18" ry="20" class="noFill" stroke-width="3"/>
-        <line x1="12" y1="30" x2="48" y2="30" stroke-width="3"/>
+        <ellipse cx="30" cy="30" rx="18" ry="20" class="noFill" stroke-width="3" />
+        <line x1="12" y1="30" x2="48" y2="30" stroke-width="3" />
     </symbol>
     <symbol id="sednum_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <circle cx="17.5" cy="20" r="5" class="noFill" stroke-width="3"/>
-        <line x1="22.5" y1="20" x2="27.5" y2="20" stroke-width="3"/>
-        <path d="M 27.5,10 v 20 a 20 20 0 0 1 20 20" class="noFill" stroke-width="3"/>
+        <circle cx="17.5" cy="20" r="5" class="noFill" stroke-width="3" />
+        <line x1="22.5" y1="20" x2="27.5" y2="20" stroke-width="3" />
+        <path d="M 27.5,10 v 20 a 20 20 0 0 1 20 20" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="silver_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <path d="M 15.86,15.86 a 20 20 0 1 1 0 28.28" class="noFill" stroke-width="3"/>
-        <line x1="44.14" y1="15.86" x2="44.14" y2="44.14" stroke-width="3"/>
+        <path d="M 15.86,15.86 a 20 20 0 1 1 0 28.28" class="noFill" stroke-width="3" />
+        <line x1="44.14" y1="15.86" x2="44.14" y2="44.14" stroke-width="3" />
+    </symbol>
+    <symbol id="terramarine_symbol" width="60" height="60" viewBox="0 0 60 60">
+        <path d="M 12 40 c 14 -8 22 8 36 0 m -25.1 -2.1 l -8.2 -19.9 m 15.3 22 l 0 -25 m 5.5 26.8 l 9.8 -23.7" class="noFill" stroke-width="3" />
     </symbol>
     <symbol id="tin_symbol" width="60" height="60" viewBox="0 0 60 60">
-        <line x1="35" y1="10" x2="35" y2="50" stroke-width="3"/>
+        <line x1="35" y1="10" x2="35" y2="50" stroke-width="3" />
         <path d="M 45,35 h -30 a 15 10 0 0 0 2 -18" class="noFill" stroke-width="3"/>
     </symbol>
     <symbol id="true_mors_symbol" width="60" height="60" viewBox="0 0 60 60">
@@ -143,6 +151,9 @@
         <use href="#vaca_star" transform="translate(10, 26)"/>
         <use href="#vaca_star" transform="translate(20, 36)"/>
         <use href="#vaca_star" transform="translate(30, 46)"/>
+    </symbol>
+    <symbol id="vaprorine_symbol" width="60" height="60" viewBox="0 0 60 60">
+        <path d="M 30,50 l 20,-20 -20,-20 -20,20 16,16 16,-16 -12,-12 -12,12 8,8 8,-8 -4,-4 -4,4" class="noFill" stroke-width="3" stroke-linecap="square" />
     </symbol>
     <symbol id="vitae_symbol" width="60" height="60" viewBox="0 0 60 60">
         <use href="#animismus_triangle"/>
