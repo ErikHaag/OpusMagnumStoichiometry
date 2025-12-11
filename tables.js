@@ -1,4 +1,4 @@
-const atomTypeTable = [
+const atomSectionTable = [
     { type: "section", name: "Opus Magnum" },
     { type: "atom", name: "salt" },
     { type: "atom", name: "air" },
@@ -16,10 +16,14 @@ const atomTypeTable = [
     { type: "atom", name: "silver" },
     { type: "atom", name: "gold" },
     { type: "section", name: "Complicated Elements" },
-    { type: "atom", name: "amethyst" },
-    { type: "atom", name: "azurine" },
-    { type: "atom", name: "citrine" },
+    { type: "atom", name: "aerolith" },
+    { type: "atom", name: "ignistal" },
+    { type: "atom", name: "mistaline" },
+    { type: "atom", name: "pyrolite" },
+    { type: "atom", name: "terramarine" },
+    { type: "atom", name: "vaprorine" },
     { type: "section", name: "Halving Metallurgy" },
+    { type: "atom", name: "quicklime" },
     { type: "atom", name: "quickcopper" },
     { type: "atom", name: "beryl" },
     { type: "atom", name: "wolfram" },
@@ -58,7 +62,14 @@ const atomTypes = [
     "earth",
     "fire",
     "water",
+    "aerolith",
+    "ignistal",
+    "mistaline",
+    "pyrolite",
+    "terramarine",
+    "vaprorine",
     "quintessence",
+    "quicklime",
     "quickcopper",
     "quicksilver",
     "vaca",
@@ -79,19 +90,20 @@ const atomTypes = [
     "alpha",
     "beta",
     "gamma",
-    "amethyst",
-    "citrine",
-    "azurine",
     "uranium",
     "aether"
 ];
 
 const atomTypesSVGNames = atomTypes.map((s) => s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase()));
 
-const wheelTable = [
+const initalWheelTable = [
     {
         name: "Van Berlo's Wheel",
         atoms: ["water", "salt", "earth", "fire", "salt", "air"]
+    },
+    {
+        name: "Soria's Wheel",
+        atoms: ["quicksilver", "quickcopper", "quicksilver", "quickcopper", "quicksilver", "quickcopper"]
     },
     {
         name: "Ravari's Wheel",
@@ -111,7 +123,7 @@ let wheelTypeTable = {};
     
     let i = 0;
     let f = 1n;
-    for (const w of wheelTable) {
+    for (const w of initalWheelTable) {
         let n = nameRegex.exec(w.name);
         wTT.set(n[1].toLowerCase(), {type: i, flag: f});
         i++;
