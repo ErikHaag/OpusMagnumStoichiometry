@@ -397,72 +397,43 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 }
             }
             if ((activeWheels & wheelTypeTable.soria.flag) != 0n) {
-                for (let i = 0; i < 6; i++) {
-                    let sourceM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[i]);
-                    let destinationM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + 1) % 6]);
-                    if (sourceM <= 0 || destinationM == -1) {
-                        continue;
-                    }
-                    let destination = quicksilverMetallicity[sourceM + destinationM];
-                    if (destination) {
-                        t.push({
-                            inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 1) % 6)],
-                            outputs: [],
-                            wheelOutputs: ["quicklime", destination],
-                            group: 8
-                        });
-                    }
-                }
-                for (let i = 0; i < 6; i++) {
-                    let sourceM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[i]);
-                    let destinationM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + 5) % 6]);
-                    if (sourceM <= 0 || destinationM == -1) {
-                        continue;
-                    }
-                    let destination = quicksilverMetallicity[sourceM + destinationM];
-                    if (destination) {
-                        t.push({
-                            inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 5) % 6)],
-                            outputs: [],
-                            wheelOutputs: ["quicklime", destination],
-                            group: 8
-                        });
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        let sourceM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[i]);
+                        let destinationM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + dir) % 6]);
+                        if (sourceM <= 0 || destinationM == -1) {
+                            continue;
+                        }
+                        let destination = quicksilverMetallicity[sourceM + destinationM];
+                        if (destination) {
+                            t.push({
+                                inputs: [],
+                                wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + dir) % 6)],
+                                outputs: [],
+                                wheelOutputs: ["quicklime", destination],
+                                group: 8
+                            });
+                        }
                     }
                 }
             }
             if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
-                for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    if (demote == "vaca" || demote == "beryl") {
-                        continue;
-                    }
-                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
-                    if (promote && demote) {
-                        t.push({
-                            inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6)],
-                            outputs: [],
-                            wheelOutputs: [demote, promote],
-                            group: 9
-                        });
-                    }
-                }
-                for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    if (demote == "vaca" || demote == "beryl") {
-                        continue;
-                    }
-                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 5) % 6]);
-                    if (promote && demote) {
-                        t.push({
-                            inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 5) % 6)],
-                            outputs: [],
-                            wheelOutputs: [demote, promote],
-                            group: 9
-                        });
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
+                        if (demote == "vaca" || demote == "beryl") {
+                            continue;
+                        }
+                        let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + dir) % 6]);
+                        if (promote && demote) {
+                            t.push({
+                                inputs: [],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6)],
+                                outputs: [],
+                                wheelOutputs: [demote, promote],
+                                group: 9
+                            });
+                        }
                     }
                 }
                 if ((activeWheels & wheelTypeTable.soria.flag) != 0n) {
@@ -545,7 +516,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         }
     }, {
         name: "Glyph of Animismus",
-        groups: ["Wheelless", "Wheel captures vitae", "Wheel captures mors"],
+        groups: ["Wheelless", "Herriman's wheel captures vitae", "Herriman's wheel captures mors"],
         transforms: () => {
             let t = [];
             if (atoms.get("salt") >= 2) {
@@ -902,195 +873,108 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 }
             }
             if ((activeWheels & wheelTypeTable.soria.flag) != 0n) {
-                for (let i = 0; i < 6; i++) {
-                    if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
-                        continue;
-                    }
-                    let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + 1) % 6]);
-                    if (soriaM == -1) {
-                        continue;
-                    }
-                    let promoteS = quicksilverMetallicity[soriaM + 1];
-                    if (promoteS) {
-                        for (const [base, promote] in halfPromotionMap.entries()) {
-                            if ((atoms.get(base) ?? 0) >= 1n) {
-                                t.push({
-                                    inputs: [base],
-                                    wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 1) % 6)],
-                                    outputs: [promote],
-                                    wheelOutputs: ["quicklime", promoteS],
-                                    group: 8
-                                });
-                            }
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
+                            continue;
                         }
-                    }
-                }
-                for (let i = 0; i < 6; i++) {
-                    if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
-                        continue;
-                    }
-                    let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + 5) % 6]);
-                    if (soriaM == -1) {
-                        continue;
-                    }
-                    let promoteS = quicksilverMetallicity[soriaM + 1];
-                    if (promoteS) {
-                        for (const [base, promote] in halfPromotionMap.entries()) {
-                            if ((atoms.get(base) ?? 0) >= 1n) {
-                                t.push({
-                                    inputs: [base],
-                                    wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 5) % 6)],
-                                    outputs: [promote],
-                                    wheelOutputs: ["quicklime", promoteS],
-                                    group: 8
-                                });
+                        let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + dir) % 6]);
+                        if (soriaM == -1) {
+                            continue;
+                        }
+                        let promoteS = quicksilverMetallicity[soriaM + 1];
+                        if (promoteS) {
+                            for (const [base, promote] in halfPromotionMap.entries()) {
+                                if ((atoms.get(base) ?? 0) >= 1n) {
+                                    t.push({
+                                        inputs: [base],
+                                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + dir) % 6)],
+                                        outputs: [promote],
+                                        wheelOutputs: ["quicklime", promoteS],
+                                        group: 8
+                                    });
+                                }
                             }
                         }
                     }
                 }
             }
             if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
-                for (let i = 0; i < 6; i++) {
-                    let demoteR = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    if (demoteR == "vaca" || demoteR == "beryl") {
-                        continue;
-                    }
-                    let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
-                    if (demoteR && promoteR) {
-                        for (const [baseF, promoteF] of halfPromotionMap.entries()) {
-                            if ((atoms.get(baseF) ?? 0) >= 1) {
-                                t.push({
-                                    inputs: [baseF],
-                                    wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6)],
-                                    outputs: [promoteF],
-                                    wheelOutputs: [demoteR, promoteR],
-                                    group: 9
-                                });
-                            }
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        let demoteR = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
+                        if (demoteR == "vaca" || demoteR == "beryl") {
+                            continue;
                         }
-                    }
-                }
-                for (let i = 0; i < 6; i++) {
-                    let demoteR = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    if (demoteR == "vaca" || demoteR == "beryl") {
-                        continue;
-                    }
-                    let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 5) % 6]);
-                    if (demoteR && promoteR) {
-                        for (const [baseF, promoteF] of halfPromotionMap.entries()) {
-                            if ((atoms.get(baseF) ?? 0) >= 1) {
-                                t.push({
-                                    inputs: [baseF],
-                                    wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 5) % 6)],
-                                    outputs: [promoteF],
-                                    wheelOutputs: [demoteR, promoteR],
-                                    group: 9
-                                });
+                        let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + dir) % 6]);
+                        if (demoteR && promoteR) {
+                            for (const [baseF, promoteF] of halfPromotionMap.entries()) {
+                                if ((atoms.get(baseF) ?? 0) >= 1) {
+                                    t.push({
+                                        inputs: [baseF],
+                                        wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6)],
+                                        outputs: [promoteF],
+                                        wheelOutputs: [demoteR, promoteR],
+                                        group: 9
+                                    });
+                                }
                             }
                         }
                     }
                 }
                 if ((activeWheels & wheelTypeTable.soria.flag) != 0n) {
-                    for (let i = 0; i < 6; i++) {
-                        if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
-                            continue;
-                        }
-                        let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + 1) % 6]);
-                        if (soriaM == -1) {
-                            continue;
-                        }
-                        let promoteS = quicksilverMetallicity[soriaM + 1];
-                        if (promoteS) {
-                            for (let j = 0; j < 6; j++) {
-                                let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[j]);
-                                if (promoteR) {
-                                    t.push({
-                                        inputs: [],
-                                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 1) % 6), wheelInput(wheelTypeTable.ravari.type, j)],
-                                        outputs: [],
-                                        wheelOutputs: ["quicklime", promoteS, promoteR],
-                                        group: 10
-                                    });
+                    for (const dir in [1, 5]) {
+                        for (let i = 0; i < 6; i++) {
+                            if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
+                                continue;
+                            }
+                            let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + dir) % 6]);
+                            if (soriaM == -1) {
+                                continue;
+                            }
+                            let promoteS = quicksilverMetallicity[soriaM + 1];
+                            if (promoteS) {
+                                for (let j = 0; j < 6; j++) {
+                                    let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[j]);
+                                    if (promoteR) {
+                                        t.push({
+                                            inputs: [],
+                                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + dir) % 6), wheelInput(wheelTypeTable.ravari.type, j)],
+                                            outputs: [],
+                                            wheelOutputs: ["quicklime", promoteS, promoteR],
+                                            group: 10
+                                        });
+                                    }
                                 }
                             }
                         }
                     }
-                    for (let i = 0; i < 6; i++) {
-                        if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
-                            continue;
-                        }
-                        let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[(i + 5) % 6]);
-                        if (soriaM == -1) {
-                            continue;
-                        }
-                        let promoteS = quicksilverMetallicity[soriaM + 1];
-                        if (promoteS) {
-                            for (let j = 0; j < 6; j++) {
-                                let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[j]);
-                                if (promoteR) {
-                                    t.push({
-                                        inputs: [],
-                                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 5) % 6), wheelInput(wheelTypeTable.ravari.type, j)],
-                                        outputs: [],
-                                        wheelOutputs: ["quicklime", promoteS, promoteR],
-                                        group: 10
-                                    });
-                                }
+                    for (const dir in [1, 5]) {
+                        for (let i = 0; i < 6; i++) {
+                            let demoteR = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
+                            if (demoteR == "vaca" || demoteR == "beryl") {
+                                continue;
                             }
-                        }
-                    }
-                    for (let i = 0; i < 6; i++) {
-                        let demoteR = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                        if (demoteR == "vaca" || demoteR == "beryl") {
-                            continue;
-                        }
-                        let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
-                        if (demoteR && promoteR) {
-                            for (let j = 0; j < 6; j++) {
-                                if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
-                                    continue;
-                                }
-                                let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[j]);
-                                if (soriaM == -1) {
-                                    continue;
-                                }
-                                let promoteS = quicksilverMetallicity[soriaM + 1];
-                                if (promoteS) {
-                                    t.push({
-                                        inputs: [],
-                                        wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6), wheelInput(wheelTypeTable.soria.type, j)],
-                                        outputs: [],
-                                        wheelOutputs: [demoteR, promoteR, promoteS],
-                                        group: 11
-                                    });
-                                }
-                            }
-                        }
-                    }
-                    for (let i = 0; i < 6; i++) {
-                        let demoteR = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                        if (demoteR == "vaca" || demoteR == "beryl") {
-                            continue;
-                        }
-                        let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 5) % 6]);
-                        if (demoteR && promoteR) {
-                            for (let j = 0; j < 6; j++) {
-                                if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
-                                    continue;
-                                }
-                                let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[j]);
-                                if (soriaM == -1) {
-                                    continue;
-                                }
-                                let promoteS = quicksilverMetallicity[soriaM + 1];
-                                if (promoteS) {
-                                    t.push({
-                                        inputs: [],
-                                        wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 5) % 6), wheelInput(wheelTypeTable.soria.type, j)],
-                                        outputs: [],
-                                        wheelOutputs: [demoteR, promoteR, promoteS],
-                                        group: 11
-                                    });
+                            let promoteR = halfPromotionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + dir) % 6]);
+                            if (demoteR && promoteR) {
+                                for (let j = 0; j < 6; j++) {
+                                    if (wheels[wheelTypeTable.soria.type].atoms[i] != "quicksilver") {
+                                        continue;
+                                    }
+                                    let soriaM = quicksilverMetallicity.indexOf(wheels[wheelTypeTable.soria.type].atoms[j]);
+                                    if (soriaM == -1) {
+                                        continue;
+                                    }
+                                    let promoteS = quicksilverMetallicity[soriaM + 1];
+                                    if (promoteS) {
+                                        t.push({
+                                            inputs: [],
+                                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6), wheelInput(wheelTypeTable.soria.type, j)],
+                                            outputs: [],
+                                            wheelOutputs: [demoteR, promoteR, promoteS],
+                                            group: 11
+                                        });
+                                    }
                                 }
                             }
                         }
@@ -1291,9 +1175,9 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
     }, {
         name: "Glyph of Osmosis",
         groups: ["Absorb quickcopper from metal", "Absorb quickcopper from Ravari's wheel",
-            "Concentrate quicklime", "Concentrate quicklime on Soria's wheel", "Concentrate quicklime from Soria's wheel",
             "Absorb quickcopper from metal with Soria's wheel", "Absorb quickcopper from Ravari's wheel with Soria's wheel",
-            "Transfer quickcopper around Soria's wheel"],
+            "Transfer quickcopper around Soria's wheel",
+            "Concentrate quicklime", "Concentrate quicklime on Soria's wheel", "Concentrate quicklime from Soria's wheel"],
         transforms: () => {
             let t = [];
             if ((atoms.get("quickcopper") ?? 0) >= 1) {
@@ -1339,36 +1223,89 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     }
                 }
             }
-            if ((atoms.get("quicksilver") ?? 0) >= 1 && (atoms.get("quicklime") ?? 0) >= 1) {
-                t.push({
-                    inputs: ["quicksilver", "quicklime"],
-                    wheelInputs: null,
-                    outputs: ["quickcopper", "quickcopper"],
-                    wheelOutputs: null,
-                    group: 2
-                });
-            }
             if ((activeWheels & wheelTypeTable.sorai.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
+                    if (wheels[wheelTypeTable.sorai.type].atoms[i] != "quickcopper") {
+                        continue;
+                    }
                     for (const [base, demote] of osmosisMap) {
-                    if ((atoms.get(base) ?? 0) >= 1) {
-                        let BWTM = [];
-                        if (demote == "vaca") {
-                            if (!allowedTransformations.has("Glyph of Extraction")) {
-                                continue;
+                        if ((atoms.get(base) ?? 0) >= 1) {
+                            let BWTM = [];
+                            if (demote == "vaca") {
+                                if (!allowedTransformations.has("Glyph of Extraction")) {
+                                    continue;
+                                }
+                                BWTM.push("Glyph of Extraction");
                             }
-                            BWTM.push("Glyph of Extraction");
+                            t.push({
+                                inputs: [base],
+                                wheelInputs: [wheelInput(wheelTypeTable.sorai.type, i)],
+                                outputs: [demote],
+                                wheelOutputs: ["quicksilver"],
+                                group: 2,
+                                requires: BWTM
+                            });
                         }
-                        t.push({
-                            inputs: ["quickcopper", base],
-                            wheelInputs: null,
-                            outputs: ["quicksilver", demote],
-                            wheelOutputs: null,
-                            group: 0,
-                            requires: BWTM
-                        });
                     }
                 }
+                if ((activeWheels & wheelTypeTable.ravari.flag) != 0n) {
+                    for (let i = 0; i < 6; i++) {
+                        if (wheels[wheelTypeTable.sorai.type].atoms[i] != "quickcopper") {
+                            continue;
+                        }
+                        for (let j = 0; j < 6; j++) {
+                            let demote = osmosisMap.get(wheels[wheelTypeTable.ravari.type].atoms[j]);
+                            if (demote) {
+                                let BWTM = [];
+                                if (demote == "vaca") {
+                                    if (!allowedTransformations.has("Glyph of Extraction")) {
+                                        continue;
+                                    }
+                                    BWTM.push("Glyph of Extraction");
+                                }
+                                t.push({
+                                    inputs: [],
+                                    wheelInputs: [wheelInput(wheelTypeTable.sorai.type, i), wheelInput(wheelTypeTable.ravari.type, j)],
+                                    outputs: [],
+                                    wheelOutputs: ["quicksilver", demote],
+                                    group: 3,
+                                    requires: BWTM
+                                });
+                            }
+                        }
+                    }
+                }
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        if (wheels[wheelTypeTable.sorai.type].atoms[i] == "quicksilver" && wheels[wheelTypeTable.sorai.type].atoms[(i + dir) % 6] == "quicklime") {
+                            t.push({
+                                inputs: [],
+                                wheelInputs: [wheelInput(wheelTypeTable.sorai.type, i), wheelInput(wheelTypeTable.sorai.type, (i + dir) % 6)],
+                                outputs: [],
+                                wheelOutputs: ["quickcopper", "quickcopper"],
+                                group: 4
+                            });
+                        } else if (wheels[wheelTypeTable.sorai.type].atoms[i] == "quickcopper" && wheels[wheelTypeTable.sorai.type].atoms[(i + dir) % 6] == "quickcopper") {
+                            t.push({
+                                inputs: [],
+                                wheelInputs: [wheelInput(wheelTypeTable.sorai.type, i), wheelInput(wheelTypeTable.sorai.type, (i + dir) % 6)],
+                                outputs: [],
+                                wheelOutputs: ["quicklime", "quicklime"],
+                                group: 4
+                            });
+                        }
+                    }
+                }
+            }
+            if ((atoms.get("quicksilver") ?? 0) >= 1) {
+                if ((atoms.get("quicklime") ?? 0) >= 1) {
+                    t.push({
+                        inputs: ["quicksilver", "quicklime"],
+                        wheelInputs: null,
+                        outputs: ["quickcopper", "quickcopper"],
+                        wheelOutputs: null,
+                        group: 5
+                    });
                 }
             }
             return t;
@@ -1487,46 +1424,27 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         });
                     }
                 }
-                for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    let BWTM = [];
-                    if (demote == "vaca") {
-                        if (!allowedTransformations.has("Glyph of Extraction")) {
-                            continue;
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
+                        let BWTM = [];
+                        if (demote == "vaca") {
+                            if (!allowedTransformations.has("Glyph of Extraction")) {
+                                continue;
+                            }
+                            BWTM.push("Glyph of Extraction");
                         }
-                        BWTM.push("Glyph of Extraction");
-                    }
-                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
-                    if (promote && demote) {
-                        t.push({
-                            inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6)],
-                            outputs: [],
-                            wheelOutputs: [demote, promote],
-                            group: 3,
-                            requires: BWTM
-                        });
-                    }
-                }
-                for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
-                    let BWTM = [];
-                    if (demote == "vaca") {
-                        if (!allowedTransformations.has("Glyph of Extraction")) {
-                            continue;
+                        let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + dir) % 6]);
+                        if (promote && demote) {
+                            t.push({
+                                inputs: [],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6)],
+                                outputs: [],
+                                wheelOutputs: [demote, promote],
+                                group: 3,
+                                requires: BWTM
+                            });
                         }
-                        BWTM.push("Glyph of Extraction");
-                    }
-                    let promote = projectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    if (promote && demote) {
-                        t.push({
-                            inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6)],
-                            outputs: [],
-                            wheelOutputs: [promote, demote],
-                            group: 3,
-                            requires: BWTM
-                        });
                     }
                 }
             }
@@ -1560,7 +1478,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         }
     }, {
         name: "Glyph of Proliferation",
-        groups: ["Clone metal with quicksilver", "Clone from wheel with quicksilver", "Clone metal with wheel", "Clone with wheel"],
+        groups: ["Clone metal with quicksilver", "Clone from Ravari's wheel with quicksilver", "Clone metal with Ravari's wheel", "Clone with Ravari's wheel"],
         transforms: () => {
             let t = [];
             if ((atoms.get("quicksilver") ?? 0) >= 1) {
@@ -1607,34 +1525,21 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         }
                     }
                 }
-                for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
-                    if (demote == "vaca") {
-                        continue;
-                    }
-                    if (demote) {
-                        t.push({
-                            inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6)],
-                            outputs: [wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]],
-                            wheelOutputs: [demote, wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]],
-                            group: 3
-                        });
-                    }
-                }
-                for (let i = 0; i < 6; i++) {
-                    let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[(i + 1) % 6]);
-                    if (demote == "vaca") {
-                        continue;
-                    }
-                    if (demote) {
-                        t.push({
-                            inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6)],
-                            outputs: [wheels[wheelTypeTable.ravari.type].atoms[i]],
-                            wheelOutputs: [wheels[wheelTypeTable.ravari.type].atoms[i], demote],
-                            group: 3
-                        });
+                for (const dir in [, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
+                        if (demote == "vaca") {
+                            continue;
+                        }
+                        if (demote) {
+                            t.push({
+                                inputs: [],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6)],
+                                outputs: [wheels[wheelTypeTable.ravari.type].atoms[(i + dir) % 6]],
+                                wheelOutputs: [demote, wheels[wheelTypeTable.ravari.type].atoms[(i + dir) % 6]],
+                                group: 3
+                            });
+                        }
                     }
                 }
             }
@@ -1642,7 +1547,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         }
     }, /* True Animismus */ {
         name: "Glyph of Disproportion",
-        groups: ["Wheelless", "Wheel captures dilute", "Wheel captures potent"],
+        groups: ["Wheelless", "Herriman's wheel captures dilute", "Herriman's wheel captures potent"],
         transforms: () => {
             let t = [];
             for (const [equals, divided] of disproportionMap.entries()) {
@@ -1657,71 +1562,40 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 }
             }
             if ((activeWheels & wheelTypeTable.herriman.flag) != 0n) {
-                for (let i = 0; i < 6; i++) {
-                    for (const [equals, divided] of disproportionMap.entries()) {
-                        if ((atoms.get(equals) ?? 0) >= 1) {
-                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) - animismusToStrengthMap.get(equals));
-                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]) + animismusToStrengthMap.get(divided[1]));
-                            if (wheelDilute && wheelConcentrate) {
-                                t.push({
-                                    inputs: [equals],
-                                    wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + 1) % 6)],
-                                    outputs: [divided[0]],
-                                    wheelOutputs: [wheelDilute, wheelConcentrate],
-                                    group: 1
-                                });
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        for (const [equals, divided] of disproportionMap.entries()) {
+                            if ((atoms.get(equals) ?? 0) >= 1) {
+                                let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) - animismusToStrengthMap.get(equals));
+                                let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + dir) % 6]) + animismusToStrengthMap.get(divided[1]));
+                                if (wheelDilute && wheelConcentrate) {
+                                    t.push({
+                                        inputs: [equals],
+                                        wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + dir) % 6)],
+                                        outputs: [divided[0]],
+                                        wheelOutputs: [wheelDilute, wheelConcentrate],
+                                        group: 1
+                                    });
+                                }
                             }
                         }
                     }
                 }
-                for (let i = 0; i < 6; i++) {
-                    for (const [equals, divided] of disproportionMap.entries()) {
-                        if ((atoms.get(equals) ?? 0) >= 1) {
-                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) + animismusToStrengthMap.get(divided[1]));
-                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]) - animismusToStrengthMap.get(equals));
-                            if (wheelDilute && wheelConcentrate) {
-                                t.push({
-                                    inputs: [equals],
-                                    wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + 1) % 6)],
-                                    outputs: [divided[0]],
-                                    wheelOutputs: [wheelConcentrate, wheelDilute],
-                                    group: 1
-                                });
-                            }
-                        }
-                    }
-                }
-
-                for (let i = 0; i < 6; i++) {
-                    for (const [equals, divided] of disproportionMap.entries()) {
-                        if ((atoms.get(equals) ?? 0) >= 1) {
-                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) - animismusToStrengthMap.get(equals));
-                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]) + animismusToStrengthMap.get(divided[0]));
-                            if (wheelDilute && wheelConcentrate) {
-                                t.push({
-                                    inputs: [equals],
-                                    wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + 1) % 6)],
-                                    outputs: [divided[1]],
-                                    wheelOutputs: [wheelDilute, wheelConcentrate],
-                                    group: 2
-                                });
-                            }
-                        }
-                    }
-                }
-                for (let i = 0; i < 6; i++) {
-                    for (const [equals, divided] of disproportionMap.entries()) {
-                        if ((atoms.get(equals) ?? 0) >= 1) {
-                            let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) + animismusToStrengthMap.get(divided[0]));
-                            let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]) - animismusToStrengthMap.get(equals));
-                            if (wheelDilute && wheelConcentrate) {
-                                t.push({
-                                    inputs: [equals],
-                                    wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + 1) % 6)],
-                                    outputs: [divided[1]],
-                                    wheelOutputs: [wheelConcentrate, wheelDilute],
-                                    group: 2
-                                });
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        for (const [equals, divided] of disproportionMap.entries()) {
+                            if ((atoms.get(equals) ?? 0) >= 1) {
+                                let wheelDilute = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]) - animismusToStrengthMap.get(equals));
+                                let wheelConcentrate = strengthToAnimismusMap.get(animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + dir) % 6]) + animismusToStrengthMap.get(divided[0]));
+                                if (wheelDilute && wheelConcentrate) {
+                                    t.push({
+                                        inputs: [equals],
+                                        wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + dir) % 6)],
+                                        outputs: [divided[1]],
+                                        wheelOutputs: [wheelDilute, wheelConcentrate],
+                                        group: 2
+                                    });
+                                }
                             }
                         }
                     }
@@ -1753,7 +1627,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         }
     }, {
         name: "Glyph of Infusion",
-        groups: ["Transfer between atoms", "Concentrate wheel", "Dilute wheel", "Distribute around wheel"],
+        groups: ["Transfer between atoms", "Concentrate Herriman's wheel", "Dilute Herriman's wheel", "Distribute around Herriman's wheel"],
         transforms: () => {
             let t = [];
             for (const [sI, aI] of strengthToAnimismusMap.entries()) {
@@ -1831,45 +1705,27 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         }
                     }
                 }
-                for (let i = 0; i < 6; i++) {
-                    let toDiluteStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
-                    let toConcentrateStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]);
-                    if (Math.abs(toDiluteStrength) <= Math.abs(toConcentrateStrength)) {
-                        continue;
+                for (const dir in [1, 5]) {
+                    for (let i = 0; i < 6; i++) {
+                        let toDiluteStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
+                        let toConcentrateStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + dir) % 6]);
+                        if (Math.abs(toDiluteStrength) <= Math.abs(toConcentrateStrength)) {
+                            continue;
+                        }
+                        if (toConcentrateStrength != 0 && ((toDiluteStrength > 0) != (toConcentrateStrength > 0))) {
+                            continue;
+                        }
+                        let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
+                        let dilute = strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
+                        let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
+                        t.push({
+                            inputs: [],
+                            wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + dir) % 6)],
+                            outputs: [],
+                            wheelOutputs: [dilute, concentrate],
+                            group: 3
+                        });
                     }
-                    if (toConcentrateStrength != 0 && ((toDiluteStrength > 0) != (toConcentrateStrength > 0))) {
-                        continue;
-                    }
-                    let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
-                    let dilute = strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
-                    let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
-                    t.push({
-                        inputs: [],
-                        wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + 1) % 6)],
-                        outputs: [],
-                        wheelOutputs: [dilute, concentrate],
-                        group: 3
-                    });
-                }
-                for (let i = 0; i < 6; i++) {
-                    let toConcentrateStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
-                    let toDiluteStrength = animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + 1) % 6]);
-                    if (Math.abs(toDiluteStrength) <= Math.abs(toConcentrateStrength)) {
-                        continue;
-                    }
-                    if (toConcentrateStrength != 0 && ((toDiluteStrength > 0) != (toConcentrateStrength > 0))) {
-                        continue;
-                    }
-                    let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
-                    let dilute = strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
-                    let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
-                    t.push({
-                        inputs: [],
-                        wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + 1) % 6)],
-                        outputs: [],
-                        wheelOutputs: [concentrate, dilute],
-                        group: 3
-                    });
                 }
             }
             return t;
@@ -1956,6 +1812,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         name: "Glyph of Extraction",
         groups: ["Hey, stop making more dust!"],
         transforms: () => {
+            // behavor specified by other glyphs.
             return [];
         }
     });
