@@ -1388,7 +1388,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         }
     }, /* Reductive Metallurgy */ {
         name: "Glyph of Rejection",
-        groups: ["Reject metal", "Promote wheel", "Reject wheel", "Transfer around wheel"],
+        groups: ["Reject metal", "Reject metal into Ravari's wheel", "Reject Ravari's wheel", "Transfer around Ravari's wheel"],
         transforms: () => {
             let t = [];
             for (const [base, demote] of rejectionMap) {

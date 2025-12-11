@@ -33,7 +33,47 @@ function saveState() {
     };
 
     let downloadAnchor = document.getElementById("download");
-    // TODO: dynamic file name?
+    
+    let productString = "";
+    if (state.products.length != 0) {
+        productString = state.products[0].name;
+        for (let i = 1; i < state.products.length; i++) {
+            if (productString.length + state.products[i].name.length > 48) {
+                productString += ", and " + (state.products.length - i) + " others" ;
+                break;
+            }
+            productString += ", " + state.products[i].name;
+        }
+    }
+    
+    let reagentString = "";
+    if (state.reagents.length != 0) {
+        reagentString = state.reagents[0].name;
+        for (let i = 1; i < state.reagents.length; i++) {
+            if (reagentString.length + state.reagents[i].name.length > 48) {
+                reagentString += ", and " + (state.reagents.length - i) + " others" ;
+                break;
+            }
+            reagentString += ", " + state.reagents[i].name;
+        }
+    }
+    
+    let fileName = "Empty plan";
+    switch ((reagentString ? 1n : 0n) | (productString ? 2n : 0n)) {
+        case 1n:
+            fileName = "Disposal from " + reagentString;
+            break;
+        case 2n:
+            fileName = productString + " Ex nihlo";
+            break;
+        case 3n:
+            fileName = productString + " from " + reagentString;
+            break;
+        default:
+            break;
+    }
+    
+    downloadAnchor.setAttribute("download", fileName + ".json");
     downloadAnchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
     downloadAnchor.click();
 }
