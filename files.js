@@ -61,7 +61,7 @@ function saveState() {
     let fileName = "Empty plan";
     switch ((reagentString ? 1n : 0n) | (productString ? 2n : 0n)) {
         case 1n:
-            fileName = "Disposal from " + reagentString;
+            fileName = "Disposal of " + reagentString;
             break;
         case 2n:
             fileName = productString + " Ex nihlo";
