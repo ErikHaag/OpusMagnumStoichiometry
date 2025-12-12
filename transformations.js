@@ -639,7 +639,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     t.push({
                         inputs: [c],
                         wheelInputs: null,
-                        outputs: [quicklime],
+                        outputs: ["quicklime"],
                         wheelOutputs: null,
                         group: 0
                     });
