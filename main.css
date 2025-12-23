@@ -86,8 +86,9 @@ body.dark .ignore {
     color: var(--dark_ignore_text_color);
 }
 
-label {
-    vertical-align: center;
+label svg {
+    display: inline-block;
+    vertical-align: middle;
 }
 
 p {
