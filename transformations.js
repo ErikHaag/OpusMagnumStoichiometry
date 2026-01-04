@@ -996,7 +996,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if (promoteB && promoteF) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 5) % 6), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6)],
+                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 5) % 6), wheelInput(wheelTypeTable.soria.type, (i + 1) % 6)],
                             outputs: [],
                             wheelOutputs: ["quicklime", promoteB, promoteF],
                             group: 12
