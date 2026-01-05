@@ -164,3 +164,23 @@ th:nth-last-child(n+2), td:nth-last-child(n+2) {
     grid-template-columns: repeat(4, max-content);
     justify-items: center;
 }
+
+#help {
+    font-size: large;
+    background-color: rgb(30, 117, 247);
+    color: white;
+}
+
+#helpBox {
+    border: 2px lightblue solid;
+    position: absolute;
+    z-index: 1;
+}
+
+body.light #helpBox {
+    background-color: var(--light_background_color);
+}
+
+body.dark #helpBox {
+    background-color: var(--dark_background_color);
+}

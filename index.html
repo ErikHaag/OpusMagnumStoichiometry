@@ -12,8 +12,13 @@
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
 </head>
 <body class="light">
+    <div id="helpBox" hidden>
+        <p></p>
+        <button id="closeHelp">Close</button>
+        <button id="nextHelp">Next</button>
+    </div>
     <!-- SVGs -->
-     <svg id="symbols" width="0" height="0"></svg>
+     <svg id="symbols" hidden></svg>
     <!-- Templates -->
     <fieldset id="moleculeTemplate" class="box" hidden>
         <legend id="name_[0]_[1]" class="editable" contenteditable="plaintext-only" spellcheck="false">Unnamed group of bonded proxies</legend>
@@ -37,19 +42,20 @@
         <li>Unstable Elements (I-Luna)</li>
         <li>Vacancy (ItsKazyen)</li>
     </ul>
-    <fieldset>
+    <button id="help">Help!</button>
+    <fieldset id="reagentsField">
         <legend>Reagents <button id="collapseReagents">\/</button></legend>
         <button id="addReagent">+</button>
         <div id="reagentsTray" class="trays">
         </div>
     </fieldset>
-    <fieldset>
+    <fieldset id="productsField">
         <legend>Products <button id="collapseProducts">\/</button></legend>
         <button id="addProduct">+</button>
         <div id="productsTray" class="trays">
         </div>
     </fieldset>
-    <fieldset>
+    <fieldset id="settingsField">
         <legend>Settings <button id="collapseSettings">\/</button></legend>
         <div id="settingsTray" class="trays">
             <div id="tSettings" class="pairs"></div>
@@ -65,7 +71,7 @@
             </div>
         </div>
     </fieldset>
-    <fieldset>
+    <fieldset id="plannerField">
         <legend>Alchemy Planner</legend>
         <table class="planner">
             <thead>
@@ -111,4 +117,5 @@
 <script src='transformations.js'></script>
 <script src='main.js'></script>
 <script src='files.js'></script>
+<script src='help.js'></script>
 </html>

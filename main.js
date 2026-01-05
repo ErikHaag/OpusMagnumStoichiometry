@@ -21,6 +21,7 @@ const settingsTray = document.getElementById("settingsTray");
 
 const editModeSelect = document.getElementById("editMode");
 
+let permitUserInteraction = true;
 let hasInteracted = false;
 
 let usingSymbols = false;
@@ -98,7 +99,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("click", (e) => {
-    let element = e.target;
+    if (permitUserInteraction) {
+        clickHandler(e.target);
+    }
+});
+
+function clickHandler(element) {
     if (!element) {
         return;
     }
@@ -171,9 +177,9 @@ document.addEventListener("click", (e) => {
                         case "reagent":
                             reagents.splice(id, 1);
                             reagentsUsed.splice(id, 1);
-                            reagentsTray.children[id].remove();
-                            for (let i = id; i < reagentsTray.children.length; i++) {
-                                updateTemplateId(reagentsTray.children[i], i.toFixed());
+                            document.getElementById("molecule_reagent_" + id.toFixed()).remove();
+                            for (let i = id; i < reagents.length; i++) {
+                                updateTemplateId(document.getElementById("molecule_reagent_" + (i + 1).toFixed()), i.toFixed());
                             }
                             for (let i = 0; i < timeline.length; i++) {
                                 if (timeline[i].action != "inject" && timeline[i].action != "retract") {
@@ -191,9 +197,9 @@ document.addEventListener("click", (e) => {
                         case "product":
                             products.splice(id, 1);
                             productsUsed.splice(id, 1);
-                            productsTray.children[id].remove();
-                            for (let i = id; i < productsTray.children.length; i++) {
-                                updateTemplateId(productsTray.children[i], i.toFixed());
+                            document.getElementById("molecule_product_" + id.toFixed()).remove();
+                            for (let i = id; i < reagents.length; i++) {
+                                updateTemplateId(document.getElementById("molecule_product_" + (i + 1).toFixed()), i.toFixed());
                             }
                             for (let i = 0; i < timeline.length; i++) {
                                 if (timeline[i].action != "submit") {
@@ -267,10 +273,20 @@ document.addEventListener("click", (e) => {
             }
             break;
     }
-});
+}
 
 document.addEventListener("change", (e) => {
     let element = e.target;
+    if (permitUserInteraction) {
+        changeHandler(element);
+    } else {
+        if (element.tagName == "INPUT" && element.getAttribute("type") == "checkbox") {
+            element.checked = !element.checked;
+        }
+    }
+});
+
+function changeHandler(element) {
     let elementId = element.id;
     if (!elementId) {
         return;
@@ -363,7 +379,7 @@ document.addEventListener("change", (e) => {
             updateTimeline(); 
         }
     }
-});
+}
 
 window.addEventListener("beforeunload", (e) => {
     if (hasInteracted) {
@@ -723,7 +739,8 @@ function updateTimeline() {
             buttonDiv.appendChild(deleteEventButton);
         }
     }
-    [document.getElementById("timeline").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
+    document.getElementById("timeline").innerHTML = tempElement.innerHTML;
+    tempElement.innerHTML = "";
 
     // Looping check
     if (success && productsUsed.length > 0 && productsUsed.reduce((min, v) => min > v ? v : min) >= 1n) {
@@ -731,8 +748,17 @@ function updateTimeline() {
         let endWheels = structuredClone(wheels);
         atoms.clear();
         wheels = structuredClone(initalWheelTable);
-        let repeatStart = timeline.length - 1;
+        let repeatStart = -1;
+
+        let lastPotentialRepeat = timeline.length;
+        for (let i = 0; i < products.length; i++) {
+            lastPotentialRepeat = Math.min(lastPotentialRepeat, timeline.findLastIndex((v) => v.action == "submit" && v.product == i));
+        }
+
         for (const [i, event] of timeline.entries()) {
+            if (i > lastPotentialRepeat) {
+                break;
+            }
             let match = true;
 
             for (const [aT, c] of atoms.entries()) {
@@ -789,7 +815,7 @@ function updateTimeline() {
         }
         atoms = endAtoms;
         wheels = endWheels;
-        if (repeatStart != timeline.length - 1) {
+        if (repeatStart != -1) {
             let eventIndex = document.getElementById("timeline_event_" + repeatStart.toFixed());
             eventIndex.innerHTML = "&#x21B1; " + eventIndex.innerHTML;
         }
