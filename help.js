@@ -93,17 +93,17 @@ const helpList = [
         text: "Atoms require help to transmute, these helpers are in the form of glyphs and wheels."
     },
     {
-        id: "toggle_glyph_0",
+        id: "tSettings",
         side: "above",
         text: "This column has glyphs"
     },
     {
-        id: "toggle_wheel_0",
+        id: "wSettings",
         side: "above",
         text: "and this column has wheels."
     },
     {
-        id: "darkMode",
+        id: "cSettings",
         side: "above",
         text: "Dark mode, proxy symbols, saving, and loading are present here."  
     },

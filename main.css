@@ -139,6 +139,11 @@ th:nth-last-child(n+2), td:nth-last-child(n+2) {
     padding: 0 10px;
 }
 
+h3.reduceMargins {
+    margin-block-start: 0.5em;
+    margin-block-end: 0.1em;
+}
+
 .trays {
     display: grid;
     gap: 10px;
@@ -147,6 +152,10 @@ th:nth-last-child(n+2), td:nth-last-child(n+2) {
     justify-content: start;
     overflow-x: auto;
     width: 95vw;
+}
+
+.trays.wide-gap {
+    gap: 20px;
 }
 
 .triplets {

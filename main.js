@@ -67,6 +67,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const transformSettingsDiv = document.getElementById("tSettings");
         let i = 0;
         for (let t of transformationTable) {
+            if (transformationTableHeaders[i]) {
+                let header = document.createElement("h3");
+                header.classList.add("reduceMargins");
+                header.innerText = transformationTableHeaders[i];
+                transformSettingsDiv.appendChild(header);
+                transformSettingsDiv.appendChild(document.createElement("div"));
+            }
             let id = "toggle_glyph_" + i.toFixed();
             let label = document.createElement("label");
             label.innerText = t.name;

@@ -1,5 +1,7 @@
 let transformationTable = [];
 
+let transformationTableHeaders = [];
+
 let allowedTransformations = new Set(["Glyph of Calcification"]);
 
 {
@@ -195,30 +197,32 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
     const metalsList = ["vaca", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium"];
     const noblesList = ["alpha", "beta", "gamma"];
 
-    function wheelInput(wheelType, index) {
-        return { type: wheelType, id: index, atomType: wheels[wheelType].atoms[index] };
+    function wheelInput(w, index) {
+        return { type: w.type, id: index, atomType: wheels[w.type].atoms[index] };
     }
 
-    transformationTable.push(
-        /* Vanilla */ {
-            name: "Glyph of Calcification",
-            groups: ["Calcify cardinal"],
-            transforms: () => {
-                let t = [];
-                for (const c of cardinalsList) {
-                    if ((atoms.get(c) ?? 0) >= 1) {
-                        t.push({
-                            inputs: [c],
-                            wheelInputs: null,
-                            outputs: ["salt"],
-                            wheelOutputs: null,
-                            group: 0
-                        });
-                    }
+
+    // Vanilla
+    transformationTableHeaders[transformationTable.length] = "Opus Magnum";
+    transformationTable.push({
+        name: "Glyph of Calcification",
+        groups: ["Calcify cardinal"],
+        transforms: () => {
+            let t = [];
+            for (const c of cardinalsList) {
+                if ((atoms.get(c) ?? 0) >= 1) {
+                    t.push({
+                        inputs: [c],
+                        wheelInputs: null,
+                        outputs: ["salt"],
+                        wheelOutputs: null,
+                        group: 0
+                    });
                 }
-                return t;
             }
-        }, {
+            return t;
+        }
+    }, {
         name: "Glyph of Duplication",
         groups: ["Use existing atom", "Use Van Berlo's Wheel"],
         transforms: () => {
@@ -240,7 +244,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         let p = wheels[wheelTypeTable.berlo.type].atoms.indexOf(c);
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [wheelInput(wheelTypeTable.berlo.type, p)],
+                            wheelInputs: [wheelInput(wheelTypeTable.berlo, p)],
                             outputs: [c],
                             wheelOutputs: [c],
                             group: 1
@@ -281,7 +285,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (promoteS) {
                             t.push({
                                 inputs: ["quicksilver"],
-                                wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                                 outputs: [],
                                 wheelOutputs: [promoteS],
                                 group: 1
@@ -295,7 +299,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (promote) {
                             t.push({
                                 inputs: ["quicksilver"],
-                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                 outputs: [],
                                 wheelOutputs: [promote],
                                 group: 2
@@ -326,7 +330,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (promote) {
                             t.push({
                                 inputs: ["quickcopper"],
-                                wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                                 outputs: [],
                                 wheelOutputs: [promote],
                                 group: 4
@@ -340,7 +344,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (promote) {
                             t.push({
                                 inputs: ["quickcopper"],
-                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                 outputs: [],
                                 wheelOutputs: [promote],
                                 group: 5
@@ -357,7 +361,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             if (wheels[wheelTypeTable.soria.type].atoms[i] == "quickcopper") {
                                 t.push({
                                     inputs: [base],
-                                    wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                                    wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                                     outputs: [hPromote],
                                     wheelOutputs: ["quicklime"],
                                     group: 6
@@ -365,7 +369,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             } else if (promote && wheels[wheelTypeTable.soria.type].atoms[i] == "quicksilver") {
                                 t.push({
                                     inputs: [base],
-                                    wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                                    wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                                     outputs: [promote],
                                     wheelOutputs: ["quicklime"],
                                     group: 6
@@ -386,7 +390,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             if (demote) {
                                 t.push({
                                     inputs: [base],
-                                    wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                    wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                     outputs: [promote],
                                     wheelOutputs: [demote],
                                     group: 7
@@ -408,7 +412,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (destination) {
                             t.push({
                                 inputs: [],
-                                wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + dir) % 6)],
+                                wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.soria, (i + dir) % 6)],
                                 outputs: [],
                                 wheelOutputs: ["quicklime", destination],
                                 group: 8
@@ -428,7 +432,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (promote && demote) {
                             t.push({
                                 inputs: [],
-                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6)],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari, i), wheelInput(wheelTypeTable.ravari, (i + dir) % 6)],
                                 outputs: [],
                                 wheelOutputs: [demote, promote],
                                 group: 9
@@ -450,7 +454,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if (hPromote) {
                                     t.push({
                                         inputs: [],
-                                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, j), wheelInput(wheelTypeTable.ravari.type, i)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.soria, j), wheelInput(wheelTypeTable.ravari, i)],
                                         outputs: [],
                                         wheelOutputs: ["quicklime", hPromote],
                                         group: 10
@@ -460,7 +464,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if (promote) {
                                     t.push({
                                         inputs: [],
-                                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, j), wheelInput(wheelTypeTable.ravari.type, i)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.soria, j), wheelInput(wheelTypeTable.ravari, i)],
                                         outputs: [],
                                         wheelOutputs: ["quicklime", promote],
                                         group: 10
@@ -484,7 +488,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             }
                             t.push({
                                 inputs: [],
-                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, j), wheelInput(wheelTypeTable.soria.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari, j), wheelInput(wheelTypeTable.soria, i)],
                                 outputs: [],
                                 wheelOutputs: [demote, "quicksilver"],
                                 group: 11
@@ -534,7 +538,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if (vitate) {
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i)],
+                            wheelInputs: [wheelInput(wheelTypeTable.herriman, i)],
                             outputs: ["mors"],
                             wheelOutputs: [vitate],
                             group: 1
@@ -546,7 +550,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if (morate) {
                         t.push({
                             inputs: ["salt"],
-                            wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i)],
+                            wheelInputs: [wheelInput(wheelTypeTable.herriman, i)],
                             outputs: ["vitae"],
                             wheelOutputs: [morate],
                             group: 2
@@ -611,7 +615,11 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             }
             return [];
         }
-    }, /* Complicated Elements */ {
+    });
+
+    // Complicated Elements
+    transformationTableHeaders[transformationTable.length] = "Complicated Elements";
+    transformationTable.push({
         name: "Glyph of Fusion",
         groups: ["Fuse"],
         transforms: () => {
@@ -647,7 +655,11 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             }
             return t;
         }
-    }, /* Halving Metallurgy */ {
+    });
+
+    // Halving Metallurgy
+    transformationTableHeaders[transformationTable.length] = "Halving Metallurgy";
+    transformationTable.push({
         name: "Glyph of Halves",
         groups: ["Half project metals with quicksilver", "Half project Soria's wheel and metal with quicksilver", "Half project Ravari's wheel and metal with quicksilver", "Half project Soria's wheel and Ravari's wheel with quicksilver",
             "Half project metals with Soria's wheel", "Half project metals with Ravari's wheel", "Half project metal and Ravari's wheel from Soria's Wheel", "Half project metal and Soria's wheel from Ravari's Wheel",
@@ -698,7 +710,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if ((atoms.get(baseF) ?? 0) >= 1) {
                                     t.push({
                                         inputs: ["quicksilver", baseF],
-                                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                                         outputs: [promoteF],
                                         wheelOutputs: [promoteS],
                                         group: 1
@@ -716,7 +728,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if ((atoms.get(baseF) ?? 0) >= 1) {
                                     t.push({
                                         inputs: ["quicksilver", baseF],
-                                        wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                         outputs: [promoteF],
                                         wheelOutputs: [promoteR],
                                         group: 2
@@ -738,7 +750,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                     if (promoteR) {
                                         t.push({
                                             inputs: ["quicksilver"],
-                                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.ravari.type, j)],
+                                            wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.ravari, j)],
                                             outputs: [],
                                             wheelOutputs: [promoteS, promoteR],
                                             group: 3
@@ -762,7 +774,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             if ((atoms.get(baseJ) ?? 0) >= 2) {
                                 t.push({
                                     inputs: [baseJ, baseJ],
-                                    wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                                    wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                                     outputs: [promoteJ, promoteJ],
                                     wheelOutputs: ["quicklime"],
                                     group: 4
@@ -774,7 +786,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if ((atoms.get(baseK) ?? 0) >= 1) {
                                     t.push({
                                         inputs: [baseJ, baseK],
-                                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                                         outputs: [promoteJ, promoteK],
                                         wheelOutputs: ["quicklime"],
                                         group: 4
@@ -801,7 +813,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             if ((atoms.get(baseJ) ?? 0) >= 2) {
                                 t.push({
                                     inputs: [baseJ, baseJ],
-                                    wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                    wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                     outputs: [promoteJ, promoteJ],
                                     wheelOutputs: [demoteR],
                                     group: 5
@@ -813,7 +825,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if ((atoms.get(baseK) ?? 0) >= 1) {
                                     t.push({
                                         inputs: [baseJ, baseK],
-                                        wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                         outputs: [promoteJ, promoteK],
                                         wheelOutputs: [demoteR],
                                         group: 5
@@ -835,7 +847,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                     if ((atoms.get(base) ?? 0) >= 1n) {
                                         t.push({
                                             inputs: [base],
-                                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.ravari.type, j)],
+                                            wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.ravari, j)],
                                             outputs: [project],
                                             wheelOutputs: ["quicklime", promoteR],
                                             group: 6
@@ -859,7 +871,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                         if ((atoms.get(base) ?? 0) >= 1n) {
                                             t.push({
                                                 inputs: [base],
-                                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.soria.type, j)],
+                                                wheelInputs: [wheelInput(wheelTypeTable.ravari, i), wheelInput(wheelTypeTable.soria, j)],
                                                 outputs: [project],
                                                 wheelOutputs: [rejectW, promoteS],
                                                 group: 7
@@ -888,7 +900,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if ((atoms.get(base) ?? 0) >= 1n) {
                                     t.push({
                                         inputs: [base],
-                                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + dir) % 6)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.soria, (i + dir) % 6)],
                                         outputs: [promote],
                                         wheelOutputs: ["quicklime", promoteS],
                                         group: 8
@@ -912,7 +924,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if ((atoms.get(baseF) ?? 0) >= 1) {
                                     t.push({
                                         inputs: [baseF],
-                                        wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.ravari, i), wheelInput(wheelTypeTable.ravari, (i + dir) % 6)],
                                         outputs: [promoteF],
                                         wheelOutputs: [demoteR, promoteR],
                                         group: 9
@@ -939,7 +951,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                     if (promoteR) {
                                         t.push({
                                             inputs: [],
-                                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + dir) % 6), wheelInput(wheelTypeTable.ravari.type, j)],
+                                            wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.soria, (i + dir) % 6), wheelInput(wheelTypeTable.ravari, j)],
                                             outputs: [],
                                             wheelOutputs: ["quicklime", promoteS, promoteR],
                                             group: 10
@@ -969,7 +981,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                     if (promoteS) {
                                         t.push({
                                             inputs: [],
-                                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6), wheelInput(wheelTypeTable.soria.type, j)],
+                                            wheelInputs: [wheelInput(wheelTypeTable.ravari, i), wheelInput(wheelTypeTable.ravari, (i + dir) % 6), wheelInput(wheelTypeTable.soria, j)],
                                             outputs: [],
                                             wheelOutputs: [demoteR, promoteR, promoteS],
                                             group: 11
@@ -996,7 +1008,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if (promoteB && promoteF) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + 5) % 6), wheelInput(wheelTypeTable.soria.type, (i + 1) % 6)],
+                            wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.soria, (i + 5) % 6), wheelInput(wheelTypeTable.soria, (i + 1) % 6)],
                             outputs: [],
                             wheelOutputs: ["quicklime", promoteB, promoteF],
                             group: 12
@@ -1015,7 +1027,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if (demote && promoteB && promoteF) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + 5) % 6), wheelInput(wheelTypeTable.ravari.type, (i + 1) % 6)],
+                            wheelInputs: [wheelInput(wheelTypeTable.ravari, i), wheelInput(wheelTypeTable.ravari, (i + 5) % 6), wheelInput(wheelTypeTable.ravari, (i + 1) % 6)],
                             outputs: [],
                             wheelOutputs: [demote, promoteB, promoteF],
                             group: 13
@@ -1059,7 +1071,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     }
                     t.push({
                         inputs: [],
-                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                        wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                         outputs: ["quicksilver"],
                         wheelOutputs: ["quicklime"],
                         group: 1
@@ -1163,7 +1175,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     }
                     t.push({
                         inputs: [],
-                        wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                        wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                         outputs: ["quickcopper"],
                         wheelOutputs: ["quickcopper"],
                         group: 1
@@ -1213,7 +1225,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             }
                             t.push({
                                 inputs: ["quickcopper"],
-                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                 outputs: ["quicksilver"],
                                 wheelOutputs: [demote],
                                 group: 1,
@@ -1239,7 +1251,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             }
                             t.push({
                                 inputs: [base],
-                                wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                                 outputs: [demote],
                                 wheelOutputs: ["quicksilver"],
                                 group: 2,
@@ -1265,7 +1277,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 }
                                 t.push({
                                     inputs: [],
-                                    wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.ravari.type, j)],
+                                    wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.ravari, j)],
                                     outputs: [],
                                     wheelOutputs: ["quicksilver", demote],
                                     group: 3,
@@ -1280,7 +1292,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (wheels[wheelTypeTable.soria.type].atoms[i] == "quicksilver" && wheels[wheelTypeTable.soria.type].atoms[(i + dir) % 6] == "quicklime") {
                             t.push({
                                 inputs: [],
-                                wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + dir) % 6)],
+                                wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.soria, (i + dir) % 6)],
                                 outputs: [],
                                 wheelOutputs: ["quickcopper", "quickcopper"],
                                 group: 4
@@ -1288,7 +1300,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         } else if (wheels[wheelTypeTable.soria.type].atoms[i] == "quickcopper" && wheels[wheelTypeTable.soria.type].atoms[(i + dir) % 6] == "quickcopper") {
                             t.push({
                                 inputs: [],
-                                wheelInputs: [wheelInput(wheelTypeTable.soria.type, i), wheelInput(wheelTypeTable.soria.type, (i + dir) % 6)],
+                                wheelInputs: [wheelInput(wheelTypeTable.soria, i), wheelInput(wheelTypeTable.soria, (i + dir) % 6)],
                                 outputs: [],
                                 wheelOutputs: ["quicklime", "quicksilver"],
                                 group: 4
@@ -1314,7 +1326,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         }
                         t.push({
                             inputs: ["quicksilver"],
-                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                            wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                             outputs: ["quickcopper"],
                             wheelOutputs: ["quickcopper"],
                             group: 6
@@ -1330,7 +1342,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         }
                         t.push({
                             inputs: ["quicklime"],
-                            wheelInputs: [wheelInput(wheelTypeTable.soria.type, i)],
+                            wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
                             outputs: ["quickcopper"],
                             wheelOutputs: ["quickcopper"],
                             group: 7
@@ -1341,7 +1353,11 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
 
             return t;
         }
-    },/* Noble Elements */ {
+    });
+
+    // Noble Elements
+    transformationTableHeaders[transformationTable.length] = "Noble Elements";
+    transformationTable.push({
         name: "Glyph of Coronation",
         groups: ["Coronate"],
         transforms: () => {
@@ -1386,7 +1402,11 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             }
             return t;
         }
-    }, /* Reductive Metallurgy */ {
+    });
+
+    // Reductive Metallurgy
+    transformationTableHeaders[transformationTable.length] = "Reductive Metallurgy";
+    transformationTable.push({
         name: "Glyph of Rejection",
         groups: ["Reject metal", "Reject metal into Ravari's wheel", "Reject Ravari's wheel", "Transfer around Ravari's wheel"],
         transforms: () => {
@@ -1425,7 +1445,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             if ((atoms.get(base) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [base],
-                                    wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                    wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                     outputs: [demote],
                                     wheelOutputs: [promote],
                                     group: 1,
@@ -1447,7 +1467,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if (demote) {
                         t.push({
                             inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                            wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                             outputs: ["quicksilver"],
                             wheelOutputs: [demote],
                             group: 2,
@@ -1469,7 +1489,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (promote && demote) {
                             t.push({
                                 inputs: [],
-                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6)],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari, i), wheelInput(wheelTypeTable.ravari, (i + dir) % 6)],
                                 outputs: [],
                                 wheelOutputs: [demote, promote],
                                 group: 3,
@@ -1528,7 +1548,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     for (let i = 0; i < 6; i++) {
                         t.push({
                             inputs: ["quicksilver"],
-                            wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                            wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                             outputs: [wheels[wheelTypeTable.ravari.type].atoms[i]],
                             wheelOutputs: [wheels[wheelTypeTable.ravari.type].atoms[i]],
                             group: 1
@@ -1547,7 +1567,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             if ((atoms.get(m) ?? 0) >= 1) {
                                 t.push({
                                     inputs: [m],
-                                    wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i)],
+                                    wheelInputs: [wheelInput(wheelTypeTable.ravari, i)],
                                     outputs: [m, m],
                                     wheelOutputs: [demote],
                                     group: 2
@@ -1565,7 +1585,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if (demote) {
                             t.push({
                                 inputs: [],
-                                wheelInputs: [wheelInput(wheelTypeTable.ravari.type, i), wheelInput(wheelTypeTable.ravari.type, (i + dir) % 6)],
+                                wheelInputs: [wheelInput(wheelTypeTable.ravari, i), wheelInput(wheelTypeTable.ravari, (i + dir) % 6)],
                                 outputs: [wheels[wheelTypeTable.ravari.type].atoms[(i + dir) % 6]],
                                 wheelOutputs: [demote, wheels[wheelTypeTable.ravari.type].atoms[(i + dir) % 6]],
                                 group: 3
@@ -1576,7 +1596,11 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             }
             return t;
         }
-    }, /* True Animismus */ {
+    });
+
+    // True Animismus
+    transformationTableHeaders[transformationTable.length] = "True Animismus";
+    transformationTable.push({
         name: "Glyph of Disproportion",
         groups: ["Wheelless", "Herriman's wheel captures dilute", "Herriman's wheel captures potent"],
         transforms: () => {
@@ -1602,7 +1626,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if (wheelDilute && wheelConcentrate) {
                                     t.push({
                                         inputs: [equals],
-                                        wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + dir) % 6)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.herriman, i), wheelInput(wheelTypeTable.herriman, (i + dir) % 6)],
                                         outputs: [divided[0]],
                                         wheelOutputs: [wheelDilute, wheelConcentrate],
                                         group: 1
@@ -1621,7 +1645,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 if (wheelDilute && wheelConcentrate) {
                                     t.push({
                                         inputs: [equals],
-                                        wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + dir) % 6)],
+                                        wheelInputs: [wheelInput(wheelTypeTable.herriman, i), wheelInput(wheelTypeTable.herriman, (i + dir) % 6)],
                                         outputs: [divided[1]],
                                         wheelOutputs: [wheelDilute, wheelConcentrate],
                                         group: 2
@@ -1702,7 +1726,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             let dilute = strengthToAnimismusMap.get(s - concentrateDirection);
                             t.push({
                                 inputs: [a],
-                                wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.herriman, i)],
                                 outputs: [dilute],
                                 wheelOutputs: [concentrate],
                                 group: 1
@@ -1728,7 +1752,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             let dilute = strengthToAnimismusMap.get(strength - concentrateDirection);
                             t.push({
                                 inputs: [a],
-                                wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i)],
+                                wheelInputs: [wheelInput(wheelTypeTable.herriman, i)],
                                 outputs: [concentrate],
                                 wheelOutputs: [dilute],
                                 group: 2
@@ -1751,7 +1775,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         let concentrate = strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
                         t.push({
                             inputs: [],
-                            wheelInputs: [wheelInput(wheelTypeTable.herriman.type, i), wheelInput(wheelTypeTable.herriman.type, (i + dir) % 6)],
+                            wheelInputs: [wheelInput(wheelTypeTable.herriman, i), wheelInput(wheelTypeTable.herriman, (i + dir) % 6)],
                             outputs: [],
                             wheelOutputs: [dilute, concentrate],
                             group: 3
@@ -1761,7 +1785,11 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             }
             return t;
         }
-    }, /* Unstable Elements */ {
+    });
+
+    // Unstable Elements
+    transformationTableHeaders[transformationTable.length] = "Unstable Elements";
+    transformationTable.push({
         name: "Glyph of Irradiation",
         groups: ["Irradiate"],
         transforms: () => {
@@ -1816,7 +1844,11 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             }
             return t;
         }
-    }, /* Vacancy */ {
+    });
+
+    // Vacancy
+    transformationTableHeaders[transformationTable.length] = "Vacancy";
+    transformationTable.push({
         name: "Glyph of Hollowing",
         groups: ["Dude, you need to dust in here"],
         transforms: () => {
