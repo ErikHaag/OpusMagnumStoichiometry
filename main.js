@@ -19,7 +19,7 @@ const reagentsTray = document.getElementById("reagentsTray");
 const productsTray = document.getElementById("productsTray");
 const settingsTray = document.getElementById("settingsTray");
 
-const editModeSelect = document.getElementById("editMode");
+const editModeCheckbox = document.getElementById("editMode");
 
 let permitUserInteraction = true;
 let hasInteracted = false;
@@ -205,7 +205,7 @@ function clickHandler(element) {
                             products.splice(id, 1);
                             productsUsed.splice(id, 1);
                             document.getElementById("molecule_product_" + id.toFixed()).remove();
-                            for (let i = id; i < reagents.length; i++) {
+                            for (let i = id; i < products.length; i++) {
                                 updateTemplateId(document.getElementById("molecule_product_" + (i + 1).toFixed()), i.toFixed());
                             }
                             for (let i = 0; i < timeline.length; i++) {
@@ -231,26 +231,8 @@ function clickHandler(element) {
                             break;
                     }
                     break;
-                case "event":
-                    switch (subject) {
-                        case "delay":
-                            timeline.splice(id, 0, ...timeline.splice(id + 1, 1));
-                            break;
-                        case "expedite":
-                            timeline.splice(id - 1, 0, ...timeline.splice(id, 1));
-                            break;
-                        case "remove":
-                            timeline.splice(id, 1);
-                            break;
-                        default:
-                            break;
-                    }
-                    updateTimeline();
-                    updateInputs();
-                    updateOutputs();
-                    break;
                 case "inject":
-                    case "retract":
+                case "retract":
                     hasInteracted = true;
                     timeline.push({ action: type, reagent: id });
                     updateTimeline();
@@ -327,6 +309,21 @@ function changeHandler(element) {
             loadPromise.then(loadState);
             return;
         }
+        if (element.id == "editMode") {
+            hasInteracted = true;
+            const timelineElement = document.getElementById("timeline");
+            timelineElement.className = ""
+            if (element.checked) {
+                document.getElementById("deleteLastEvent").hidden = true;
+                timelineElement.classList.add("quadruplets");
+            } else {
+                document.getElementById("deleteLastEvent").hidden = false;
+                timelineElement.classList.add("triplets")
+
+            }
+            updateTimeline();
+            return;
+        }
         let [type, subject, id] = elementId.split("_");
         if (atomTypes.includes(type)) {
             hasInteracted = true;
@@ -370,23 +367,94 @@ function changeHandler(element) {
                 updateTimeline();
             }
         }
-    } else if (element.tagName == "SELECT") {
-        if (element.id == "editMode") {
-            hasInteracted = true;
-            const timelineElement = document.getElementById("timeline");
-            timelineElement.className = ""
-            if (element.value == "normal") {
-                document.getElementById("deleteLastEvent").hidden = false;
-                timelineElement.classList.add("triplets")
-            } else {
-                document.getElementById("deleteLastEvent").hidden = true;
-                timelineElement.classList.add("quadruplets");
+    }
+}
 
-            }
-            updateTimeline(); 
+let selectedEvent = -1n
+
+let hoveredEvent = -1n;
+
+document.addEventListener("mousedown", (e) => {
+    if (!permitUserInteraction || !editModeCheckbox.checked || !e.target.id.startsWith("timeline_event_")) {
+        selectedEvent = -1n;
+        if (hoveredEvent != -1n) {
+            hoveredEvent = -1n;
+            updateDragBorder();
+        }
+        return;
+    }
+    selectedEvent = BigInt(e.target.id.substring(15));
+});
+
+document.addEventListener("mousemove", (e) => {
+    if (!permitUserInteraction || !editModeCheckbox.checked || selectedEvent == -1n) {
+        if (hoveredEvent != -1n) {
+            hoveredEvent = -1n;
+            updateDragBorder();
+        }
+        return;
+    }
+    let L = BigInt(timeline.length);
+    let v = L;
+    if (L == 0n) {
+        // huh?
+        selectedEvent = -1n;
+        return;
+    }
+    for (let i = 0n; i < L; i++) {
+        let bounds = document.getElementById("timeline_event_" + i).getBoundingClientRect();
+        if (bounds.y + bounds.height / 2 > e.clientY) {
+            v = i;
+            break;
+        }
+    }
+    hoveredEvent = v;
+    updateDragBorder();
+});
+
+document.addEventListener("mouseup", (e) => {
+    if (!permitUserInteraction || !editModeCheckbox.checked || selectedEvent == -1n || hoveredEvent == -1n) {
+        selectedEvent = -1n;
+        if (hoveredEvent != -1n) {
+            hoveredEvent = -1n;
+            updateDragBorder();
+        }
+        return;
+    }
+    let element = timeline.splice(Number(selectedEvent), 1);
+    if (selectedEvent < hoveredEvent) {
+        hoveredEvent--;
+    }
+    timeline.splice(Number(hoveredEvent), 0, ...element);
+    updateTimeline();
+    updateInputs();
+    updateOutputs();
+    selectedEvent = -1n;
+    hoveredEvent = -1n;
+    updateDragBorder();
+});
+
+function updateDragBorder() {
+    let L = BigInt(timeline.length);
+    for (let i = 0n; i < L; i++) {
+        let e = document.getElementById("timeline_event_" + i);
+        switch ((i == -1n) ? -2n : i) {
+            case hoveredEvent - 1n:
+                e.classList.remove("selectAbove");
+                e.classList.add("selectBelow");
+                break;
+            case hoveredEvent:
+                e.classList.add("selectAbove");
+                e.classList.remove("selectBelow");
+                break;
+            default:
+                e.classList.remove("selectAbove");
+                e.classList.remove("selectBelow");
+                break;
         }
     }
 }
+
 
 window.addEventListener("beforeunload", (e) => {
     if (hasInteracted) {
@@ -572,22 +640,20 @@ function updateTimeline() {
     }
 
     function removeAtomsFromMap(molecule) {
-        for (const [aT, c] of molecule.entries()) {
-            let current = atoms.get(aT) ?? 0;
-            if (current < c) {
-                return false;
-            }
-        }
+        let r = true;
         for (const [aT, c] of molecule.entries()) {
             let current = atoms.get(aT) ?? 0;
             current -= c;
             if (current == 0) {
                 atoms.delete(aT);
-            } else {
-                atoms.set(aT, current);
+                continue;
             }
+            if (current < 0) {
+                r = false
+            }
+            atoms.set(aT, current);
         }
-        return true
+        return r;
     }
 
     function applyWheelChanges(from, to) {
@@ -714,6 +780,10 @@ function updateTimeline() {
         let index = document.createElement("div");
         index.id = "timeline_event_" + i.toFixed();
         index.innerText = (i + 1) + ": ";
+        if (editModeCheckbox.checked) {
+            index.innerText = "|| " + index.innerText;
+            index.classList.add("noSelect");
+        }
         tempElement.appendChild(index);
         let item = document.createElement("div");
         item.innerHTML = description;
@@ -725,23 +795,11 @@ function updateTimeline() {
         let glyphTag = document.createElement("div");
         glyphTag.innerText = glyphName;
         tempElement.appendChild(glyphTag);
-        if (editModeSelect.value == "tweak") {
+        if (editModeCheckbox.checked) {
             let buttonDiv = document.createElement("div");
             tempElement.appendChild(buttonDiv);
-            if (i > 0) {
-                let upEventButton = document.createElement("button");
-                upEventButton.id = "event_expedite_" + i.toFixed();
-                upEventButton.innerHTML = "&#x2191;"
-                buttonDiv.appendChild(upEventButton);
-            }
-            if (i < timeline.length - 1) {
-                let upEventButton = document.createElement("button");
-                upEventButton.id = "event_delay_" + i.toFixed();
-                upEventButton.innerHTML = "&#x2193;"
-                buttonDiv.appendChild(upEventButton);
-            }
             let deleteEventButton = document.createElement("button");
-            deleteEventButton.id = "event_remove_" + i.toFixed();
+            deleteEventButton.id = "remove_event_" + i.toFixed();
             deleteEventButton.innerHTML = "&#x1F5D1;"
             buttonDiv.appendChild(deleteEventButton);
         }
