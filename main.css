@@ -187,6 +187,10 @@ h3.reduceMargins {
     text-align: right;
 }
 
+#timeline.quadruplets :nth-child(4n + 1) {
+    touch-action: none;
+}
+
 .noSelect {
     user-select: none;
 }

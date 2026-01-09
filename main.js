@@ -374,7 +374,7 @@ let selectedEvent = -1n
 
 let hoveredEvent = -1n;
 
-document.addEventListener("mousedown", (e) => {
+document.addEventListener("pointerdown", (e) => {
     if (!permitUserInteraction || !editModeCheckbox.checked || !e.target.id.startsWith("timeline_event_")) {
         selectedEvent = -1n;
         if (hoveredEvent != -1n) {
@@ -386,7 +386,7 @@ document.addEventListener("mousedown", (e) => {
     selectedEvent = BigInt(e.target.id.substring(15));
 });
 
-document.addEventListener("mousemove", (e) => {
+document.addEventListener("pointermove", (e) => {
     if (!permitUserInteraction || !editModeCheckbox.checked || selectedEvent == -1n) {
         if (hoveredEvent != -1n) {
             hoveredEvent = -1n;
@@ -412,7 +412,7 @@ document.addEventListener("mousemove", (e) => {
     updateDragBorder();
 });
 
-document.addEventListener("mouseup", (e) => {
+document.addEventListener("pointerup", (e) => {
     if (!permitUserInteraction || !editModeCheckbox.checked || selectedEvent == -1n || hoveredEvent == -1n) {
         selectedEvent = -1n;
         if (hoveredEvent != -1n) {
