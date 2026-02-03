@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
@@ -8,9 +9,11 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap"
+        rel="stylesheet">
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
 </head>
+
 <body class="light">
     <div id="helpBox" hidden>
         <p></p>
@@ -18,10 +21,11 @@
         <button id="nextHelp">Next</button>
     </div>
     <!-- SVGs -->
-     <svg id="symbols" hidden></svg>
+    <svg id="symbols" hidden></svg>
     <!-- Templates -->
     <fieldset id="moleculeTemplate" class="box" hidden>
-        <legend id="name_[0]_[1]" class="editable" contenteditable="plaintext-only" spellcheck="false">Unnamed group of bonded proxies</legend>
+        <legend id="name_[0]_[1]" class="editable" contenteditable="plaintext-only" spellcheck="false">Unnamed group of
+            bonded proxies</legend>
         <button id="remove_[0]_[1]">Delete</button>
     </fieldset>
     <fieldset id="wheelTemplate" hidden>
@@ -31,16 +35,6 @@
     </fieldset>
     <!-- Menu -->
     <h1>Opus Magnum Stoichiometry Calculator</h1>
-    <h2>Supported Mods</h2>
-    <ul>
-        <li>Complicated Elements (Trines Alucia)</li>
-        <li>Halving Metallurgy (Greenfield)</li>
-        <li>Noble Elements (RedstoneParadox)</li>
-        <li>Reductive Metallurgy (Iswaac & Arpy0)</li>
-        <li>True Animismus (ItsKazyan)</li>
-        <li>Unstable Elements (I-Luna & Iswaac)</li>
-        <li>Vacancy (ItsKazyan)</li>
-    </ul>
     <button id="help">Help!</button>
     <fieldset id="reagentsField">
         <legend>Reagents <button id="collapseReagents">\/</button></legend>
@@ -70,6 +64,18 @@
                 <a id="download" download="Empty plan.json"></a>
                 <input id="load" type="file" accept=".json" style="grid-column: span 2;">
             </div>
+            <div class="showWhenModded">
+                <h2>Supported Mods</h2>
+                <ul>
+                    <li>Complicated Elements (Trines Alucia)</li>
+                    <li>Halving Metallurgy (Greenfield)</li>
+                    <li>Noble Elements (RedstoneParadox)</li>
+                    <li>Reductive Metallurgy (Iswaac & Arpy0)</li>
+                    <li>True Animismus (ItsKazyan)</li>
+                    <li>Unstable Elements (I-Luna & Iswaac)</li>
+                    <li>Vacancy (ItsKazyan)</li>
+                </ul>
+            </div>
         </div>
     </fieldset>
     <fieldset id="plannerField">
@@ -90,7 +96,7 @@
                     <td>
                         <div id="inputs" class="triplets"></div>
                     </td>
-                    <td id="wheels"></td> 
+                    <td id="wheels"></td>
                     <td>
                         <div id="atoms" class="pairs"></div>
                     </td>
@@ -125,4 +131,5 @@
 <script src='main.js'></script>
 <script src='files.js'></script>
 <script src='help.js'></script>
+
 </html>
