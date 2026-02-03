@@ -311,7 +311,11 @@ function changeHandler(element) {
     }
     if (element.tagName == "INPUT") {
         if (elementId == "darkMode") {
-            document.body.className = element.checked ? "dark" : "light";
+            if (element.checked) {
+                document.body.classList.replace("light", "dark");
+            } else {
+                document.body.classList.replace("dark", "light");
+            }
             return;
         }
         if (elementId == "useSymbols") {
@@ -381,6 +385,7 @@ function changeHandler(element) {
             } else {
                 document.body.classList.add("modded");
             }
+            return;
         }
         if (elementId == "load") {
             let f = element.files[0];
