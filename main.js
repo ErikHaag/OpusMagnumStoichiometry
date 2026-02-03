@@ -19,7 +19,9 @@ const reagentsTray = document.getElementById("reagentsTray");
 const productsTray = document.getElementById("productsTray");
 const settingsTray = document.getElementById("settingsTray");
 
+const enableModsCheckbox = document.getElementById("useMods");
 const editModeCheckbox = document.getElementById("editMode");
+const confirmDialog = document.getElementById("confirmDialog");
 
 let permitUserInteraction = true;
 let hasInteracted = false;
@@ -30,11 +32,15 @@ let allowUpdates = true;
 
 let loadPromise = null;
 
+let confirmDialogAction = () => { console.log("huh?"); };
+
+
 document.addEventListener("DOMContentLoaded", () => {
     /* Molecule template */
     {
         templates.molecule.id = "molecule_[0]_[1]";
         let section = null;
+        let i = 0;
         for (const entry of atomSectionTable) {
             if (entry.type == "section") {
                 if (section) {
@@ -43,8 +49,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 let header = document.createElement("h3");
                 header.innerText = camelToTitle(entry.name);
                 templates.molecule.appendChild(header);
+                header.classList.add("showWhenModded");
                 section = document.createElement("div");
                 section.classList.add("pairs")
+                if (i >= moddedAtomIndex) {
+                    section.classList.add("showWhenModded");
+                }
             } else if (entry.type == "atom") {
                 let id = entry.name + "_[0]_[1]";
                 let label = document.createElement("label");
@@ -59,8 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.setAttribute("value", "0");
                 section.appendChild(input);
             }
+            i++;
         }
         templates.molecule.appendChild(section);
+
     }
     /* Settings */
     {
@@ -70,9 +82,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (transformationTableHeaders[i]) {
                 let header = document.createElement("h3");
                 header.classList.add("reduceMargins");
+                header.classList.add("showWhenModded");
                 header.innerText = transformationTableHeaders[i];
                 transformSettingsDiv.appendChild(header);
-                transformSettingsDiv.appendChild(document.createElement("div"));
+                let buffer = document.createElement("div");
+                buffer.classList.add("showWhenModded");
+                transformSettingsDiv.appendChild(buffer);
             }
             let id = "toggle_glyph_" + i.toFixed();
             let label = document.createElement("label");
@@ -86,11 +101,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 checkbox.setAttribute("checked", "")
             }
             transformSettingsDiv.appendChild(checkbox);
+            if (i >= moddedTransformIndex) {
+                label.classList.add("showWhenModded");
+                checkbox.classList.add("showWhenModded");
+            }
             i++;
         }
         const wheelSettingsDiv = document.getElementById("wSettings");
         i = 0;
-        for (let w of initalWheelTable) {
+        for (let w of initialWheelTable) {
             let id = "toggle_wheel_" + i.toFixed();
             let label = document.createElement("label");
             label.innerText = w.name;
@@ -100,6 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
             checkbox.id = id;
             checkbox.setAttribute("type", "checkbox");
             wheelSettingsDiv.appendChild(checkbox);
+            if (isWheelModded(w.name)) {
+                label.classList.add("showWhenModded");
+                checkbox.classList.add("showWhenModded");
+            }
             i++;
         }
     }
@@ -170,6 +193,12 @@ function clickHandler(element) {
             updateTimeline();
             updateInputs();
             updateOutputs();
+            break;
+        case "confirm":
+            confirmDialogAction();
+        // fall through
+        case "disagree":
+            confirmDialog.close();
             break;
         case "save":
             saveState();
@@ -300,6 +329,59 @@ function changeHandler(element) {
             updateTimeline();
             return;
         }
+        if (elementId == "useMods") {
+            if (!enableModsCheckbox.checked) {
+                if (allowUpdates) {
+                    confirmDialog.children[0].innerText = "Are you sure you want to disable mods?\nThis will remove any non-vanilla transmutations."
+                    enableModsCheckbox.checked = true;
+                    confirmDialogAction = () => {
+                        enableModsCheckbox.checked = false;
+                        document.body.classList.remove("modded");
+                        allowUpdates = false;
+
+                        const changeEvent = new Event("change", { bubbles: true });
+
+                        for (let i = 0; i < reagents.length; i++) {
+                            for (let j = moddedAtomIndex; j < atomSectionTable.length; j++) {
+                                if (atomSectionTable[j].type == "section") {
+                                    continue;
+                                }
+                                let input = document.getElementById(atomSectionTable[j].name + "_reagent_" + i.toFixed());
+                                input.value = "";
+                                input.dispatchEvent(changeEvent);
+                            }
+                        }
+
+                        for (let i = 0; i < products.length; i++) {
+                            for (let j = moddedAtomIndex; j < atomSectionTable.length; j++) {
+                                if (atomSectionTable[j].type == "section") {
+                                    continue;
+                                }
+                                let input = document.getElementById(atomSectionTable[j].name + "_product_" + i.toFixed());
+                                input.value = "";
+                                input.dispatchEvent(changeEvent);
+                            }
+                        }
+
+                        for (let i = moddedTransformIndex; i < transformationTable.length; i++) {
+                            let cB = document.getElementById("toggle_glyph_" + i.toFixed());
+                            cB.checked = false;
+                            cB.dispatchEvent(changeEvent);
+                        }
+
+                        timeline = timeline.filter((e) => !isTimelineEventModded(e));
+
+                        allowUpdates = true;
+                        updateTimeline();
+                        updateInputs();
+                        updateOutputs();
+                    }
+                    confirmDialog.showModal();
+                };
+            } else {
+                document.body.classList.add("modded");
+            }
+        }
         if (elementId == "load") {
             let f = element.files[0];
             if (!f) {
@@ -312,7 +394,7 @@ function changeHandler(element) {
         if (element.id == "editMode") {
             hasInteracted = true;
             const timelineElement = document.getElementById("timeline");
-            timelineElement.className = ""
+            timelineElement.className = "";
             if (element.checked) {
                 document.getElementById("deleteLastEvent").hidden = true;
                 timelineElement.classList.add("quadruplets");
@@ -601,6 +683,66 @@ function camelToLower(s) {
     return s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + " " + b.toLowerCase());
 }
 
+function isAtomTypeModded(atomType) {
+    return atomSectionTable.findIndex((e) => e.type == "atom" && e.name == atomType) > moddedAtomIndex;
+}
+
+function isGlyphModded(glyph) {
+    return transformationTable.findIndex((f) => f.name == glyph) >= moddedTransformIndex;
+}
+
+function isWheelModded(wheel) {
+    return wheel != "Van Berlo's Wheel";
+}
+
+function isTransformationModded(transformation) {
+    if (transformation.requires) {
+        for (let g of transformation.requires) {
+            if (isGlyphModded(g)) {
+                return true;
+            }
+        }
+    }
+
+    for (let at of transformation.inputs.keys()) {
+        if (isAtomTypeModded(at)) {
+            return true;
+        }
+    }
+
+    for (let at of transformation.outputs.keys()) {
+        if (isAtomTypeModded(at)) {
+            return true;
+        }
+    }
+
+    if (transformation.wheelInputs) {
+        for (let w of transformation.wheelInputs) {
+            if (isWheelModded(initialWheelTable[w.type].name) || isAtomTypeModded(w.atomType)) {
+                return true;
+            }
+        }
+
+        for (let w of transformation.wheelOutputs) {
+            if (isAtomTypeModded(w)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function isTimelineEventModded(e) {
+    if ((e.action ?? "glyph") != "glyph") {
+        return false;
+    }
+    if (isGlyphModded(e.glyph)) {
+        return true;
+    }
+    return isTransformationModded(e);
+}
+
 function updateInputs() {
     if (!allowUpdates) {
         return;
@@ -627,7 +769,7 @@ function updateTimeline() {
         return;
     }
     atoms.clear();
-    wheels = structuredClone(initalWheelTable);
+    wheels = structuredClone(initialWheelTable);
     reagentsUsed = reagentsUsed.fill(0n);
     productsUsed = productsUsed.fill(0n);
 
@@ -767,7 +909,7 @@ function updateTimeline() {
                     if (event.requires) {
                         success &&= event.requires.every((g) => allowedTransformations.has(g));
                     }
-                    success &&= removeAtomsFromMap(event.inputs) && applyWheelChanges(event.wheelInputs, event.wheelOutputs);
+                    success &&= removeAtomsFromMap(event.inputs) && applyWheelChanges(event.wheelInputs ?? [], event.wheelOutputs ?? []);
                     success && addAtomsFromMap(event.outputs);
                 }
                 break;
@@ -779,7 +921,7 @@ function updateTimeline() {
         }
         let index = document.createElement("div");
         index.id = "timeline_event_" + i.toFixed();
-        index.innerText = (i + 1) + ": ";
+        index.innerText = (i + 1) + ":";
         if (editModeCheckbox.checked) {
             index.innerText = "|| " + index.innerText;
             index.classList.add("noSelect");
@@ -788,7 +930,7 @@ function updateTimeline() {
         let item = document.createElement("div");
         item.innerHTML = description;
         if (!success) {
-            item.classList.add(failure ? "ignore" : "fail");
+            item.classList.add(failure ? "ignore" : "fail");    
             failure = true;
         }
         tempElement.appendChild(item);
@@ -812,7 +954,7 @@ function updateTimeline() {
         let endAtoms = structuredClone(atoms);
         let endWheels = structuredClone(wheels);
         atoms.clear();
-        wheels = structuredClone(initalWheelTable);
+        wheels = structuredClone(initialWheelTable);
         let repeatStart = -1;
 
         let lastPotentialRepeat = timeline.length;
@@ -945,10 +1087,12 @@ function updateTimeline() {
             return m;
         }
 
+        let previousValidTransformations = validTransformations;
         validTransformations = [];
-        let i = 0;
+        let i = -1;
         let accumulatedLength = 0;
         for (const glyph of transformationTable) {
+            i++;
             if (!allowedTransformations.has(glyph.name)) {
                 continue;
             }
@@ -960,7 +1104,22 @@ function updateTimeline() {
                 e.inputs = listToMap(e.inputs);
                 e.outputs = listToMap(e.outputs);
                 e.glyph = glyph.name;
-            })
+            });
+
+            if (!enableModsCheckbox.checked) {
+                glyphsAllowedTransformations = glyphsAllowedTransformations.filter((e) => !isTransformationModded(e));
+                if (glyphsAllowedTransformations.length == 0) {
+                    continue;
+                }
+            }
+
+            let previousOptionText = "";
+            {
+                let prevS = document.getElementById("glyph_" + i.toFixed());
+                if (prevS) {
+                    previousOptionText = prevS.querySelector("option[value=\"" + prevS.value + "\"]" ).innerText ?? "";
+                }
+            }
             validTransformations = validTransformations.concat(glyphsAllowedTransformations);
             let label = document.createElement("label");
             label.setAttribute("for", "glyph_" + i.toFixed());
@@ -982,12 +1141,17 @@ function updateTimeline() {
                 transformOption.innerHTML = simpleDesc(glyphsAllowedTransformations[j]);
                 transformOption.value = accumulatedLength++;
                 groupLabel.appendChild(transformOption);
+                if (previousOptionText) {
+                    if (transformOption.innerText == previousOptionText) {
+                        transformOption.setAttribute("selected");
+                        previousOptionText = "";       
+                    }
+                }
             }
             let button = document.createElement("button");
             button.id = "use_glyph_" + i.toFixed();
             button.innerHTML = "&Rightarrow;";
             tempElement.appendChild(button);
-            i++;
         }
         [document.getElementById("glyphs").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
     }

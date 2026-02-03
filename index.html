@@ -29,7 +29,6 @@
         &circlearrowright;
         <ol id="atoms_wheel_[0]"></ol>
     </fieldset>
-    <div id="temp" hidden></div>
     <!-- Menu -->
     <h1>Opus Magnum Stoichiometry Calculator</h1>
     <h2>Supported Mods</h2>
@@ -65,6 +64,8 @@
                 <input id="darkMode" type="checkbox">
                 <label for="useSymbols">Use Symbols</label>
                 <input id="useSymbols" type="checkbox">
+                <label for="useMods">Enable mods</label>
+                <input id="useMods" type="checkbox">
                 <button id="save">Save</button>
                 <a id="download" download="Empty plan.json"></a>
                 <input id="load" type="file" accept=".json" style="grid-column: span 2;">
@@ -109,6 +110,15 @@
             </tbody>
         </table>
     </fieldset>
+
+    <!-- utils -->
+    <div id="temp" hidden></div>
+    <dialog id="confirmDialog">
+        <p></p>
+        <button id="disagree">No</button>
+        <button id="confirm">Yes</button>
+    </dialog>
+
 </body>
 <script src='tables.js'></script>
 <script src='transformations.js'></script>

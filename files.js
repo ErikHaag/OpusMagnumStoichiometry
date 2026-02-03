@@ -25,7 +25,7 @@ function saveState() {
                 t.inputs = Object.fromEntries(t.inputs);
                 t.outputs = Object.fromEntries(t.outputs);
                 t.wheelInputs?.forEach((e) => {
-                    e.type = initalWheelTable[e.type].name;
+                    e.type = initialWheelTable[e.type].name;
                 })
             }
             return t;
@@ -82,6 +82,9 @@ function loadState(data) {
     let state = JSON.parse(data);
     const clickEvent = new Event("click", { bubbles: true });
     const changeEvent = new Event("change", { bubbles: true });
+    enableModsCheckbox.checked = true;
+    let modded = false;
+
     allowUpdates = false;
     // reagents
     let i = 0;
@@ -93,6 +96,7 @@ function loadState(data) {
         document.getElementById("addReagent").dispatchEvent(clickEvent);
         document.getElementById("name_reagent_" + i.toFixed()).innerText = r.name;
         for (const [aT, c] of Object.entries(r.atoms)) {
+            modded ||= c != 0 && isAtomTypeModded(aT);
             let atomCountInput = document.getElementById(aT + "_reagent_" + i.toFixed());
             atomCountInput.value = c;
             atomCountInput.dispatchEvent(changeEvent);
@@ -108,6 +112,7 @@ function loadState(data) {
         document.getElementById("addProduct").dispatchEvent(clickEvent);
         document.getElementById("name_product_" + i.toFixed()).innerText = p.name;
         for (const [aT, c] of Object.entries(p.atoms)) {
+            modded ||= c != 0 && isAtomTypeModded(aT);
             let atomCountInput = document.getElementById(aT + "_product_" + i.toFixed());
             atomCountInput.value = c;
             atomCountInput.dispatchEvent(changeEvent);
@@ -119,13 +124,15 @@ function loadState(data) {
     for (const t of transformationTable) {
         let cB = document.getElementById("toggle_glyph_" + i.toFixed());
         cB.checked = state.glyphs.includes(t.name);
+        modded ||= cB.checked && isGlyphModded(t.name);
         cB.dispatchEvent(changeEvent);
         i++;
     }
     i = 0;
-    for (const w of initalWheelTable) {
+    for (const w of initialWheelTable) {
         let cB = document.getElementById("toggle_wheel_" + i.toFixed());
         cB.checked = state.wheels.includes(w.name);
+        modded = cB.checked && isWheelModded(w.name);
         cB.dispatchEvent(changeEvent);
         i++;
     }
@@ -134,10 +141,15 @@ function loadState(data) {
             e.inputs = new Map(Object.entries(e.inputs));
             e.outputs = new Map(Object.entries(e.outputs));
             e.wheelInputs?.forEach((w) => {
-                w.type = initalWheelTable.findIndex((v) => v.name == w.type);
+                w.type = initialWheelTable.findIndex((v) => v.name == w.type);
             });
         }
+        modded ||= isTimelineEventModded(e);
     });
+
+    enableModsCheckbox.checked = modded;
+    enableModsCheckbox.dispatchEvent(changeEvent);
+
     timeline = state.timeline;
     allowUpdates = true;
     updateTimeline();

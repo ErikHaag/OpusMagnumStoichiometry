@@ -50,6 +50,10 @@ body.dark svg.symbol *.strokeFill {
     fill: var(--dark_text_color);;
 }
 
+body:not(.modded) .showWhenModded {
+    display: none;
+}
+
 svg.symbol .noFill {
     fill: none;
 }
@@ -60,7 +64,7 @@ svg.symbol.hide, #symbols {
 
 .box {
     max-height: 500px;
-    width: fit-content;
+    min-width: fit-content;
     overflow-y: auto;
 }
 
@@ -171,6 +175,7 @@ h3.reduceMargins {
 .triplets {
     align-items: center;
     display: grid;
+    gap: 1ch;
     grid-template-columns: repeat(3, max-content);
     justify-items: center;
 }
@@ -178,6 +183,7 @@ h3.reduceMargins {
 .quadruplets {
     align-items: center;
     display: grid;
+    gap: 1ch;
     grid-template-columns: repeat(4, max-content);
     justify-items: center;
 }

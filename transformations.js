@@ -213,9 +213,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get(c) ?? 0) >= 1) {
                     t.push({
                         inputs: [c],
-                        wheelInputs: null,
                         outputs: ["salt"],
-                        wheelOutputs: null,
                         group: 0
                     });
                 }
@@ -232,9 +230,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if ((atoms.get(c) ?? 0) >= 1) {
                         t.push({
                             inputs: [c, "salt"],
-                            wheelInputs: null,
                             outputs: [c, c],
-                            wheelOutputs: null,
                             group: 0
                         });
                     }
@@ -268,9 +264,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if ((atoms.get(base) ?? 0) >= 1) {
                         t.push({
                             inputs: ["quicksilver", base],
-                            wheelInputs: null,
                             outputs: [promote],
-                            wheelOutputs: null,
                             group: 0
                         });
                     }
@@ -313,9 +307,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if ((atoms.get(base) ?? 0) >= 1) {
                         t.push({
                             inputs: ["quickcopper", base],
-                            wheelInputs: null,
                             outputs: [promote],
-                            wheelOutputs: null,
                             group: 3
                         });
                     }
@@ -509,9 +501,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get(base) ?? 0) >= 2) {
                     t.push({
                         inputs: [base, base],
-                        wheelInputs: null,
                         outputs: [promote],
-                        wheelOutputs: null,
                         group: 0
                     });
                 }
@@ -526,9 +516,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             if (atoms.get("salt") >= 2) {
                 t.push({
                     inputs: ["salt", "salt"],
-                    wheelInputs: null,
                     outputs: ["mors", "vitae"],
-                    wheelOutputs: null,
                     group: 0
                 });
             }
@@ -569,9 +557,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if (c > 0) {
                     t.push({
                         inputs: [aT],
-                        wheelInputs: null,
                         outputs: [],
-                        wheelOutputs: null,
                         group: 0
                     });
                 }
@@ -592,9 +578,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             if (valid) {
                 return [{
                     inputs: ["air", "earth", "fire", "water"],
-                    wheelInputs: null,
                     outputs: ["quintessence"],
-                    wheelOutputs: null,
                     group: 0
                 }];
             }
@@ -607,9 +591,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             if ((atoms.get("quintessence") ?? 0) >= 1) {
                 return [{
                     inputs: ["quintessence"],
-                    wheelInputs: null,
                     outputs: ["air", "earth", "fire", "water"],
-                    wheelOutputs: null,
                     group: 0
                 }];
             }
@@ -628,9 +610,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get(target) ?? 0) >= 1 && (atoms.get(project) ?? 0) >= 1) {
                     t.push({
                         inputs: [target, project],
-                        wheelInputs: null,
                         outputs: [output],
-                        wheelOutputs: null,
                         group: 0
                     });
                 }
@@ -646,9 +626,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get(c) ?? 0) >= 1) {
                     t.push({
                         inputs: [c],
-                        wheelInputs: null,
                         outputs: ["quicklime"],
-                        wheelOutputs: null,
                         group: 0
                     });
                 }
@@ -678,9 +656,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if ((atoms.get(baseI) ?? 0) >= 2) {
                         t.push({
                             inputs: ["quicksilver", baseI, baseI],
-                            wheelInputs: null,
                             outputs: [promoteI, promoteI],
-                            wheelOutputs: null,
                             group: 0
                         });
                     }
@@ -690,9 +666,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         if ((atoms.get(baseJ) ?? 0) >= 1) {
                             t.push({
                                 inputs: ["quicksilver", baseI, baseJ],
-                                wheelInputs: null,
                                 outputs: [promoteI, promoteJ],
-                                wheelOutputs: null,
                                 group: 0
                             });
                         }
@@ -1047,9 +1021,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if (aT != "quicksilver" && c >= 1) {
                         t.push({
                             inputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", aT],
-                            wheelInputs: null,
                             outputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", aT],
-                            wheelOutputs: null,
                             group: 0
                         });
                     }
@@ -1058,9 +1030,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             if ((atoms.get("quicksilver") ?? 0) >= 7) {
                 t.push({
                     inputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver"],
-                    wheelInputs: null,
                     outputs: ["quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver", "quicksilver"],
-                    wheelOutputs: null,
                     group: 0
                 });
             }
@@ -1103,9 +1073,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                             }
                             t.push({
                                 inputs: [base, base, b],
-                                wheelInputs: null,
                                 outputs: [promote, newBowl],
-                                wheelOutputs: null,
                                 group: 0,
                                 requires: BWTM
                             });
@@ -1160,9 +1128,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     }
                     t.push({
                         inputs: [bowl],
-                        wheelInputs: null,
                         outputs: [newBowl, output],
-                        wheelOutputs: null,
                         group: 0,
                         requires: BWTM
                     });
@@ -1204,9 +1170,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         }
                         t.push({
                             inputs: ["quickcopper", base],
-                            wheelInputs: null,
                             outputs: ["quicksilver", demote],
-                            wheelOutputs: null,
                             group: 0,
                             requires: BWTM
                         });
@@ -1313,9 +1277,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get("quicklime") ?? 0) >= 1) {
                     t.push({
                         inputs: ["quicksilver", "quicklime"],
-                        wheelInputs: null,
                         outputs: ["quickcopper", "quickcopper"],
-                        wheelOutputs: null,
                         group: 5
                     });
                 }
@@ -1366,9 +1328,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get(a) ?? 0) >= 1) {
                     t.push({
                         inputs: [a],
-                        wheelInputs: null,
                         outputs: ["nobilis"],
-                        wheelOutputs: null,
                         group: 0
                     })
                 }
@@ -1390,9 +1350,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                                 let aK = noblesList[k];
                                 t.push({
                                     inputs: ["nobilis", n],
-                                    wheelInputs: null,
                                     outputs: [aJ, aK],
-                                    wheelOutputs: null,
                                     group: 0
                                 })
                             }
@@ -1422,9 +1380,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get(base) ?? 0) >= 1) {
                     t.push({
                         inputs: [base],
-                        wheelInputs: null,
                         outputs: ["quicksilver", demote],
-                        wheelOutputs: null,
                         group: 0,
                         requires: BWTM
                     });
@@ -1517,9 +1473,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get(base) ?? 0) >= 1) {
                     t.push({
                         inputs: [base],
-                        wheelInputs: null,
                         outputs: split,
-                        wheelOutputs: null,
                         group: 0,
                         requires: BWTM
                     });
@@ -1537,9 +1491,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if ((atoms.get(m) ?? 0) >= 1) {
                         t.push({
                             inputs: ["quicksilver", m],
-                            wheelInputs: null,
                             outputs: [m, m],
-                            wheelOutputs: null,
                             group: 0
                         });
                     }
@@ -1609,9 +1561,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if ((atoms.get(equals) ?? 0) >= 2) {
                     t.push({
                         inputs: [equals, equals],
-                        wheelInputs: null,
                         outputs: divided,
-                        wheelOutputs: null,
                         group: 0
                     });
                 }
@@ -1671,9 +1621,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                 if (inverse && (atoms.get(a) ?? 0) >= 1) {
                     t.push({
                         inputs: [a],
-                        wheelInputs: null,
                         outputs: [inverse],
-                        wheelOutputs: null,
                         group: 0
                     });
                 }
@@ -1702,9 +1650,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         let concentrate = strengthToAnimismusMap.get(sI + concentrateDirection);
                         t.push({
                             inputs: [aI, aJ],
-                            wheelInputs: null,
                             outputs: [dilute, concentrate],
-                            wheelOutputs: null,
                             group: 0
                         });
                     }
@@ -1796,9 +1742,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             if ((atoms.get("quicksilver") ?? 0) >= 3 && (atoms.get("gold") ?? 0) >= 1) {
                 return [{
                     inputs: ["quicksilver", "quicksilver", "quicksilver", "gold"],
-                    wheelInputs: null,
                     outputs: ["uranium"],
-                    wheelOutputs: null,
                     group: 0
                 }];
             }
@@ -1811,9 +1755,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             if ((atoms.get("quintessence") ?? 0) >= 1) {
                 return [{
                     inputs: ["quintessence"],
-                    wheelInputs: null,
                     outputs: ["aether", "aether", "salt", "salt"],
-                    wheelOutputs: null,
                     group: 0
                 }];
             }
@@ -1827,18 +1769,14 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             if ((atoms.get("aether") ?? 0) >= 1) {
                 t.push({
                     inputs: ["aether"],
-                    wheelInputs: null,
                     outputs: [],
-                    wheelOutputs: null,
                     group: 0
                 });
             }
             if ((atoms.get("uranium") ?? 0) >= 1) {
                 t.push({
                     inputs: ["uranium"],
-                    wheelInputs: null,
                     outputs: ["lead"],
-                    wheelOutputs: null,
                     group: 0
                 });
             }
@@ -1855,17 +1793,13 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             let t = [];
             t.push({
                 inputs: [],
-                wheelInputs: null,
                 outputs: ["vaca"],
-                wheelOutputs: null,
                 group: 0
             });
             if ((atoms.get("vaca") ?? 0) >= 1) {
                 t.push({
                     inputs: ["vaca"],
-                    wheelInputs: null,
                     outputs: [],
-                    wheelOutputs: null,
                     group: 0
                 });
             }
@@ -1880,3 +1814,5 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         }
     });
 }
+
+const moddedTransformIndex = transformationTableHeaders.findIndex((e) => e && e != "Opus Magnum")

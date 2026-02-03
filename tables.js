@@ -49,6 +49,8 @@ const atomSectionTable = [
     { type: "atom", name: "vaca" }
 ];
 
+const moddedAtomIndex = atomSectionTable.findIndex((e) => e.type == "section" && e.name != "Opus Magnum");
+
 // display ordering
 const atomTypes = [
     "trueMors",
@@ -96,7 +98,7 @@ const atomTypes = [
 
 const atomTypesSVGNames = atomTypes.map((s) => s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase()));
 
-const initalWheelTable = [
+const initialWheelTable = [
     {
         name: "Van Berlo's Wheel",
         atoms: ["water", "salt", "earth", "fire", "salt", "air"]
@@ -123,7 +125,7 @@ let wheelTypeTable = {};
     
     let i = 0;
     let f = 1n;
-    for (const w of initalWheelTable) {
+    for (const w of initialWheelTable) {
         let n = nameRegex.exec(w.name);
         wTT.set(n[1].toLowerCase(), {type: i, flag: f});
         i++;
