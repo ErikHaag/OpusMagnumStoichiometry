@@ -881,10 +881,11 @@ function updateTimeline() {
         return s;
     }
 
-    const tempElement = document.getElementById("temp");
-    tempElement.innerHTML = "";
     let success = true;
     let failure = false;
+    
+    const timelineList = document.getElementById("timeline");
+    timelineList.innerHTML = "";
     for (const [i, event] of timeline.entries()) {
         let description = "";
         let glyphName = "";
@@ -935,29 +936,27 @@ function updateTimeline() {
             index.innerText = "|| " + index.innerText;
             index.classList.add("noSelect");
         }
-        tempElement.appendChild(index);
+        timelineList.appendChild(index);
         let item = document.createElement("div");
         item.innerHTML = description;
         if (!success) {
             item.classList.add(failure ? "ignore" : "fail");    
             failure = true;
         }
-        tempElement.appendChild(item);
+        timelineList.appendChild(item);
         let glyphTag = document.createElement("div");
         glyphTag.innerText = glyphName;
-        tempElement.appendChild(glyphTag);
+        timelineList.appendChild(glyphTag);
         if (editModeCheckbox.checked) {
             let buttonDiv = document.createElement("div");
-            tempElement.appendChild(buttonDiv);
+            timelineList.appendChild(buttonDiv);
             let deleteEventButton = document.createElement("button");
             deleteEventButton.id = "remove_event_" + i.toFixed();
             deleteEventButton.innerHTML = "&#x1F5D1;"
             buttonDiv.appendChild(deleteEventButton);
         }
     }
-    document.getElementById("timeline").innerHTML = tempElement.innerHTML;
-    tempElement.innerHTML = "";
-
+    
     // Looping check
     if (success && productsUsed.length > 0 && productsUsed.reduce((min, v) => min > v ? v : min) >= 1n) {
         let endAtoms = structuredClone(atoms);
@@ -1039,6 +1038,8 @@ function updateTimeline() {
 
     // Wheels
     {
+        let wheelList = document.getElementById("wheels");
+        wheelList.innerHTML = "";
         for (const i in wheels) {
             if ((activeWheels & (1n << BigInt(i))) == 0n) {
                 continue;
@@ -1046,8 +1047,9 @@ function updateTimeline() {
             let wheelElement = useTemplate(templates.wheel, i);
             wheelElement.id = "";
             wheelElement.hidden = false;
-            tempElement.appendChild(wheelElement);
-            document.getElementById("name_wheel_" + i).innerText = wheels[i].name;
+            wheelList.appendChild(wheelElement);
+            let legend = document.getElementById("name_wheel_" + i);
+            legend.innerText = initialWheelTable[i].name;
             let atomList = document.getElementById("atoms_wheel_" + i);
             for (let j = 0; j < 6; j++) {
                 let atomItem = document.createElement("li");
@@ -1059,10 +1061,11 @@ function updateTimeline() {
                 atomList.appendChild(atomItem);
             }
         }
-        [document.getElementById("wheels").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
     }
     // Atoms
     {
+        const atomList = document.getElementById("atoms");
+        atomList.innerHTML = "";
         for (const aT of atomTypes) {
             let c = atoms.get(aT) ?? 0;
             if (c == 0) {
@@ -1074,16 +1077,14 @@ function updateTimeline() {
             } else {
                 entry.innerText = camelToTitle(aT);
             }
-            tempElement.appendChild(entry);
+            atomList.appendChild(entry);
             let count = document.createElement("div");
             count.innerText = "x " + c.toFixed();
             if (c < 0) {
                 count.classList.add("negative");
             }
-            tempElement.appendChild(count);
+            atomList.appendChild(count);
         }
-
-        [document.getElementById("atoms").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
     }
     // Transformations
     {
@@ -1096,10 +1097,21 @@ function updateTimeline() {
             return m;
         }
 
-        let previousValidTransformations = validTransformations;
         validTransformations = [];
         let i = -1;
         let accumulatedLength = 0;
+        
+        const glyphList = document.getElementById("glyphs");
+        const tempElement = document.getElementById("temp");
+        tempElement.innerHTML = ""
+        for (let c of glyphList.children) {
+            if (c.tagName == "SELECT") {
+                c.id = "prev_" + c.id;
+                tempElement.appendChild(c);
+            }
+        }
+        glyphList.innerHTML = "";
+
         for (const glyph of transformationTable) {
             i++;
             if (!allowedTransformations.has(glyph.name)) {
@@ -1124,7 +1136,7 @@ function updateTimeline() {
 
             let previousOptionText = "";
             {
-                let prevS = document.getElementById("glyph_" + i.toFixed());
+                let prevS = document.getElementById("prev_glyph_" + i.toFixed());
                 if (prevS) {
                     previousOptionText = prevS.querySelector("option[value=\"" + prevS.value + "\"]" ).innerText ?? "";
                 }
@@ -1133,10 +1145,10 @@ function updateTimeline() {
             let label = document.createElement("label");
             label.setAttribute("for", "glyph_" + i.toFixed());
             label.innerText = glyph.name;
-            tempElement.appendChild(label);
+            glyphList.appendChild(label);
             let select = document.createElement("select");
             select.id = "glyph_" + i.toFixed();
-            tempElement.appendChild(select);
+            glyphList.appendChild(select);
             let lastGroup = -1;
             let groupLabel;
             for (let j = 0; j < glyphsAllowedTransformations.length; j++) {
@@ -1160,9 +1172,8 @@ function updateTimeline() {
             let button = document.createElement("button");
             button.id = "use_glyph_" + i.toFixed();
             button.innerHTML = "&Rightarrow;";
-            tempElement.appendChild(button);
+            glyphList.appendChild(button);
         }
-        [document.getElementById("glyphs").innerHTML, tempElement.innerHTML] = [tempElement.innerHTML, ""];
     }
     if (loadedSymbols && usingSymbols) {
         distributeSVG();
