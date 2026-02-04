@@ -195,6 +195,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
     const cardinalsList = ["air", "earth", "fire", "water"];
     const crystalinesList = ["aerolith", "ignistal", "mistaline", "pyrolite", "terramarine", "vaporine"];
     const metalsList = ["vaca", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium"];
+    const trueNeuvolicsList = ["carbonic", "bismuth", "cobalt", "arsenic", "platinum"];
     const noblesList = ["alpha", "beta", "gamma"];
 
     function wheelInput(w, index) {
@@ -1317,6 +1318,54 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         }
     });
 
+    // Neuvolics
+    transformationTableHeaders[transformationTable.length] = "Neuvolics";
+    transformationTable.push({
+        name: "Glyph of Separation",
+        groups: ["Divide"],
+        transforms: () => {
+            if ((atoms.get("antimony") ?? 0) >= 1) {
+                return [{
+                    inputs: ["antimony"],
+                    outputs: ["lithium", "potassium"],
+                    group: 0
+                }];
+            } 
+            return [];
+        }
+    }, {
+        name: "Glyph of Fixation",
+        groups: ["Fix"],
+        transforms: () => {
+            let t = [];
+            if ((atoms.get("lithium") ?? 0) >= 1) {
+                for (let i = 0; i < 5; i++) {
+                    let base = trueNeuvolicsList[i];
+                    if ((atoms.get(base) ?? 0) >= 1) {
+                        t.push({
+                            inputs: ["lithium", base],
+                            outputs: ["antimony", trueNeuvolicsList[(i + 1) % 5]],
+                            group: 0
+                        });
+                    }
+                }
+            }
+            if ((atoms.get("potassium") ?? 0) >= 1) {
+                for (let i = 0; i < 5; i++) {
+                    let base = trueNeuvolicsList[i];
+                    if ((atoms.get(base) ?? 0) >= 1) {
+                        t.push({
+                            inputs: ["potassium", base],
+                            outputs: ["antimony", trueNeuvolicsList[(i + 4) % 5]],
+                            group: 0
+                        });
+                    }
+                }
+            }
+
+            return t;
+        }
+    });
     // Noble Elements
     transformationTableHeaders[transformationTable.length] = "Noble Elements";
     transformationTable.push({

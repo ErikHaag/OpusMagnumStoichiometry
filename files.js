@@ -80,42 +80,39 @@ function saveState() {
 
 function loadState(data) {
     let state = JSON.parse(data);
-    const clickEvent = new Event("click", { bubbles: true });
-    const changeEvent = new Event("change", { bubbles: true });
-    enableModsCheckbox.checked = true;
     let modded = false;
 
     allowUpdates = false;
     // reagents
     let i = 0;
     for (i = reagents.length - 1; i >= 0; i--) {
-        document.getElementById("remove_reagent_" + i.toFixed()).dispatchEvent(clickEvent);
+        clickHandler(document.getElementById("remove_reagent_" + i.toFixed()));
     }
     i = 0;
     for (const r of state.reagents) {
-        document.getElementById("addReagent").dispatchEvent(clickEvent);
+        clickHandler(document.getElementById("addReagent"));
         document.getElementById("name_reagent_" + i.toFixed()).innerText = r.name;
         for (const [aT, c] of Object.entries(r.atoms)) {
             modded ||= c != 0 && isAtomTypeModded(aT);
             let atomCountInput = document.getElementById(aT + "_reagent_" + i.toFixed());
             atomCountInput.value = c;
-            atomCountInput.dispatchEvent(changeEvent);
+            changeHandler(atomCountInput);
         }
         i++;
     }
     //products
     for (i = products.length - 1; i >= 0; i--) {
-        document.getElementById("remove_product_" + i.toFixed()).dispatchEvent(clickEvent);
+        clickHandler(document.getElementById("remove_product_" + i.toFixed()));
     }
     i = 0;
     for (const p of state.products) {
-        document.getElementById("addProduct").dispatchEvent(clickEvent);
+        clickHandler(document.getElementById("addProduct"));
         document.getElementById("name_product_" + i.toFixed()).innerText = p.name;
         for (const [aT, c] of Object.entries(p.atoms)) {
             modded ||= c != 0 && isAtomTypeModded(aT);
             let atomCountInput = document.getElementById(aT + "_product_" + i.toFixed());
             atomCountInput.value = c;
-            atomCountInput.dispatchEvent(changeEvent);
+            changeHandler(atomCountInput);
         }
         i++;
     }
@@ -125,15 +122,15 @@ function loadState(data) {
         let cB = document.getElementById("toggle_glyph_" + i.toFixed());
         cB.checked = state.glyphs.includes(t.name);
         modded ||= cB.checked && isGlyphModded(t.name);
-        cB.dispatchEvent(changeEvent);
+        changeHandler(cB);
         i++;
     }
     i = 0;
     for (const w of initialWheelTable) {
         let cB = document.getElementById("toggle_wheel_" + i.toFixed());
         cB.checked = state.wheels.includes(w.name);
-        modded = cB.checked && isWheelModded(w.name);
-        cB.dispatchEvent(changeEvent);
+        modded ||= cB.checked && isWheelModded(w.name);
+        changeHandler(cB);
         i++;
     }
     state.timeline.forEach((e) => {
@@ -148,7 +145,7 @@ function loadState(data) {
     });
 
     enableModsCheckbox.checked = modded;
-    enableModsCheckbox.dispatchEvent(changeEvent);
+    changeHandler(enableModsCheckbox);
 
     timeline = state.timeline;
     allowUpdates = true;

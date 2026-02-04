@@ -666,6 +666,10 @@ function distributeSVG() {
     let symbolsElement = document.getElementById("symbols");
     for (let a of atomTypesSVGNames) {
         let stamp = symbolsElement.getElementById(a + "_symbol");
+        if (!stamp) {
+            console.log("No svg symbol for " + a + " found, skipping!");
+            continue;
+        }
         for (const target of document.querySelectorAll("svg.symbol_" + a)) {
             if (target.childElementCount > 0) {
                 continue;
@@ -1148,7 +1152,7 @@ function updateTimeline() {
                 groupLabel.appendChild(transformOption);
                 if (previousOptionText) {
                     if (transformOption.innerText == previousOptionText) {
-                        transformOption.setAttribute("selected");
+                        transformOption.setAttribute("selected", "");
                         previousOptionText = "";       
                     }
                 }
