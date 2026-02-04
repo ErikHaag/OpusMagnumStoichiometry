@@ -32,6 +32,15 @@ const atomSectionTable = [
     { type: "atom", name: "zinc" },
     { type: "atom", name: "sednum" },
     { type: "atom", name: "osmium" },
+    { type: "section", name: "Neuvolics"},
+    { type: "atom", name: "lithium"},
+    { type: "atom", name: "antimony"},
+    { type: "atom", name: "potassium"},
+    { type: "atom", name: "carbonic"},
+    { type: "atom", name: "bismuth"},
+    { type: "atom", name: "cobalt"},
+    { type: "atom", name: "arsenic"},
+    { type: "atom", name: "platinum"},
     { type: "section", name: "Noble Elements" },
     { type: "atom", name: "nobilis" },
     { type: "atom", name: "alpha" },
@@ -50,16 +59,18 @@ const atomSectionTable = [
 ];
 
 const moddedAtomIndex = atomSectionTable.findIndex((e) => e.type == "section" && e.name != "Opus Magnum");
+const atomTypesSVGNames = atomSectionTable.filter((e) => e.type == "atom").map((e) => e.name).map((s) => s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase()));
+
 
 // display ordering
 const atomTypes = [
-    "trueMors",
-    "greyMors",
-    "mors",
-    "salt",
-    "vitae",
-    "redVitae",
     "trueVitae",
+    "redVitae",
+    "vitae",
+    "salt",
+    "mors",
+    "greyMors",
+    "trueMors",
     "air",
     "earth",
     "fire",
@@ -88,6 +99,14 @@ const atomTypes = [
     "sednum",
     "gold",
     "osmium",
+    "lithium",
+    "antimony",
+    "potassium",
+    "carbonic",
+    "bismuth",
+    "cobalt",
+    "arsenic",
+    "platinum",
     "nobilis",
     "alpha",
     "beta",
@@ -95,8 +114,6 @@ const atomTypes = [
     "uranium",
     "aether"
 ];
-
-const atomTypesSVGNames = atomTypes.map((s) => s.replace(/([a-z])([A-Z])/g, (s, a, b) => a + "_" + b.toLowerCase()));
 
 const initialWheelTable = [
     {

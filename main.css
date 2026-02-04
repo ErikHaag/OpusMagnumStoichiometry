@@ -175,7 +175,7 @@ h3.reduceMargins {
 .triplets {
     align-items: center;
     display: grid;
-    gap: 1ch;
+    gap: 0 1ch;
     grid-template-columns: repeat(3, max-content);
     justify-items: center;
 }
@@ -183,7 +183,7 @@ h3.reduceMargins {
 .quadruplets {
     align-items: center;
     display: grid;
-    gap: 1ch;
+    gap: 0 1ch;
     grid-template-columns: repeat(4, max-content);
     justify-items: center;
 }
