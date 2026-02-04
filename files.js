@@ -106,7 +106,7 @@ function loadState(data) {
     }
     i = 0;
     for (const p of state.products) {
-        changeHandler(document.getElementById("addProduct"));
+        clickHandler(document.getElementById("addProduct"));
         document.getElementById("name_product_" + i.toFixed()).innerText = p.name;
         for (const [aT, c] of Object.entries(p.atoms)) {
             modded ||= c != 0 && isAtomTypeModded(aT);
