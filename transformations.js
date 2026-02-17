@@ -1338,24 +1338,24 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
         groups: ["Fix"],
         transforms: () => {
             let t = [];
-            if ((atoms.get("lithium") ?? 0) >= 1) {
+            if ((atoms.get("lithium") ?? 0) >= 2) {
                 for (let i = 0; i < 5; i++) {
                     let base = trueNeuvolicsList[i];
                     if ((atoms.get(base) ?? 0) >= 1) {
                         t.push({
-                            inputs: ["lithium", base],
+                            inputs: ["lithium", "lithium", base],
                             outputs: ["antimony", trueNeuvolicsList[(i + 1) % 5]],
                             group: 0
                         });
                     }
                 }
             }
-            if ((atoms.get("potassium") ?? 0) >= 1) {
+            if ((atoms.get("potassium") ?? 0) >= 2) {
                 for (let i = 0; i < 5; i++) {
                     let base = trueNeuvolicsList[i];
                     if ((atoms.get(base) ?? 0) >= 1) {
                         t.push({
-                            inputs: ["potassium", base],
+                            inputs: ["potassium", "potassium", base],
                             outputs: ["antimony", trueNeuvolicsList[(i + 4) % 5]],
                             group: 0
                         });
