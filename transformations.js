@@ -1159,9 +1159,9 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
             "Concentrate quicklime", "Concentrate quicklime on Soria's wheel", "Concentrate quicklime from Soria's wheel"],
         transforms: () => {
             let t = [];
-            if ((atoms.get("quickcopper") ?? 0) >= 1) {
+            if ((atoms.get("quickcopper") ?? 0n) >= 1n) {
                 for (const [base, demote] of osmosisMap) {
-                    if ((atoms.get(base) ?? 0) >= 1) {
+                    if ((atoms.get(base) ?? 0n) >= 1n) {
                         let BWTM = [];
                         if (demote == "vaca") {
                             if (!allowedTransformations.has("Glyph of Extraction")) {
@@ -1205,8 +1205,18 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     if (wheels[wheelTypeTable.soria.type].atoms[i] != "quickcopper") {
                         continue;
                     }
+                    if ((atoms.get("quickcopper") ?? 0n) >= 1n) {
+                        t.push({
+                            inputs: ["quickcopper"],
+                            wheelInputs: [wheelInput(wheelTypeTable.soria, i)],
+                            outputs: ["quicklime"],
+                            wheelOutputs: ["quicksilver"],
+                            group: 2
+                        });
+                    }
+
                     for (const [base, demote] of osmosisMap) {
-                        if ((atoms.get(base) ?? 0) >= 1) {
+                        if ((atoms.get(base) ?? 0n) >= 1n) {
                             let BWTM = [];
                             if (demote == "vaca") {
                                 if (!allowedTransformations.has("Glyph of Extraction")) {
@@ -1330,7 +1340,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                     outputs: ["lithium", "potassium"],
                     group: 0
                 }];
-            } 
+            }
             return [];
         }
     }, {
@@ -1577,7 +1587,7 @@ let allowedTransformations = new Set(["Glyph of Calcification"]);
                         }
                     }
                 }
-                for (const dir in [, 5]) {
+                for (const dir of [1, 5]) {
                     for (let i = 0; i < 6; i++) {
                         let demote = rejectionMap.get(wheels[wheelTypeTable.ravari.type].atoms[i]);
                         if (demote == "vaca") {
