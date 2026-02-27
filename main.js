@@ -421,7 +421,7 @@ function changeHandler(element) {
                 if (v == 0) {
                     reagents[id].delete(type);
                 } else {
-                    reagents[id].set(type, v);
+                    reagents[id].set(type, BigInt(v));
                 }
                 updateTimeline();
                 updateInputs();
@@ -430,7 +430,7 @@ function changeHandler(element) {
                 if (v == 0) {
                     products[id].delete(type);
                 } else {
-                    products[id].set(type, v);
+                    products[id].set(type, BigInt(v));
                 }
                 updateTimeline();
                 updateInputs();
@@ -774,6 +774,7 @@ function updateInputs() {
 }
 
 function updateTimeline() {
+    // let startTime = performance.now();
     if (!allowUpdates) {
         return;
     }
@@ -784,7 +785,7 @@ function updateTimeline() {
 
     function addAtomsFromMap(molecule) {
         for (const [aT, c] of molecule.entries()) {
-            let current = atoms.get(aT) ?? 0;
+            let current = atoms.get(aT) ?? 0n;
             current += c;
             atoms.set(aT, current);
         }
@@ -793,13 +794,13 @@ function updateTimeline() {
     function removeAtomsFromMap(molecule) {
         let r = true;
         for (const [aT, c] of molecule.entries()) {
-            let current = atoms.get(aT) ?? 0;
+            let current = atoms.get(aT) ?? 0n;
             current -= c;
-            if (current == 0) {
+            if (current == 0n) {
                 atoms.delete(aT);
                 continue;
             }
-            if (current < 0) {
+            if (current < 0n) {
                 r = false
             }
             atoms.set(aT, current);
@@ -883,8 +884,11 @@ function updateTimeline() {
 
     let success = true;
     let failure = false;
-    
+
     const timelineList = document.getElementById("timeline");
+
+    // let initializationTime = performance.now();
+
     timelineList.innerHTML = "";
     for (const [i, event] of timeline.entries()) {
         let description = "";
@@ -940,7 +944,7 @@ function updateTimeline() {
         let item = document.createElement("div");
         item.innerHTML = description;
         if (!success) {
-            item.classList.add(failure ? "ignore" : "fail");    
+            item.classList.add(failure ? "ignore" : "fail");
             failure = true;
         }
         timelineList.appendChild(item);
@@ -956,7 +960,9 @@ function updateTimeline() {
             buttonDiv.appendChild(deleteEventButton);
         }
     }
-    
+
+    // let timelineTime = performance.now();
+
     // Looping check
     if (success && productsUsed.length > 0 && productsUsed.reduce((min, v) => min > v ? v : min) >= 1n) {
         let endAtoms = structuredClone(atoms);
@@ -1036,6 +1042,8 @@ function updateTimeline() {
         }
     }
 
+    // let loopCheckTime = performance.now();
+
     // Wheels
     {
         let wheelList = document.getElementById("wheels");
@@ -1062,6 +1070,9 @@ function updateTimeline() {
             }
         }
     }
+
+    // let wheelTime = performance.now();
+
     // Atoms
     {
         const atomList = document.getElementById("atoms");
@@ -1079,20 +1090,27 @@ function updateTimeline() {
             }
             atomList.appendChild(entry);
             let count = document.createElement("div");
-            count.innerText = "x " + c.toFixed();
+            count.innerText = "x " + c.toString();
             if (c < 0) {
                 count.classList.add("negative");
             }
             atomList.appendChild(count);
         }
     }
+
+    // let atomTime = performance.now();
+
+    // let transformGenerationTime = 0;
+    // let transformConversionTime = 0;
+    // let transformListTime = 0;
+
     // Transformations
     {
 
         function listToMap(l) {
             let m = new Map();
             for (const atomType of l) {
-                m.set(atomType, (m.get(atomType) ?? 0) + 1);
+                m.set(atomType, (m.get(atomType) ?? 0n) + 1n);
             }
             return m;
         }
@@ -1100,7 +1118,7 @@ function updateTimeline() {
         validTransformations = [];
         let i = -1;
         let accumulatedLength = 0;
-        
+
         const glyphList = document.getElementById("glyphs");
         const tempElement = document.getElementById("temp");
         tempElement.innerHTML = ""
@@ -1117,15 +1135,21 @@ function updateTimeline() {
             if (!allowedTransformations.has(glyph.name)) {
                 continue;
             }
+
+            // let b = performance.now();
             let glyphsAllowedTransformations = glyph.transforms();
+            // transformGenerationTime += performance.now() - b;
             if (glyphsAllowedTransformations.length == 0) {
                 continue;
             }
+
+            // b = performance.now();
             glyphsAllowedTransformations.forEach((e) => {
                 e.inputs = listToMap(e.inputs);
                 e.outputs = listToMap(e.outputs);
                 e.glyph = glyph.name;
             });
+            // transformConversionTime += performance.now() - b;
 
             if (!enableModsCheckbox.checked) {
                 glyphsAllowedTransformations = glyphsAllowedTransformations.filter((e) => !isTransformationModded(e));
@@ -1138,7 +1162,7 @@ function updateTimeline() {
             {
                 let prevS = document.getElementById("prev_glyph_" + i.toFixed());
                 if (prevS) {
-                    previousOptionText = prevS.querySelector("option[value=\"" + prevS.value + "\"]" ).innerText ?? "";
+                    previousOptionText = prevS.querySelector("option[value=\"" + prevS.value + "\"]").innerText ?? "";
                 }
             }
             validTransformations = validTransformations.concat(glyphsAllowedTransformations);
@@ -1151,6 +1175,7 @@ function updateTimeline() {
             glyphList.appendChild(select);
             let lastGroup = -1;
             let groupLabel;
+            // b = performance.now();
             for (let j = 0; j < glyphsAllowedTransformations.length; j++) {
                 if (glyphsAllowedTransformations[j].group != lastGroup) {
                     groupLabel = document.createElement("optgroup");
@@ -1163,21 +1188,41 @@ function updateTimeline() {
                 transformOption.value = accumulatedLength++;
                 groupLabel.appendChild(transformOption);
                 if (previousOptionText) {
-                    if (transformOption.innerText == previousOptionText) {
+                    if (transformOption.textContent == previousOptionText) {
                         transformOption.setAttribute("selected", "");
-                        previousOptionText = "";       
+                        previousOptionText = "";
                     }
                 }
             }
+            // transformListTime += performance.now() - b;
             let button = document.createElement("button");
             button.id = "use_glyph_" + i.toFixed();
             button.innerHTML = "&Rightarrow;";
             glyphList.appendChild(button);
         }
     }
+
+    // let glyphTime = performance.now();
+
     if (loadedSymbols && usingSymbols) {
         distributeSVG();
     }
+
+    // let svgTime = performance.now();
+
+    // let totalTime = svgTime - startTime;
+    // console.log("Stats\n"
+    //     + "Initialization: " + (initializationTime - startTime)
+    //     + "\nTimeline: " + (timelineTime - initializationTime)
+    //     + "\nLoop check: " + (loopCheckTime - timelineTime)
+    //     + "\nWheel: " + (wheelTime - loopCheckTime)
+    //     + "\nAtom: " + (atomTime - wheelTime)
+    //     + "\nGlyph: " + (glyphTime - atomTime)
+    //     + "\n - Generation: " + transformGenerationTime
+    //     + "\n - Conversion: " + transformConversionTime
+    //     + "\n - List: " + transformListTime
+    //     + "\nSVG: " + (svgTime - glyphTime)
+    //     + "\nTotal: " + totalTime);
 }
 
 function updateOutputs() {
