@@ -10,7 +10,7 @@ let modTableInUse = "old"
 
 class AlchemicalLookups {
     static atomTypeAvailibleInOld(at) {
-        return ["trueVitae", "redVitae", "vitae", "salt", "mors", "greyMors", "trueMors", "air", "earth", "fire", "water", "aerolith", "ignistal", "mistaline", "pyrolite", "terramarine", "vaprorine", "quintessence", "quicklime", "quickcopper", "quicksilver", "vaca", "beryl", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium", "lithium", "antimony", "potassium", "carbonic", "bismuth", "cobalt", "arsenic", "platinum", "nobilis", "alpha", "beta", "gamma", "uranium", "aether"].indexOf(at) != -1;
+        return ["trueVitae", "redVitae", "vitae", "salt", "mors", "greyMors", "trueMors", "air", "earth", "fire", "water", "aerolith", "ignistal", "mistaline", "pyrolite", "terramarine", "vaprorine", "quintessence", "quicklime", "quickcopper", "quicksilver", "vaca", "beryl", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium", "frixon", "zephiron", "gelaron", "mitrum", "iridium", "azulum", "taceum", "hestium", "nobilis", "alpha", "beta", "gamma", "uranium", "aether"].indexOf(at) != -1;
     }
 
     static atomTypeAvailibleInDRM(at) {
@@ -209,7 +209,7 @@ class AlchemicalLookups {
 
     static metalsList = ["vaca", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium"];
 
-    static neumetalsList = ["carbonic", "bismuth", "cobalt", "arsenic", "platinum"];
+    static neumetalsList = ["hestium", "azulum", "taceum", "mitrum", "iridium"];
 
     static noblesList = ["alpha", "beta", "gamma"];
 }
@@ -1347,10 +1347,10 @@ function useOldMods() {
         name: "Glyph of Separation",
         groups: ["Divide"],
         transforms: () => {
-            if ((atoms.get("antimony") ?? 0n) >= 1n) {
+            if ((atoms.get("zephiron") ?? 0n) >= 1n) {
                 return [{
-                    inputs: ["antimony"],
-                    outputs: ["lithium", "potassium"],
+                    inputs: ["zephiron"],
+                    outputs: ["frixon", "gelaron"],
                     group: 0
                 }];
             }
@@ -1361,25 +1361,25 @@ function useOldMods() {
         groups: ["Fix"],
         transforms: () => {
             let t = [];
-            if ((atoms.get("lithium") ?? 0n) >= 2n) {
+            if ((atoms.get("frixon") ?? 0n) >= 2n) {
                 for (let i = 0; i < 5; i++) {
                     let base = AlchemicalLookups.neumetalsList[i];
                     if ((atoms.get(base) ?? 0n) >= 1n) {
                         t.push({
-                            inputs: ["lithium", "lithium", base],
-                            outputs: ["antimony", AlchemicalLookups.neumetalsList[(i + 1) % 5]],
+                            inputs: ["frixon", "frixon", base],
+                            outputs: ["zephiron", AlchemicalLookups.neumetalsList[(i + 1) % 5]],
                             group: 0
                         });
                     }
                 }
             }
-            if ((atoms.get("potassium") ?? 0n) >= 2n) {
+            if ((atoms.get("gelaron") ?? 0n) >= 2n) {
                 for (let i = 0; i < 5; i++) {
                     let base = AlchemicalLookups.neumetalsList[i];
                     if ((atoms.get(base) ?? 0n) >= 1n) {
                         t.push({
-                            inputs: ["potassium", "potassium", base],
-                            outputs: ["antimony", AlchemicalLookups.neumetalsList[(i + 4) % 5]],
+                            inputs: ["gelaron", "gelaron", base],
+                            outputs: ["zephiron", AlchemicalLookups.neumetalsList[(i + 4) % 5]],
                             group: 0
                         });
                     }
