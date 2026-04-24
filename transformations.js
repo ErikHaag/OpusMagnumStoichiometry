@@ -218,7 +218,7 @@ function useOldMods() {
     function wheelInput(w, index) {
         return { type: w.type, id: index, atomType: wheels[w.type].atoms[index] };
     }
-    
+
     modTableInUse = "old";
 
     // Vanilla
@@ -1705,21 +1705,24 @@ function useOldMods() {
         groups: ["Transfer between atoms", "Concentrate Herriman's wheel", "Dilute Herriman's wheel", "Distribute around Herriman's wheel"],
         transforms: () => {
             let t = [];
-            for (const [sI, aI] of AlchemicalLookups.strengthToAnimismusMap.entries()) {
-                for (const [sJ, aJ] of AlchemicalLookups.strengthToAnimismusMap.entries()) {
-                    if (Math.abs(sI) >= Math.abs(sJ)) {
+            for (const [toConcentrateStrength, aI] of AlchemicalLookups.strengthToAnimismusMap.entries()) {
+                for (const [toDiluteStrength, aJ] of AlchemicalLookups.strengthToAnimismusMap.entries()) {
+                    // Is cons. already stronger that dilu.
+                    if (Math.abs(toConcentrateStrength) >= Math.abs(toDiluteStrength)) {
                         continue;
                     }
-                    if (sI < 0 && sJ > 0 || sI > 0 && sJ < 0) {
+                    // are they in opposition
+                    if (toConcentrateStrength < 0 && toDiluteStrength > 0 || toConcentrateStrength > 0 && toDiluteStrength < 0) {
                         continue;
                     }
-                    if (sI + 1 == sJ || sI - 1 == sJ) {
+                    // are they adjacent
+                    if (toConcentrateStrength + 1 == toDiluteStrength || toConcentrateStrength - 1 == toDiluteStrength) {
                         continue;
                     }
                     if ((atoms.get(aI) ?? 0n) >= 1 && (atoms.get(aJ) ?? 0n) >= 1) {
-                        let concentrateDirection = sJ > 0 ? 1 : -1;
-                        let dilute = AlchemicalLookups.strengthToAnimismusMap.get(sJ - concentrateDirection);
-                        let concentrate = AlchemicalLookups.strengthToAnimismusMap.get(sI + concentrateDirection);
+                        let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
+                        let dilute = AlchemicalLookups.strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
+                        let concentrate = AlchemicalLookups.strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
                         t.push({
                             inputs: [aI, aJ],
                             outputs: [dilute, concentrate],
@@ -1730,18 +1733,20 @@ function useOldMods() {
             }
             if ((activeWheels & wheelTypeTable.herriman.flag) != 0n) {
                 for (let i = 0; i < 6; i++) {
-                    let strength = AlchemicalLookups.animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
-                    for (const [s, a] of AlchemicalLookups.strengthToAnimismusMap.entries()) {
-                        if (s == 0) {
+                    let toConcentrateStrength = AlchemicalLookups.animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
+                    for (const [toDiluteStrength, a] of AlchemicalLookups.strengthToAnimismusMap.entries()) {
+                        // is dilu. salt
+                        if (toDiluteStrength == 0) {
+                            continue;
+                        }
+                        let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
+                        // is cons. already stronger than dilu
+                        if (toDiluteStrength > 0 ? toConcentrateStrength >= toDiluteStrength : toConcentrateStrength <= toDiluteStrength) {
                             continue;
                         }
                         if ((atoms.get(a) ?? 0n) >= 1n) {
-                            let concentrateDirection = s > 0 ? 1 : -1;
-                            if (s > 0 ? strength >= s : strength <= s) {
-                                continue;
-                            }
-                            let concentrate = AlchemicalLookups.strengthToAnimismusMap.get(strength + concentrateDirection);
-                            let dilute = AlchemicalLookups.strengthToAnimismusMap.get(s - concentrateDirection);
+                            let concentrate = AlchemicalLookups.strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
+                            let dilute = AlchemicalLookups.strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
                             t.push({
                                 inputs: [a],
                                 wheelInputs: [wheelInput(wheelTypeTable.herriman, i)],
@@ -1753,21 +1758,24 @@ function useOldMods() {
                     }
                 }
                 for (let i = 0; i < 6; i++) {
-                    let strength = AlchemicalLookups.animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
-                    if (strength == 0) {
+                    let toDiluteStrength = AlchemicalLookups.animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
+                    // is dilu. salt
+                    if (toDiluteStrength == 0) {
                         continue;
                     }
-                    for (const [s, a] of AlchemicalLookups.strengthToAnimismusMap.entries()) {
-                        if (s != 0 && ((s > 0) != (strength > 0))) {
+                    for (const [toConcentrateStrength, a] of AlchemicalLookups.strengthToAnimismusMap.entries()) {
+                        // is cons. stronger than dilu.
+                        if (Math.abs(toConcentrateStrength) >= Math.abs(toDiluteStrength)) {
                             continue;
                         }
-                        if (Math.abs(s) >= Math.abs(strength)) {
+                        // are they in opposition
+                        if (toDiluteStrength < 0 && toConcentrateStrength > 0 || toDiluteStrength > 0 && toConcentrateStrength < 0) {
                             continue;
                         }
                         if ((atoms.get(a) ?? 0n) >= 1n) {
-                            let concentrateDirection = strength > 0 ? 1 : -1;
-                            let concentrate = AlchemicalLookups.strengthToAnimismusMap.get(s + concentrateDirection);
-                            let dilute = AlchemicalLookups.strengthToAnimismusMap.get(strength - concentrateDirection);
+                            let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
+                            let concentrate = AlchemicalLookups.strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
+                            let dilute = AlchemicalLookups.strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
                             t.push({
                                 inputs: [a],
                                 wheelInputs: [wheelInput(wheelTypeTable.herriman, i)],
@@ -1781,14 +1789,23 @@ function useOldMods() {
                 for (const dir of [1, 5]) {
                     for (let i = 0; i < 6; i++) {
                         let toDiluteStrength = AlchemicalLookups.animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[i]);
+                        // is dilu. salt
+                        if (toDiluteStrength == 0) {
+                            continue;
+                        }
                         let toConcentrateStrength = AlchemicalLookups.animismusToStrengthMap.get(wheels[wheelTypeTable.herriman.type].atoms[(i + dir) % 6]);
-                        if (Math.abs(toDiluteStrength) <= Math.abs(toConcentrateStrength)) {
-                            continue;
-                        }
-                        if (toConcentrateStrength != 0 && ((toDiluteStrength > 0) != (toConcentrateStrength > 0))) {
-                            continue;
-                        }
                         let concentrateDirection = toDiluteStrength > 0 ? 1 : -1;
+                        // is cons. stronger than dilu.
+                        if (toDiluteStrength > 0 ? toConcentrateStrength >= toDiluteStrength : toConcentrateStrength <= toDiluteStrength) {
+                            continue;
+                        }
+                        if (dir == 5) {
+                            // if swapping cons. and dilu. still works
+                            if (!(toConcentrateStrength == 0 || (toConcentrateStrength > 0 ? toDiluteStrength >= toConcentrateStrength : toDiluteStrength <= toConcentrateStrength)) ) {
+                                continue;
+                            }
+                        }
+
                         let dilute = AlchemicalLookups.strengthToAnimismusMap.get(toDiluteStrength - concentrateDirection);
                         let concentrate = AlchemicalLookups.strengthToAnimismusMap.get(toConcentrateStrength + concentrateDirection);
                         t.push({
@@ -2048,7 +2065,7 @@ function useNewMods() {
             let t = [];
             if ((atoms.get("quicksilver") ?? 0n) >= 1n) {
                 for (let [m, d] in AlchemicalLookups.rejectionMap) {
-                    
+
                 }
             }
             return t;
@@ -2057,7 +2074,7 @@ function useNewMods() {
 
 
     moddedTransformIndex = transformationTable.length;
-    
+
 }
 
 useOldMods();
