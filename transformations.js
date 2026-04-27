@@ -10,7 +10,7 @@ let modTableInUse = "old"
 
 class AlchemicalLookups {
     static atomTypeAvailibleInOld(at) {
-        return ["trueVitae", "redVitae", "vitae", "salt", "mors", "greyMors", "trueMors", "air", "earth", "fire", "water", "aerolith", "ignistal", "mistaline", "pyrolite", "terramarine", "vaprorine", "quintessence", "quicklime", "quickcopper", "quicksilver", "vaca", "beryl", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium", "frixon", "zephiron", "gelaron", "mitrum", "iridium", "azulum", "taceum", "hestium", "nobilis", "alpha", "beta", "gamma", "uranium", "aether"].indexOf(at) != -1;
+        return ["trueVitae", "redVitae", "vitae", "salt", "mors", "greyMors", "trueMors", "air", "earth", "fire", "water", "aerolith", "ignistal", "mistaline", "pyrolite", "terramarine", "vaprorine", "quintessence", "quicklime", "quickcopper", "quicksilver", "vaca", "beryl", "lead", "wolfram", "tin", "vulcan", "iron", "nickel", "copper", "zinc", "silver", "sednum", "gold", "osmium", "chromium", "frixon", "zephiron", "gelaron", "mitrum", "iridium", "azulum", "taceum", "hestium", "nobilis", "alpha", "beta", "gamma", "uranium", "aether"].indexOf(at) != -1;
     }
 
     static atomTypeAvailibleInDRM(at) {
@@ -1341,6 +1341,66 @@ function useOldMods() {
         }
     });
 
+    // Metal Quintessence
+    transformationTableHeaders[transformationTable.length] = "Metal Quintessence";
+    transformationTable.push({
+        name: "Glyph of Chromatic Dispersion",
+        groups: ["Disperse"],
+        transforms: () => {
+            let t = [];
+            if ((atoms.get("chromium") ?? 0n) >= 1n) {
+                t.push({
+                    inputs: ["chromium"],
+                    outputs: ["quicksilver", "lead", "tin", "iron", "copper", "silver", "gold"],
+                    group: 0
+                });
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Pigmentation",
+        groups: ["Color"],
+        transforms: () => {
+            let t = [];
+            let s = true;
+            for (let aT of ["quicksilver", "lead", "tin", "iron", "copper", "silver", "gold"]) {
+                if ((atoms.get(aT) ?? 0n) < 1n) {
+                    s = false;
+                    break;
+                }
+            }
+            if (s) {
+                t.push({
+                    inputs: ["quicksilver", "lead", "tin", "iron", "copper", "silver", "gold"],
+                    outputs: ["chromium"],
+                    group: 0
+                });
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Blossoming",
+        groups: ["Bloom"],
+        transforms: () => {
+            let t = [];
+            if ((atoms.get("chromium") ?? 0n) >= 1n) {
+                t.push({
+                    inputs: ["chromium"],
+                    outputs: ["quicksilver", "lead", "tin", "iron", "copper", "silver", "gold"],
+                    group: 0
+                });
+            }
+            if ((atoms.get("quintessence") ?? 0n) >= 1n) {
+                t.push({
+                    inputs: ["quintessence"],
+                    outputs: ["air", "earth", "fire", "water", "salt", "salt", "salt"],
+                    group: 0
+                });
+            }
+            return t;
+        }
+    })
+    
     // Neuvolics
     transformationTableHeaders[transformationTable.length] = "Neuvolics";
     transformationTable.push({
