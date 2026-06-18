@@ -1418,7 +1418,7 @@ function useOldMods() {
         }
     }, {
         name: "Glyph of Fixation",
-        groups: ["Fix"],
+        groups: ["Fixate"],
         transforms: () => {
             let t = [];
             if ((atoms.get("frixon") ?? 0n) >= 2n) {
@@ -1448,7 +1448,89 @@ function useOldMods() {
 
             return t;
         }
+    }, {
+        name: "Glyph of Consolidation",
+        groups: ["Combine"],
+        transforms: () => {
+            let t = [];
+            if ((atoms.get("frixon") ?? 0n) >= 1n && (atoms.get("gelaron") ?? 0n) >= 1n) {
+                t.push({
+                    inputs: ["frixon", "gelaron"],
+                    outputs: ["zephiron"],
+                    group: 0
+                });
+            }
+            return t;
+        }
+    }, {
+        name: "Glyph of Putrefaction",
+        groups: ["Putrefy neumetal once", "Putrefy neumetal twice", "Dispose volic pair"],
+        transforms: () => {
+            let t = [];
+            if ((atoms.get("frixon") ?? 0n) >= 1n) {
+                for (let i = 0; i < 5; i++) {
+                    let base = AlchemicalLookups.neumetalsList[i];
+                    if ((atoms.get(base) ?? 0n) >= 1n) {
+                        t.push({
+                            inputs: ["frixon", base],
+                            outputs: [AlchemicalLookups.neumetalsList[(i + 1) % 5]],
+                            group: 0
+                        });
+                    }
+                }
+            }
+            if ((atoms.get("gelaron") ?? 0n) >= 1n) {
+                for (let i = 0; i < 5; i++) {
+                    let base = AlchemicalLookups.neumetalsList[i];
+                    if ((atoms.get(base) ?? 0n) >= 1n) {
+                        t.push({
+                            inputs: ["gelaron", base],
+                            outputs: [AlchemicalLookups.neumetalsList[(i + 4) % 5]],
+                            group: 0
+                        });
+                    }
+                }
+            }
+            if ((atoms.get("frixon") ?? 0n) >= 2n) {
+                for (let i = 0; i < 5; i++) {
+                    let base = AlchemicalLookups.neumetalsList[i];
+                    if ((atoms.get(base) ?? 0n) >= 1n) {
+                        t.push({
+                            inputs: ["frixon", "frixon", base],
+                            outputs: [AlchemicalLookups.neumetalsList[(i + 2) % 5]],
+                            group: 1
+                        });
+                    }
+                }
+            }
+            if ((atoms.get("gelaron") ?? 0n) >= 2n) {
+                for (let i = 0; i < 5; i++) {
+                    let base = AlchemicalLookups.neumetalsList[i];
+                    if ((atoms.get(base) ?? 0n) >= 1n) {
+                        t.push({
+                            inputs: ["gelaron", "gelaron", base],
+                            outputs: [AlchemicalLookups.neumetalsList[(i + 3) % 5]],
+                            group: 1
+                        });
+                    }
+                }
+            }
+            if ((atoms.get("frixon") ?? 0n) >= 1n && (atoms.get("gelaron") ?? 0n) >= 1n) {
+                for (let i = 0; i < 5; i++) {
+                    let base = AlchemicalLookups.neumetalsList[i];
+                    if ((atoms.get(base) ?? 0n) >= 1n) {
+                        t.push({
+                            inputs: ["frixon", "gelaron", base],
+                            outputs: [base],
+                            group: 2
+                        });
+                    }
+                }
+            }
+            return t;
+        }
     });
+
     // Noble Elements
     transformationTableHeaders[transformationTable.length] = "Noble Elements";
     transformationTable.push({
