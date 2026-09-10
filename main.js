@@ -11,9 +11,9 @@ class OMSC {
         await symbolModule.expandAtomSymbols(symbolDump, { mode: 1 });
 
         for (let aT of symbolDump.children) {
-            this.atomTypes.push(AtomType.fromString(aT.id.substring(6)));
+            AtomType.atomTypes.push(AtomType.fromElementId(aT.id.substring(6)));
         }
-        this.atomTypes.sort((a, b) => {
+        AtomType.atomTypes.sort((a, b) => {
             if (a.namespace > b.namespace) {
                 return 1;
             }
@@ -28,24 +28,15 @@ class OMSC {
             }
             return 0; 
         });
-        this.state = new OMSCState();
+        
+        this.state = new State();
     }
-    /** @type {Array<AtomType>} */
-    static atomTypes = [];
+    
 
-    /** @type {OMSCState} */
+    /** @type {State} */
     static state;
-}
 
-class OMSCState {
-    constructor() {
-        /** @type {Map<string,BigInt>} */
-        this.atoms = new Map();
-        for (let atomType of OMSC.atomTypes) {
-            this.atoms.set(atomType.toString(), 0n);
-        }
-    }
-
+    static activeGlyphs = new Set("opus_magnum:calcification");
 }
 
 window.addEventListener("load", () => {
