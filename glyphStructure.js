@@ -44,7 +44,7 @@ class Transmutation {
      * @param {Array<string>} outputAtoms
      * @param {Array<string>} otherGlyphs
      */
-    constructor(inputAtoms, outputAtoms, wheelChanges, otherGlyphs = []) {
+    constructor(inputAtoms, outputAtoms, wheelChanges = [], otherGlyphs = []) {
         this.isModded = true;
         this.inputAtoms = Utilities.listToMap(inputAtoms);
         this.outputAtoms = Utilities.listToMap(outputAtoms);
@@ -67,12 +67,12 @@ class Transmutation {
             }
         }
         for (let [a, c] of this.inputAtoms) {
-            if (state.atoms.get(a) < c) {
+            if ((state.atoms.get(a) ?? 0n) < c) {
                 return false;
             }
         }
         for (let w of this.wheelChanges) {
-            let currentWheel = state.wheels.get(w.wheel) 
+            let currentWheel = state.wheels.get(w.wheel)
             if (currentWheel == undefined) {
                 return false;
             }
@@ -91,10 +91,10 @@ class Transmutation {
      */
     apply(state) {
         for (let [a, c] of this.inputAtoms) {
-            state.atoms.set(a, state.atoms.get(a) - c);
+            state.atoms.set(a, (state.atoms.get(a) ?? 0n) - c);
         }
         for (let [a, c] of this.outputAtoms) {
-            state.atoms.set(a, state.atoms.get(a) + c);
+            state.atoms.set(a, (state.atoms.get(a) ?? 0n) + c);
         }
         for (let w of this.wheelChanges) {
             let currentWheel = state.wheels.get(w.wheel);
@@ -151,7 +151,13 @@ class Glyph {
             let transmute = this.transmutations[i];
             let remove = false;
             wLoop: for (let wheelTransmutation of transmute.wheelChanges) {
-                let sourceWheel = GlyphData.getWheelFromId(wheelTransmutation.wheel);
+                let sourceWheel = ModData.getWheelFromId(wheelTransmutation.wheel);
+                if (sourceWheel == undefined) {
+                    console.error(`Unknown or undeclared wheel \"${wheelTransmutation.wheel}\" found.`)
+                    remove = true;
+                    break;
+                }
+
                 if (!sourceWheel.immutable) {
                     continue;
                 }

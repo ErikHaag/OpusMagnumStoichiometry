@@ -7,9 +7,8 @@
     <title>OMSC</title>
     <link rel="icon" href="icon.svg">
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link rel='stylesheet' type='text/css' media='screen' href='https://cdn.jsdelivr.net/gh/ErikHaag/Opus-Magnum-Assets/bases/base.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='https://cdn.jsdelivr.net/gh/ErikHaag/Opus-Magnum-Assets/symbols/base.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
 </head>
 
@@ -19,115 +18,35 @@
         <button id="closeHelp">Close</button>
         <button id="nextHelp">Next</button>
     </div>
-    <!-- Templates -->
-    <fieldset id="moleculeTemplate" class="box" hidden>
-        <legend id="name_[0]_[1]" class="editable" contenteditable="plaintext-only" spellcheck="false">Unnamed group of bonded proxies</legend>
-        <button id="remove_[0]_[1]">Delete</button>
-    </fieldset>
-    <fieldset id="wheelTemplate" hidden>
-        <legend id="name_wheel_[0]"></legend>
-        &circlearrowright;
-        <ol id="atoms_wheel_[0]"></ol>
-    </fieldset>
     <!-- Menu -->
     <h1>Opus Magnum Stoichiometry Calculator</h1>
-    <button id="help">Help!</button>
-    <fieldset id="reagentsField">
-        <legend>Reagents <button id="collapseReagents">\/</button></legend>
-        <button id="addReagent">+</button>
-        <div id="reagentsTray" class="trays">
-        </div>
-    </fieldset>
-    <fieldset id="productsField">
-        <legend>Products <button id="collapseProducts">\/</button></legend>
-        <button id="addProduct">+</button>
-        <div id="productsTray" class="trays">
-        </div>
-    </fieldset>
-    <fieldset id="settingsField">
-        <legend>Settings <button id="collapseSettings">\/</button></legend>
-        <div id="settingsTray" class="trays wide-gap">
-            <div id="tSettings" class="pairs box"></div>
-            <div id="wSettings" class="pairs"></div>
-            <div id="cSettings" class="pairs">
-                <label for="darkMode">Dark Mode:</label>
-                <input id="darkMode" type="checkbox">
-                <label for="useSymbols">Use Symbols</label>
-                <input id="useSymbols" type="checkbox">
-                <label for="useMods">Enable mods</label>
-                <input id="useMods" type="checkbox">
-                <button id="save">Save</button>
-                <a id="download" download="Empty plan.json"></a>
-                <input id="load" type="file" accept=".json" style="grid-column: span 2;">
-            </div>
-            <div class="showWhenModded">
-                <h2>Supported Mods</h2>
-                <ul>
-                    <li>Complicated Elements (Trines Alucia)</li>
-                    <li>Halving Metallurgy (Greenfield)</li>
-                    <li>Metal Quintessence (Lemony)</li>
-                    <li>Neuvolics (Greenfield, Charlie The Daemon, Hi30, & Giacinto)</li>
-                    <li>Noble Elements (RedstoneParadox)</li>
-                    <li>Reductive Metallurgy (Iswaac & Arpy0)</li>
-                    <li>True Animismus (ItsKazyan)</li>
-                    <li>Unstable Elements (Luna)</li>
-                    <li>Vacancy (ItsKazyan)</li>
-                </ul>
+    <div id="mainNav">
+        <button>Mods</button>
+        <button>Reagents</button>
+        <button>Products</button>
+        <button>Glyphs</button>
+        <button>Timeline</button>
+    </div>
+    <div class="panels">
+        <div id="modPanel" class="visible" >
+            <div class="pairs">
+
             </div>
         </div>
-    </fieldset>
-    <fieldset id="plannerField">
-        <legend>Alchemy Planner</legend>
-        <table class="planner">
-            <thead>
-                <tr>
-                    <th>Inputs</th>
-                    <th>Wheels</th>
-                    <th>Atoms</th>
-                    <th>Transformations</th>
-                    <th>Timeline</th>
-                    <th>Outputs</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div id="inputs" class="triplets"></div>
-                    </td>
-                    <td id="wheels"></td>
-                    <td>
-                        <div id="atoms" class="pairs"></div>
-                    </td>
-                    <td>
-                        <div id="glyphs" class="triplets"></div>
-                    </td>
-                    <td>
-                        <label for="editMode">Advanced mode: </label>
-                        <input id="editMode" type="checkbox" />
-                        <div id="timeline" class="triplets"></div>
-                        <button id="deleteLastEvent">Remove last step</button>
-                    </td>
-                    <td>
-                        <div id="outputs" class="pairs"></div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </fieldset>
-
-    <!-- utils -->
-    <div id="temp" hidden></div>
-    <dialog id="confirmDialog">
-        <p></p>
-        <button id="disagree">No</button>
-        <button id="confirm">Yes</button>
-    </dialog>
-
+        <div id="reagentPanel">
+            <button id="addReagent">+</button>
+            <div class="row"></div>
+        </div>
+        <div id="productPanel"></div>
+        <div id="glyphPanel"></div>
+        <div id="timelinePanel"></div>
+    </div>
 </body>
 <!-- <script src="help.js"></script> -->
 <script src='utilities.js'></script>
 <script src='atomType.js'></script>
 <script src='glyphStructure.js'></script>
 <script src='glyphData.js'></script>
+<script src='components.js'></script>
 <script src='main.js'></script>
 </html>

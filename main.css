@@ -1,230 +1,46 @@
-:root {
-    --light_background_color: white;
-    --light_text_color: black;
-    --light_ignore_background_color: #525252;
-    --light_ignore_text_color: #dedede;
+.tabRow {
+    display: grid;
+    justify-content: start;
+    grid-auto-flow: column;
 
-    --dark_background_color: hsl(260, 100%, 10%);;
-    --dark_text_color: white;
-    --dark_ignore_background_color: #423658;
-    --dark_ignore_text_color: #c7c7c7;
+    button {
+        border-radius: 10px 10px 0px 0px;
+        border: gray 2px solid;
+        border-bottom: none;
+        margin-top: 5px;
+        padding-bottom: 0px;
+        transition: margin-top 100ms ease, padding-bottom 100ms ease;
+
+        &:hover {
+            margin-top: 2px;
+            padding-bottom: 3px;
+        }
+
+        &.selected,
+        &:active {
+            margin-top: 0px;
+            padding-bottom: 5px;
+        }
+    }
 }
 
-body {
-    font-family: 'Crimson Pro', serif;
-    font-size: medium;
-    font-weight: normal;
-}
-
-body.light {
-    background-color: var(--light_background_color);
-    color: var(--light_text_color);
-}
-
-body.dark {
-    background-color: var(--dark_background_color);
-    color: var(--dark_text_color);
-}
-
-body.light svg.symbol * {
-    stroke: var(--light_text_color);
-}
-
-body.dark svg.symbol * {
-    stroke: var(--dark_text_color);
-}
-
-body.light .ignore>svg.symbol * {
-    stroke: var(--light_ignore_text_color);
-}
-
-body.dark .ignore>svg.symbol * {
-    stroke: var(--dark_ignore_text_color)
-}
-
-body.light svg.symbol *.strokeFill {
-    fill: var(--light_text_color);
-}
-
-body.dark svg.symbol *.strokeFill {
-    fill: var(--dark_text_color);;
-}
-
-body:not(.modded) .showWhenModded {
-    display: none;
-}
-
-svg.symbol .noFill {
-    fill: none;
-}
-
-svg.symbol.hide, #symbols {
-    display: none;
-}
-
-.box {
-    max-height: 500px;
-    min-width: fit-content;
-    overflow-y: auto;
-}
-
-.fail {
-    border-bottom: 1px solid red;
-}
-
-.negative {
-    font-weight: bold;
-    color: red;
-}
-
-#glyphs {
-    width: fit-content;
-}
-
-.ignore {
+.panels {
+    border-top: solid 2px black;
+    margin: 0px;
     padding: 5px;
-}
 
-body.light .ignore {
-    background-color: var(--light_ignore_background_color);
-    color: var(--light_ignore_text_color);
-}
-
-body.dark .ignore {
-    background-color: var(--dark_ignore_background_color);
-    color: var(--dark_ignore_text_color);
-}
-
-label svg {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-p {
-    margin: 0;
+    & > div {
+        height: 100%;
+        &:not(.visible) {
+            display: none;
+        }
+    }
 }
 
 .pairs {
-    align-items: center;
     display: grid;
-    gap: 0 10px;
     grid-template-columns: max-content max-content;
-    justify-items: center;
-    height: fit-content;
-}
-
-.pairs>label {
-    margin-right: 0.5em;
-}
-
-.planner {
-    border-collapse: collapse;
-}
-
-select {
-    appearance: none;
-    min-width: 30ch;
-    max-width: 40ch;
-    max-height: none;
-    text-wrap: unset;
-}
-
-table {
-    max-width: 95vw;
-}
-
-tbody {
-    vertical-align: top;
-}
-
-th, td {
-    padding: 0.5ch;
-}
-
-th:nth-last-child(n+2), td:nth-last-child(n+2) {
-    border-right: 2px solid lightgray;
-}
-
-#timeline {
-    padding: 0 10px;
-}
-
-#timeline > div {
-    width: 100%;
-}
-
-h3.reduceMargins {
-    margin-block-start: 0.5em;
-    margin-block-end: 0.1em;
-}
-
-.trays {
-    display: grid;
-    gap: 10px;
-    grid-template-rows: max-content;
-    grid-auto-flow: column;
-    justify-content: start;
-    overflow-x: auto;
-    width: 95vw;
-}
-
-.trays.wide-gap {
-    gap: 20px;
-}
-
-.triplets {
-    align-items: center;
-    display: grid;
-    gap: 0 1ch;
-    grid-template-columns: repeat(3, max-content);
-    justify-items: center;
-}
-
-.quadruplets {
-    align-items: center;
-    display: grid;
-    gap: 0 1ch;
-    grid-template-columns: repeat(4, max-content);
-    justify-items: center;
-}
-
-#timeline.triplets :nth-child(3n + 1), #timeline.quadruplets :nth-child(4n + 1) {
-    white-space: pre;
-    text-align: right;
-}
-
-#timeline.quadruplets :nth-child(4n + 1) {
-    touch-action: none;
-}
-
-.noSelect {
-    user-select: none;
-}
-
-#help {
-    font-size: large;
-    background-color: rgb(30, 117, 247);
-    color: white;
-}
-
-#helpBox {
-    border: 2px lightblue solid;
-    position: absolute;
-    z-index: 1;
-}
-
-body.light #helpBox {
-    background-color: var(--light_background_color);
-}
-
-body.dark #helpBox {
-    background-color: var(--dark_background_color);
-}
-
-.selectAbove {
-    border-top: 2px seagreen solid;
-}
-
-.selectBelow {
-    border-bottom: 2px seagreen solid;
+    grid-auto-flow: row;
+    align-content: start;
+    overflow-y: auto;
 }
