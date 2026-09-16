@@ -44,3 +44,35 @@
     align-content: start;
     overflow-y: auto;
 }
+
+@media (min-width: 1200px) {
+    .atomFormBox {
+        display: grid;
+        grid-template-columns: repeat(10, max-content);
+        column-gap: 2ch;
+    }
+}
+
+@media (min-width: 1000px) and (max-width: 1200px) {
+    .atomFormBox {
+        display: grid;
+        grid-template-columns: repeat(8, max-content);
+        column-gap: 2ch;
+    }
+}
+
+@media (min-width: 500px) and (max-width: 1000px) {
+    .atomFormBox {
+        display: grid;
+        grid-template-columns: repeat(4, max-content);
+        column-gap: 2ch;
+    }
+}
+
+@media (max-width:500px) {
+    .atomFormBox {
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        column-gap: 2ch;
+    }
+}

@@ -50,10 +50,6 @@ class AtomType {
             }
     }
 
-    isModded() {
-        return this.namespace != "opus_magnum";
-    }
-
     toString() {
         return this.namespace + ":" + this.name;
     }

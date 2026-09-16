@@ -27,7 +27,19 @@ class WheelTransmutation {
      */
     constructor(wheelName, offsets, inputList, outputList) {
         this.wheel = wheelName;
-        this.offsets = offsets;
+        let origWheel = ModData.getWheelFromId(wheelName);
+        if (origWheel == undefined) {
+            throw new Error("no wheel with the id \"" + wheelName + "\" found.");
+        }
+        let modulus = origWheel.atomCount;
+        this.offsets = offsets.map((o) => (o % modulus + modulus) % modulus);
+        for (let i = 0; i < this.offsets.length; i++) {
+            for (let j = i + 1; j < this.offsets.length; j++) {
+                if (this.offsets[i] == this.offsets[j]) {
+                    throw new Error("Duplicate offset found!")
+                }
+            }
+        } 
         this.inputs = inputList;
         this.outputs = outputList;
         if (this.offsets.length != this.inputs.length || this.inputs.length != this.outputs.length) {
@@ -45,16 +57,10 @@ class Transmutation {
      * @param {Array<string>} otherGlyphs
      */
     constructor(inputAtoms, outputAtoms, wheelChanges = [], otherGlyphs = []) {
-        this.isModded = true;
         this.inputAtoms = Utilities.listToMap(inputAtoms);
         this.outputAtoms = Utilities.listToMap(outputAtoms);
         this.wheelChanges = wheelChanges;
         this.otherGlyphs = otherGlyphs;
-    }
-
-    setVanilla() {
-        this.isModded = false;
-        return this;
     }
 
     /**
@@ -62,7 +68,7 @@ class Transmutation {
      */
     canApply(state) {
         for (let g of this.otherGlyphs) {
-            if (!OMSC.activeGlyphs.has(g)) {
+            if (!ModData.activeGlyphs.has(g)) {
                 return false;
             }
         }
@@ -126,6 +132,7 @@ class Wheel {
             AtomType.sanityCheck(a);
         }
         this.initialAtoms = initialAtoms;
+        this.atomCount = this.initialAtoms.length;
         this.immutable = immutable;
     }
 }
@@ -146,11 +153,22 @@ class Glyph {
         this.transmutations = [];
     }
 
+    /**
+     * @param {Array<Transmutation> | Transmutation} transmutations
+     */
+    appendTransmutations(transmutations) {
+        if (transmutations instanceof Array) {
+            this.transmutations = this.transmutations.concat(transmutations);
+        } else {
+            this.transmutations.push(transmutations);
+        }
+    }
+
     cleanup() {
-        for (let i = 0; i < this.transmutations.length; i++) {
+        o:for (let i = 0; i < this.transmutations.length; i++) {
             let transmute = this.transmutations[i];
             let remove = false;
-            wLoop: for (let wheelTransmutation of transmute.wheelChanges) {
+            for (let wheelTransmutation of transmute.wheelChanges) {
                 let sourceWheel = ModData.getWheelFromId(wheelTransmutation.wheel);
                 if (sourceWheel == undefined) {
                     console.error(`Unknown or undeclared wheel \"${wheelTransmutation.wheel}\" found.`)
@@ -163,15 +181,18 @@ class Glyph {
                 }
                 for (let j = 0; j < wheelTransmutation.offsets.length; j++) {
                     if (sourceWheel.initialAtoms[wheelTransmutation.offsets[j]] != wheelTransmutation.inputs[j]) {
-                        remove = true;
-                        break wLoop;
+                        this.transmutations.splice(i, 1);
+                        i--;
+                        continue o;
                     }
                 }
             }
-            if (remove) {
-                this.transmutations.splice(i, 1);
-                i--;
-            }
+            transmute.wheelChanges.sort((a, b) => {
+                if (a.wheel != b.wheel) {
+                    return a.wheel > b.wheel ? 1 : -1;
+                }
+                return 0;
+            });
         }
     }
 }

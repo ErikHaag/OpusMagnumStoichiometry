@@ -19,7 +19,7 @@ class Elements {
     /** @type {HTMLElement} */
     static timelinePanel
 
-    static init() {
+    static initiallize() {
         // @ts-ignore
         this.menuSelect = new TabRow(document.getElementById("mainNav"), this.menuSelectCallback);
         // @ts-ignore
@@ -32,6 +32,17 @@ class Elements {
         this.glyphPanel = document.getElementById("glyphPanel");
         // @ts-ignore
         this.timelinePanel = document.getElementById("timelinePanel");
+
+        document.addEventListener("change", Elements.changeHandler)
+
+        Elements.initiallizeStaticARIA();
+    }
+
+    static initiallizeStaticARIA() {
+        const panels = [Elements.modPanel, Elements.reagentPanel, Elements.productPanel, Elements.glyphPanel, Elements.timelinePanel];
+        for (let i = 0; i < 5; i++) {
+            Elements.menuSelect.rootElement.children[i].setAttribute("aria-controls", panels[i].id);
+        }
     }
 
     static updateAll() {
@@ -53,84 +64,120 @@ class Elements {
         panels[prev].classList.remove("visible");
     }
 
+    /**
+     * @param {Event} e
+     */
+    static changeHandler(e) {
+        /** @type {Element} */
+        // @ts-ignore
+        let target = e.target;
+        const id = target.id;
+        if (id.startsWith("modSelectedCheckbox_")) {
+            let mod = id.substring(20);
+            // @ts-ignore
+            if (target.checked ? ModData.propagateLoad(mod) : ModData.propagateUnload(mod)) {
+                Elements.modPanelUpdate();
+                let replacedFocus = document.getElementById(id);
+                if (replacedFocus != undefined) {
+                    replacedFocus.focus();
+                }
+            }
+            ModData.reset();
+        }
+    }
+
+    /**
+     * @param {FocusEvent} e
+     */
+    static blurHandler(e) {
+        /** @type {Element} */
+        // @ts-ignore
+        let target = e.target;
+        if (target.id.startsWith("")) {
+
+        }
+    }
+
+
+
     static modPanelUpdate() {
         let container = Elements.modPanel.children[0];
-
-        let previousLabel;
-        let previousCheckbox;
-        let first = true;
+        let fragment = new DocumentFragment();
         for (let mod of ModData.modList.slice(1)) {
-            let labelId = "modSelectedLabel_" + mod;
             let checkboxId = "modSelectedCheckbox_" + mod;
-            previousLabel = document.getElementById(labelId);
-            if (previousLabel == null) {
-                previousLabel = document.createElement("label");
-                previousLabel.id = labelId;
-                previousLabel.setAttribute("for", checkboxId)
-                previousLabel.innerText = Utilities.snakeToTitle(mod);
+            let label = document.createElement("label");
+            label.id = "modSelectedLabel_" + mod;
+            label.setAttribute("for", checkboxId)
+            label.innerText = Utilities.snakeToTitle(mod);
+            fragment.appendChild(label);
+            let checkbox = document.createElement("input");
+            checkbox.id = checkboxId;
+            checkbox.setAttribute("type", "checkbox");
+            if (ModData.activeMods.has(mod)) {
+                checkbox.setAttribute("checked", "");
             }
-            if (first) {
-                container.insertAdjacentElement("afterbegin", previousLabel);
-                first = false;
-            } else {
-                // @ts-ignore
-                previousCheckbox.insertAdjacentElement("afterend", previousLabel);
-            }
-            previousCheckbox = document.getElementById(checkboxId);
-            if (previousCheckbox == null) {
-                previousCheckbox = document.createElement("input");
-                previousCheckbox.id = checkboxId;
-                previousCheckbox.setAttribute("type", "checkbox");
-            }
-            previousLabel.insertAdjacentElement("afterend", previousCheckbox);
+            fragment.appendChild(checkbox);
         }
+        container.replaceChildren(fragment);
     }
 
     static reagentsPanelUpdate() {
         let container = Elements.reagentPanel.children[1];
-        while (container.childElementCount > OMSC.reagents.length) {
-            container.lastElementChild?.remove();
-        }
-        while (container.childElementCount < OMSC.reagents.length) {
+        let fragment = new DocumentFragment();
+
+        for (let i = 0; i < OMSC.reagents.length; i++) {
             let tray = document.createElement("fieldset");
-            container.appendChild(tray);
+            fragment.appendChild(tray);
             let trayLegend = document.createElement("legend");
+            trayLegend.id = "reagentName_" + i;
             trayLegend.setAttribute("contenteditable", "plaintext-only");
             trayLegend.setAttribute("spellcheck", "false");
             tray.appendChild(trayLegend);
-        }
-
-        for (let i = 0; i < OMSC.reagents.length; i++) {
-            container.children[i].children[0].textContent = OMSC.reagents[i].name;
+            trayLegend.textContent = OMSC.reagents[i].name;
 
             let detailsName = "reagentGroup_" + i;
-            let j = 0;
             for (let mod of ModData.modList) {
-                if (mod != "opus_magnum" && !OMSC.activeMods.has(mod)) {
-                    continue;
-                }
-                let elements = AtomType.atomTypes.filter((a) => a.namespace == mod);
+                let elements = AtomType.atomTypes.filter((a) => ModData.activeAtomTypes.has(a.toString())).filter((a) => a.namespace == mod);
                 if (elements.length == 0) {
                     continue;
                 }
-                let detailsId = "reagent_" + i + "_mod_" + mod + "_details";
-                let summaryId = "reagent_" + i + "_mod_" + mod + "_summary";
-                let details = document.getElementById(detailsId);
-                if (details == null) {
-                    details = document.createElement("details");
-                    details.id = detailsId;
-                    details.setAttribute("name", detailsName);
+                let details = document.createElement("details");
+                details.setAttribute("name", detailsName);
+                tray.appendChild(details);
+                let summary = document.createElement("summary");
+                summary.innerText = Utilities.snakeToTitle(mod);
+                details.appendChild(summary);
+                let formElementBox = document.createElement("div");
+                formElementBox.classList.add("atomFormBox");
+                details.appendChild(formElementBox);
+                for (let a of elements) {
+                    let inputId = `reagent_${i}_${a.name}__${a.namespace}`;
+                    let label = document.createElement("label");
+                    label.setAttribute("for", inputId);
+                    label.ariaLabel = Utilities.snakeToTitle(a.name);
+                    label.setAttribute("title", Utilities.snakeToTitle(a.name));
+                    formElementBox.appendChild(label);
+                    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    svg.setAttribute("viewBox", "0 0 60 60");
+                    svg.setAttribute("width", "30");
+                    svg.setAttribute("height", "30");
+                    label.appendChild(svg);
+                    let use = document.createElementNS("http://www.w3.org/2000/svg", "use")
+                    use.setAttribute("href", `#OMA_A_${a.name}__${a.namespace}`);
+                    svg.appendChild(use);
+                    let textNode = document.createTextNode(":");
+                    label.appendChild(textNode);
+                    let input = document.createElement("input");
+                    input.id = inputId;
+                    input.setAttribute("type", "number");
+                    input.setAttribute("min", "0");
+                    input.setAttribute("step", "1");
+                    input.value = (OMSC.reagents[i].atoms.get(a.toString()) ?? 0n).toString();
+                    formElementBox.appendChild(input);
                 }
-                container.children[i].children[j].insertAdjacentElement("afterend", details);
-                let summary = document.getElementById(summaryId);
-                if (summary == null) {
-                    summary = document.createElement("summary");
-                    summary.id = summaryId;
-                    summary.innerText = Utilities.snakeToTitle(mod);
-                }
-                details.insertAdjacentElement("afterbegin", summary);
             }
         }
+        container.replaceChildren(fragment);
     }
 }
 
@@ -158,7 +205,10 @@ class OMSC {
             baseModule.expandAtomBases(bases, { mode: 1 })
         ]);
 
-        combiningModule.atomMerge(combined, symbols, bases, { mode: 1 })
+        combiningModule.atomMerge(combined, symbols, bases, { mode: 1 });
+
+        // remove "repeat" atom
+        ["S", "B", "A"].forEach((v) => document.getElementById("OMA_" + v + "_repeat__opus_magnum")?.remove());
 
         for (let aT of combined.children) {
             AtomType.atomTypes.push(AtomType.fromElementId(aT.id.substring(6)));
@@ -180,7 +230,8 @@ class OMSC {
             return 0;
         });
 
-        Elements.init();
+        ModData.reset();
+
         Elements.updateAll();
 
         this.state = new State();
@@ -191,24 +242,17 @@ class OMSC {
     /** @type {State} */
     static state;
 
-    static activeMods = new Set();
-    static activeGlyphs = new Set("opus_magnum:calcification");
-
     /** @type {Array<Molecule>} */
-    static reagents = [{
-        name: "Unnamed group of proxies",
-        atoms: new Map()
-    }];
+    static reagents = [];
 
     /** @type {Array<Molecule>} */
     static products = [];
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    Elements.initiallize();
+})
+
 window.addEventListener("load", () => {
     OMSC.load();
-});
-
-document.addEventListener("click", (e) => {
-    let target = e.target;
-
 });

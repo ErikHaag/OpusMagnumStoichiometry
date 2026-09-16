@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset='utf-8'>
@@ -7,6 +7,7 @@
     <title>OMSC</title>
     <link rel="icon" href="icon.svg">
     <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <meta name='description' content='A stoichiometry calculator for the Zachtronics game &quot;Opus Magnum&quot;'>
     <link rel='stylesheet' type='text/css' media='screen' href='https://cdn.jsdelivr.net/gh/ErikHaag/Opus-Magnum-Assets/bases/base.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='https://cdn.jsdelivr.net/gh/ErikHaag/Opus-Magnum-Assets/symbols/base.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
@@ -20,14 +21,14 @@
     </div>
     <!-- Menu -->
     <h1>Opus Magnum Stoichiometry Calculator</h1>
-    <div id="mainNav">
+    <nav id="mainNav">
         <button>Mods</button>
         <button>Reagents</button>
         <button>Products</button>
         <button>Glyphs</button>
         <button>Timeline</button>
-    </div>
-    <div class="panels">
+    </nav>
+    <main class="panels">
         <div id="modPanel" class="visible" >
             <div class="pairs">
 
@@ -40,13 +41,13 @@
         <div id="productPanel"></div>
         <div id="glyphPanel"></div>
         <div id="timelinePanel"></div>
-    </div>
+    </main>
 </body>
 <!-- <script src="help.js"></script> -->
 <script src='utilities.js'></script>
 <script src='atomType.js'></script>
 <script src='glyphStructure.js'></script>
-<script src='glyphData.js'></script>
+<script src='modData.js'></script>
 <script src='components.js'></script>
 <script src='main.js'></script>
 </html>
