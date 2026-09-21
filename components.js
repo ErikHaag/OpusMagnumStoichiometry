@@ -58,13 +58,7 @@ class TabRow {
 
     update() {
         for (let c of this.rootElement.children) {
-            const selected = c.getAttribute("data-index") == this.option.toString();
-            if (selected) {
-                c.classList.add("selected");
-            } else {
-                c.classList.remove("selected");
-            }
-            c.ariaSelected = selected ? "true" : "false";
+            c.ariaSelected = c.getAttribute("data-index") == this.option.toString() ? "true" : "false";
         }
     }
 

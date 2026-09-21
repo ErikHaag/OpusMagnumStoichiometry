@@ -37,17 +37,20 @@ class AtomType {
      */
     static sanityCheck(id) {
         let a = AtomType.fromId(id);
+        a.sanityCheck();
+    }
 
+    sanityCheck() {
         let valid = false;
-            for (let aT of AtomType.atomTypes) {
-                if (a.namespace == aT.namespace && a.name == aT.name) {
-                    valid = true;
-                    break;
-                }
+        for (let aT of AtomType.atomTypes) {
+            if (this.namespace == aT.namespace && this.name == aT.name) {
+                valid = true;
+                break;
             }
-            if (!valid) {
-                throw new Error("unknown atom type \"" + id + "\"");
-            }
+        }
+        if (!valid) {
+            throw new Error(`unknown atom type \"${this}\"`);
+        }
     }
 
     toString() {

@@ -57,6 +57,7 @@ class Transmutation {
      * @param {Array<string>} otherGlyphs
      */
     constructor(inputAtoms, outputAtoms, wheelChanges = [], otherGlyphs = []) {
+        this.glyph = "";
         this.inputAtoms = Utilities.listToMap(inputAtoms);
         this.outputAtoms = Utilities.listToMap(outputAtoms);
         this.wheelChanges = wheelChanges;
@@ -146,11 +147,16 @@ class Glyph {
      * @param {string} description 
      */
     constructor(namespace, name, displayName, description) {
-        this.id = namespace + ":" + name;
+        this.namespace = namespace
+        this.name = name;
         this.displayName = displayName;
         this.description = description;
         /** @type {Array<Transmutation>} */
         this.transmutations = [];
+    }
+
+    get id() {
+        return this.namespace + ":" + this.name;
     }
 
     /**
@@ -158,8 +164,10 @@ class Glyph {
      */
     appendTransmutations(transmutations) {
         if (transmutations instanceof Array) {
+            transmutations.forEach((t) => t.glyph = this.id);
             this.transmutations = this.transmutations.concat(transmutations);
         } else {
+            transmutations.glyph = this.id
             this.transmutations.push(transmutations);
         }
     }
