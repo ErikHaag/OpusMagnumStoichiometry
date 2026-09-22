@@ -28,4 +28,22 @@ class Utilities {
         }
         return m;
     }
+
+    /**
+     * @template T
+     * @param {Array<T>} subject
+     * @param {(v: T) => boolean} predicate
+     */
+    static partitionList(subject, predicate) {
+        let passed = [];
+        let failed = [];
+        for (let element of subject) {
+            if (predicate(element)) {
+                passed.push(element);
+            } else {
+                failed.push(element);
+            }
+        }
+        return {passed, failed};
+    }
 }

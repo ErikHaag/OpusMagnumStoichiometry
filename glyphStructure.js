@@ -20,16 +20,16 @@ class State {
 class WheelTransmutation {
     /**
      *
-     * @param {string} wheelName
+     * @param {string} wheelId
      * @param {Array<number>} offsets
      * @param {Array<string>} inputList 
      * @param {Array<string>} outputList
      */
-    constructor(wheelName, offsets, inputList, outputList) {
-        this.wheel = wheelName;
-        let origWheel = ModData.getWheelFromId(wheelName);
+    constructor(wheelId, offsets, inputList, outputList) {
+        this.wheel = wheelId;
+        let origWheel = ModData.getWheelFromId(wheelId);
         if (origWheel == undefined) {
-            throw new Error("no wheel with the id \"" + wheelName + "\" found.");
+            throw new Error("no wheel with the id \"" + wheelId + "\" found.");
         }
         let modulus = origWheel.atomCount;
         this.offsets = offsets.map((o) => (o % modulus + modulus) % modulus);
@@ -126,7 +126,8 @@ class Wheel {
      * @param {boolean} immutable
      */
     constructor(namespace, name, displayName, description, initialAtoms, immutable = false) {
-        this.id = namespace + ":" + name;
+        this.namespace = namespace;
+        this.name = name;
         this.displayName = displayName;
         this.description = description
         for (let a of initialAtoms) {
@@ -135,6 +136,10 @@ class Wheel {
         this.initialAtoms = initialAtoms;
         this.atomCount = this.initialAtoms.length;
         this.immutable = immutable;
+    }
+
+    get id() {
+        return this.namespace + ":" + this.name;
     }
 }
 

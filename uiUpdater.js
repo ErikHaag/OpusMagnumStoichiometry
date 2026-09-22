@@ -10,6 +10,7 @@ class uiUpdater {
         uiUpdater.modPanelUpdate();
         uiUpdater.reagentsPanelUpdate();
         uiUpdater.reagentsPanelUpdate(true);
+        uiUpdater.glyphPaneUpdate();
     }
 
     /**
@@ -146,6 +147,7 @@ class uiUpdater {
                 }
             }
             ModData.reset();
+            uiUpdater.glyphPaneUpdate();
             return;
         }
         let isProduct = id.startsWith("product_");
@@ -254,7 +256,7 @@ class uiUpdater {
             removeButton.className = "button-remove";
             tray.appendChild(removeButton);
             for (let mod of ModData.modList) {
-                let elements = AtomType.atomTypes.filter((a) => ModData.activeAtomTypes.has(a.toString())).filter((a) => a.namespace == mod);
+                let elements = AtomType.atomTypes.filter((a) => ModData.usableAtomTypes.has(a.toString())).filter((a) => a.namespace == mod);
                 if (elements.length == 0) {
                     continue;
                 }
@@ -262,7 +264,7 @@ class uiUpdater {
                 let details = document.createElement("details");
                 details.setAttribute("name", detailsName);
                 if (openDrawer != "" && summaryName == openDrawer) {
-                    details.setAttribute("open", "");
+                    details.open = true;
                 }
                 tray.appendChild(details);
                 let summary = document.createElement("summary");
@@ -309,14 +311,140 @@ class uiUpdater {
             return;
         }
         let fragment = new DocumentFragment();
-        for (let mod in ModData.modList) {
-            let validGlyphs = ModData.glyphs.filter((g) => g.namespace == mod);
-            
+        const detailsName = "glyphPaneDetails";
+        let openDrawer = (container.querySelector("details[name=" + detailsName + "][open] > summary")?.textContent) ?? "";
+        for (let mod of ModData.modList) {
+            let validGlyphs = ModData.usableGlyphs.filter((g) => g.namespace == mod);
+            // partition
+            let { passed, failed } = Utilities.partitionList(validGlyphs, ((g) => g.transmutations.length != 0));
+            // filter
+            for (let fail of failed) {
+                let used = false;
+                for (let pass of passed) {
+                    if (pass.transmutations.findIndex((t) => t.otherGlyphs.includes(fail.id)) != -1) {
+                        used = true;
+                        break;
+                    }
+                }
+                if (!used) {
+                    let index = validGlyphs.findIndex((g) => g.id == fail.id);
+                    if (index == -1) {
+                        console.error("huh?");
+                        return;
+                    }
+                    validGlyphs.splice(index, 1);
+                }
+            }
+            let validWheels = ModData.usableWheels.filter((w) => w.namespace == mod);
+
+            if (validGlyphs.length == 0 && validWheels.length == 0) {
+                continue;
+            }
+            let summaryText = Utilities.snakeToTitle(mod);
+            let details = document.createElement("details");
+            if (openDrawer != "" && summaryText == openDrawer) {
+                details.open = true;
+            }
+            details.name = detailsName;
+            fragment.appendChild(details);
+            let summary = document.createElement("summary");
+            summary.innerText = summaryText;
+            details.appendChild(summary);
+            if (validGlyphs.length != 0) {
+                let glyphList = document.createElement("div");
+                glyphList.className = "pairs";
+                details.appendChild(glyphList);
+                for (let glyph of validGlyphs) {
+                    let inputId = `glyph_${glyph.name}__${glyph.namespace}`;
+                    let label = document.createElement("label");
+                    label.innerText = glyph.displayName;
+                    label.setAttribute("for", inputId);
+                    label.setAttribute("title", glyph.description);
+                    glyphList.appendChild(label);
+                    let checkbox = document.createElement("input");
+                    checkbox.id = inputId;
+                    checkbox.setAttribute("type", "checkbox");
+                    if (ModData.activeGlyphs.has(glyph.id)) {
+                        checkbox.checked = true;
+                    }
+                    glyphList.appendChild(checkbox);
+                }
+            }
+            if (validWheels.length != 0) {
+                if (validGlyphs.length != 0) {
+                    details.appendChild(document.createElement("hr"));
+                }
+                let wheelList = document.createElement("div");
+                wheelList.className = "pairs";
+                details.appendChild(wheelList);
+                for (let wheel of validWheels) {
+                    let inputId = `wheel_${wheel.name}__${wheel.namespace}`;
+                    let label = document.createElement("label");
+                    label.innerHTML = wheel.displayName;
+                    label.setAttribute("for", inputId);
+                    label.setAttribute("title", wheel.description);
+                    wheelList.appendChild(label);
+                    let checkbox = document.createElement("input");
+                    checkbox.id = inputId;
+                    checkbox.setAttribute("type", "checkbox");
+                    if (ModData.activeWheels.has(wheel.id)) {
+                        checkbox.checked = true;
+                    }
+                    wheelList.appendChild(checkbox);
+                }
+            }
         }
         container.replaceChildren(fragment);
     }
 
-    static timelinePanelUpdate() {
+    static timelinePanelUpdate() {    
+        let hasReagents = OMSC.reagents.length > 0;
+        let hasWheels = ModData.activeWheels.size > 0;
+        let hasGlyphs = ModData.activeGlyphs.size > 0;
+        let hasProducts = OMSC.products.length > 0;
+        if (!(hasReagents || hasWheels || hasGlyphs || hasProducts)) {
+            return;
+        }
+        
+        let table = Elements.timelinePanel.children[0];
+        if (!(table instanceof HTMLTableElement)) {
+            console.error("huh?");
+            return;
+        }
+        let fragment = new DocumentFragment();
+        let headers = document.createElement("thead");    
+        fragment.appendChild(headers);
+        if (hasReagents) {
+            let reagentsHeader = document.createElement("th");
+            reagentsHeader.textContent = "Reagents";
+            headers.appendChild(reagentsHeader);
+        }
+        if (hasWheels) {
+            let wheelsHeader = document.createElement("th");
+            wheelsHeader.textContent = "Wheels";
+            headers.appendChild(wheelsHeader);
+        }
+        if (hasGlyphs) {
+            let glyphHeader = document.createElement("th");
+            glyphHeader.textContent = "Glyphs";
+            glyphHeader.colSpan = 2;
+            headers.appendChild(glyphHeader);
+        }
+        let timelineHeader = document.createElement("th");
+        timelineHeader.textContent = "Events";
+        headers.appendChild(timelineHeader);
+        if (hasProducts) {
+            let productHeader = document.createElement("th");
+            productHeader.textContent = "Products";
+            headers.appendChild(productHeader);
+        }
+        let body = document.createElement("tbody");
+        fragment.appendChild(body);
+        let row = document.createElement("tr");
+        body.appendChild(row);
 
+
+
+        table.replaceChildren(fragment);        
     }
 }

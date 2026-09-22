@@ -46,6 +46,8 @@ class ModData {
     /** @type {Set<string>} */
     static activeMods = new Set();
     /** @type {Set<string>} */
+    static activeWheels = new Set();
+    /** @type {Set<string>} */
     static activeGlyphs = new Set(["opus_magnum:calcification"]);
 
     /**
@@ -91,30 +93,30 @@ class ModData {
     }
 
     /** @type {Set<string>} */
-    static activeAtomTypes = new Set();
+    static usableAtomTypes = new Set();
     /** @type {Array<Wheel>} */
-    static wheels = [];
+    static usableWheels = [];
     /** @type {Array<Glyph>} */
-    static glyphs = [];
+    static usableGlyphs = [];
 
     /**
      * @param {string} id
      */
     static getGlyphFromId(id) {
-        return ModData.glyphs.find((g) => g.id == id);
+        return ModData.usableGlyphs.find((g) => g.id == id);
     }
 
     /**
      * @param {string} id
      */
     static getWheelFromId(id) {
-        return ModData.wheels.find((w) => w.id == id);
+        return ModData.usableWheels.find((w) => w.id == id);
     }
 
     static reset() {
-        ModData.activeAtomTypes.clear();
-        ModData.wheels = [];
-        ModData.glyphs = [];
+        ModData.usableAtomTypes.clear();
+        ModData.usableWheels = [];
+        ModData.usableGlyphs = [];
         ModData.installOpusMagnum();
         let toLoad = Array.from(ModData.activeMods.values());
         outer: while (toLoad.length > 0) {
@@ -133,24 +135,24 @@ class ModData {
             }
             const installMod = "install" + Utilities.snakeToTitle(mod).replaceAll(" ", "");
             // @ts-ignore
-            if (typeof(ModData[installMod]) == 'function') {
+            if (typeof (ModData[installMod]) == 'function') {
                 // @ts-ignore
                 ModData[installMod]();
             } else {
                 console.error("No function exists: \"" + installMod + "\"");
             }
         }
-        for (let g of ModData.glyphs) {
+        for (let g of ModData.usableGlyphs) {
             g.cleanup();
         }
     }
 
     static installOpusMagnum() {
         const addedAtoms = AtomType.atomTypes.filter(a => a.namespace == "opus_magnum").map(a => a.toString());
-        addedAtoms.forEach(a => ModData.activeAtomTypes.add(a));
+        addedAtoms.forEach(a => ModData.usableAtomTypes.add(a));
 
 
-        ModData.wheels.push(
+        ModData.usableWheels.push(
             new Wheel(
                 "opus_magnum",
                 "berlo",
@@ -160,6 +162,28 @@ class ModData {
                 true
             )
         );
+
+
+        let bonding = new Glyph(
+            "opus_magnum",
+            "bonder",
+            "Glyph of Bonding",
+            "The glyph of bonding creates a single bond."
+        );
+
+        ModData.usableGlyphs.push(bonding);
+
+
+        let multibonding = new Glyph(
+            "opus_magnum",
+            "speed_bonder",
+            "Glyph of Multibonding",
+            "The glyph of multibonding can create up to three bonds at once."
+        );
+
+        ModData.usableGlyphs.push(multibonding);
+
+
         const cardinals = ["opus_magnum:air", "opus_magnum:earth", "opus_magnum:fire", "opus_magnum:water"];
 
         let calcification = new Glyph(
@@ -168,10 +192,13 @@ class ModData {
             "Glyph of Calcification",
             "The glyph of calcification transmutes any of the four cardinals elements into salt."
         );
-        calcification.transmutations.push(
-            ...cardinals.map(e => new Transmutation([e], ["opus_magnum:salt"]))
+
+        calcification.appendTransmutations(
+            cardinals.map(e => new Transmutation([e], ["opus_magnum:salt"]))
         )
-        ModData.glyphs.push(calcification);
+
+        ModData.usableGlyphs.push(calcification);
+
 
         let duplication = new Glyph(
             "opus_magnum",
@@ -179,12 +206,14 @@ class ModData {
             "Glyph of Duplication",
             "The glyph of duplication imbues salt with the essence of an existing cardinal."
         );
+
         duplication.appendTransmutations(
             cardinals.map(e => new Transmutation(
                 [e, "opus_magnum:salt"],
                 [e, e]
             ))
         );
+
         for (let i = 0; i < 6; i++) {
             duplication.appendTransmutations(
                 cardinals.map(e => new Transmutation(["opus_magnum:salt"],
@@ -195,7 +224,9 @@ class ModData {
                 ))
             );
         }
-        ModData.glyphs.push(duplication);
+
+        ModData.usableGlyphs.push(duplication);
+
 
         const metals = ["opus_magnum:lead", "opus_magnum:tin", "opus_magnum:iron", "opus_magnum:copper", "opus_magnum:silver", "opus_magnum:gold"];
 
@@ -215,7 +246,8 @@ class ModData {
             )
         }
 
-        ModData.glyphs.push(projection);
+        ModData.usableGlyphs.push(projection);
+
 
         let purification = new Glyph(
             "opus_magnum",
@@ -223,17 +255,18 @@ class ModData {
             "Glyph of Purification",
             "The glyph of purification transmutes two atoms of the same metal into a single atom of their next higher form."
         );
-        
+
         for (let i = 0; i < 5; i++) {
             purification.appendTransmutations(
                 new Transmutation(
                     [metals[i], metals[i]],
-                    [metals[i+1]]
+                    [metals[i + 1]]
                 )
             );
         }
 
-        ModData.glyphs.push(purification);
+        ModData.usableGlyphs.push(purification);
+
 
         let animismus = new Glyph(
             "opus_magnum",
@@ -249,7 +282,8 @@ class ModData {
             )
         )
 
-        ModData.glyphs.push(animismus);
+        ModData.usableGlyphs.push(animismus);
+
 
         let disposal = new Glyph(
             "opus_magnum",
@@ -260,7 +294,8 @@ class ModData {
 
         disposal.appendTransmutations(addedAtoms.map((a) => new Transmutation([a], [])));
 
-        ModData.glyphs.push(disposal);
+        ModData.usableGlyphs.push(disposal);
+
 
         let unification = new Glyph(
             "opus_magnum",
@@ -273,8 +308,9 @@ class ModData {
             cardinals,
             ["opus_magnum:quintessence"]
         ));
-        
-        ModData.glyphs.push(unification);
+
+        ModData.usableGlyphs.push(unification);
+
 
         let dispersion = new Glyph(
             "opus_magnum",
@@ -288,9 +324,91 @@ class ModData {
             cardinals
         ));
 
-        ModData.glyphs.push(dispersion);
+        ModData.usableGlyphs.push(dispersion);
     }
 
     static installDeReMetallica() {
+        const metals = ["opus_magnum:lead", "opus_magnum:tin", "opus_magnum:iron", "opus_magnum:copper", "opus_magnum:silver", "opus_magnum:gold"];
+
+        let ravari = new Wheel(
+            "de_re_metallica",
+            "ravari",
+            "Ravari's Wheel",
+            "By using Ravari's wheel with the glyph of proliferation, quicksilver can be turned into any of the six metals.",
+            [...metals],
+            true
+        );
+
+        ModData.usableWheels.push(ravari);
+
+        let rejection = new Glyph(
+            "de_re_metallica",
+            "rejection",
+            "Glyph of Rejection",
+            "The glyph of rejection extracts an atom of quicksilver from an atom of metal and demotes it to its next lower form."
+        );
+
+        for (let i = 1; i < 6; i++) {
+
+            rejection.appendTransmutations(
+                new Transmutation(
+                    [metals[i]],
+                    [metals[i - 1], "opus_magnum:quicksilver"]
+                )
+            );
+        }
+
+        ModData.usableGlyphs.push(rejection);
+
+        let division = new Glyph(
+            "de_re_metallica",
+            "division",
+            "Glyph of Division",
+            "The glyph of divison splits an atom of metal into two lower forms according to its metallicity."
+        )
+
+        for (let i = 1; i < 6; i++) {
+            division.appendTransmutations(new Transmutation(
+                [metals[i]],
+                [metals[i >> 1], metals[(i - 1) >> 1]]
+            ));
+
+        } 
+
+        ModData.usableGlyphs.push(division);
+
+        let proliferation = new Glyph(
+            "de_re_metallica",
+            "proliferationm",
+            "Glyph of Proliferation",
+            "The glyph of proliferation transmutes an atom of quicksilver into an atom of metal with the same metallicity as an existing metal."
+        );
+
+        proliferation.appendTransmutations(
+            metals.map((m) => new Transmutation(
+                ["opus_magnum:quicksilver", m],
+                [m, m]
+            )
+            )
+        )
+
+        for (let i = 0; i < 6; i++) {
+            proliferation.appendTransmutations(
+                metals.map((m) => new Transmutation(
+                    ["opus_magnum:quicksilver"],
+                    [m],
+                    [
+                        new WheelTransmutation(
+                            "de_re_metallica:ravari",
+                            [i],
+                            [m],
+                            [m]
+                        )
+                    ]
+                ))
+            );
+        }
+
+        ModData.usableGlyphs.push(proliferation);
     }
 }
