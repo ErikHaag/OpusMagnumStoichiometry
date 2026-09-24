@@ -11,6 +11,7 @@ class uiUpdater {
         uiUpdater.reagentsPanelUpdate();
         uiUpdater.reagentsPanelUpdate(true);
         uiUpdater.glyphPaneUpdate();
+        uiUpdater.timelinePanelUpdate()
     }
 
     /**
@@ -67,6 +68,7 @@ class uiUpdater {
                 atoms: new Map()
             });
             uiUpdater.reagentsPanelUpdate();
+            uiUpdater.timelinePanelUpdate();
             return;
         }
         if (id == "addProduct") {
@@ -75,6 +77,7 @@ class uiUpdater {
                 atoms: new Map()
             });
             uiUpdater.reagentsPanelUpdate(true);
+            uiUpdater.timelinePanelUpdate();
             return;
         }
         if (id.startsWith("reagentDelete_")) {
@@ -105,6 +108,7 @@ class uiUpdater {
                 return;
             }
             OMSC.removeReagent(index, true);
+
             if (index == OMSC.products.length) {
                 index--;
             }
@@ -133,6 +137,7 @@ class uiUpdater {
             return;
         }
         const id = target.id;
+        //mods
         if (id.startsWith("modSelectedCheckbox_")) {
             if (!(target instanceof HTMLInputElement)) {
                 console.error("Huh?");
@@ -150,35 +155,65 @@ class uiUpdater {
             uiUpdater.glyphPaneUpdate();
             return;
         }
-        let isProduct = id.startsWith("product_");
-        if (id.startsWith("reagent_") || isProduct) {
+        // reagents & products
+        let isProduct = id.startsWith("productAtomCount_");
+        if (id.startsWith("reagentAtomCount_") || isProduct) {
             if (!(target instanceof HTMLInputElement)) {
                 console.error("Huh?");
                 return;
             }
-            let idTemp = id.substring(8);
-            let v = (() => {
-                let value = -1n;
-                try {
-                    value = BigInt(target.value);
-                } catch {/* meh */ }
-                if (value < 0n) {
-                    target.value = "0";
-                    value = 0n;
-                }
-                let numEndIndex = idTemp.indexOf("_");
-                if (numEndIndex == -1) {
-                    return false;
-                }
-                let index = Number.parseInt(idTemp.substring(0, numEndIndex));
-                if (Number.isNaN(index)) {
-                    return false;
-                }
-                let key = (AtomType.fromElementId(idTemp.substring(numEndIndex + 1))).toString();
+            let idTemp = id.substring(17);
+            let value = -1n;
+            try {
+                value = BigInt(target.value);
+            } catch { /* meh */ }
+            if (value < 0n) {
+                target.value = "0";
+                value = 0n;
+            }
+            let numEndIndex = idTemp.indexOf("_");
+            if (numEndIndex == -1) {
+                return;
+            }
+            let index = Number.parseInt(idTemp.substring(0, numEndIndex));
+            if (Number.isNaN(index)) {
+                return;
+            }
+            let key = Utilities.identifierToColonSep(Utilities.doubleUnderToIdentifier(idTemp.substring(numEndIndex + 1)));
 
-                (isProduct ? OMSC.products : OMSC.reagents)[index].atoms.set(key, value);
-                return true;
-            })();
+            (isProduct ? OMSC.products : OMSC.reagents)[index].atoms.set(key, value);
+            return;
+        }
+        // glyphs
+        if (id.startsWith("glyphSelectedCheckbox_")) {
+            if (!(target instanceof HTMLInputElement)) {
+                console.error("huh?");
+                return;
+            }
+            let glyphID = Utilities.identifierToColonSep(Utilities.doubleUnderToIdentifier(id.substring(22)));
+            if (target.checked) {
+                ModData.activeGlyphs.add(glyphID);
+            } else {
+                ModData.activeGlyphs.delete(glyphID);
+            }
+            OMSC.recomputeTimeline();
+            return;
+        }
+        console.log(id);
+
+        if (id.startsWith("wheelSelectedCheckbox_")) {
+            if (!(target instanceof HTMLInputElement)) {
+                console.error("huh?");
+                return;
+            }
+            let wheelID = Utilities.identifierToColonSep(Utilities.doubleUnderToIdentifier(id.substring(22)));
+            if (target.checked) {
+                ModData.activeWheels.add(wheelID);
+            } else {
+                ModData.activeWheels.delete(wheelID);
+            }
+            OMSC.recomputeTimeline();
+            return;
         }
     }
 
@@ -198,6 +233,7 @@ class uiUpdater {
             }
             OMSC.reagents[index].name = target.textContent;
             uiUpdater.updateDynamicAria(1);
+            uiUpdater.timelinePanelUpdate();
             return;
         }
         if (id.startsWith("productName_")) {
@@ -207,6 +243,7 @@ class uiUpdater {
             }
             OMSC.products[index].name = target.textContent;
             uiUpdater.updateDynamicAria(2);
+            uiUpdater.timelinePanelUpdate();
             return;
         }
     }
@@ -256,7 +293,7 @@ class uiUpdater {
             removeButton.className = "button-remove";
             tray.appendChild(removeButton);
             for (let mod of ModData.modList) {
-                let elements = AtomType.atomTypes.filter((a) => ModData.usableAtomTypes.has(a.toString())).filter((a) => a.namespace == mod);
+                let elements = AtomType.atomTypes.filter((a) => ModData.usableAtomTypes.has(a.toString())).filter((a) => a.identifier.namespace == mod);
                 if (elements.length == 0) {
                     continue;
                 }
@@ -274,11 +311,11 @@ class uiUpdater {
                 formElementBox.classList.add("atomFormBox");
                 details.appendChild(formElementBox);
                 for (let a of elements) {
-                    let inputId = reagentStr + `_${i}_${a.name}__${a.namespace}`;
+                    let inputId = `${reagentStr}AtomCount_${i}_${Utilities.identifierToDoubleUnder(a.identifier)}`;
                     let label = document.createElement("label");
                     label.setAttribute("for", inputId);
-                    label.ariaLabel = Utilities.snakeToTitle(a.name);
-                    label.setAttribute("title", Utilities.snakeToTitle(a.name));
+                    label.ariaLabel = Utilities.snakeToTitle(a.identifier.name);
+                    label.setAttribute("title", Utilities.snakeToTitle(a.identifier.name));
                     formElementBox.appendChild(label);
                     let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
                     svg.setAttribute("viewBox", "0 0 60 60");
@@ -286,7 +323,7 @@ class uiUpdater {
                     svg.setAttribute("height", "30");
                     label.appendChild(svg);
                     let use = document.createElementNS("http://www.w3.org/2000/svg", "use")
-                    use.setAttribute("href", `#OMA_A_${a.name}__${a.namespace}`);
+                    use.setAttribute("href", `#OMA_A_${Utilities.identifierToDoubleUnder(a.identifier)}`);
                     svg.appendChild(use);
                     let textNode = document.createTextNode(":");
                     label.appendChild(textNode);
@@ -314,7 +351,7 @@ class uiUpdater {
         const detailsName = "glyphPaneDetails";
         let openDrawer = (container.querySelector("details[name=" + detailsName + "][open] > summary")?.textContent) ?? "";
         for (let mod of ModData.modList) {
-            let validGlyphs = ModData.usableGlyphs.filter((g) => g.namespace == mod);
+            let validGlyphs = ModData.usableGlyphs.filter((g) => g.identifier.namespace == mod);
             // partition
             let { passed, failed } = Utilities.partitionList(validGlyphs, ((g) => g.transmutations.length != 0));
             // filter
@@ -335,7 +372,7 @@ class uiUpdater {
                     validGlyphs.splice(index, 1);
                 }
             }
-            let validWheels = ModData.usableWheels.filter((w) => w.namespace == mod);
+            let validWheels = ModData.usableWheels.filter((w) => w.identifier.namespace == mod);
 
             if (validGlyphs.length == 0 && validWheels.length == 0) {
                 continue;
@@ -355,7 +392,7 @@ class uiUpdater {
                 glyphList.className = "pairs";
                 details.appendChild(glyphList);
                 for (let glyph of validGlyphs) {
-                    let inputId = `glyph_${glyph.name}__${glyph.namespace}`;
+                    let inputId = `glyphSelectedCheckbox_${Utilities.identifierToDoubleUnder(glyph.identifier)}`;
                     let label = document.createElement("label");
                     label.innerText = glyph.displayName;
                     label.setAttribute("for", inputId);
@@ -378,7 +415,7 @@ class uiUpdater {
                 wheelList.className = "pairs";
                 details.appendChild(wheelList);
                 for (let wheel of validWheels) {
-                    let inputId = `wheel_${wheel.name}__${wheel.namespace}`;
+                    let inputId = `wheelSelectedCheckbox_${Utilities.identifierToDoubleUnder(wheel.identifier)}`;
                     let label = document.createElement("label");
                     label.innerHTML = wheel.displayName;
                     label.setAttribute("for", inputId);
@@ -397,54 +434,80 @@ class uiUpdater {
         container.replaceChildren(fragment);
     }
 
-    static timelinePanelUpdate() {    
-        let hasReagents = OMSC.reagents.length > 0;
-        let hasWheels = ModData.activeWheels.size > 0;
-        let hasGlyphs = ModData.activeGlyphs.size > 0;
-        let hasProducts = OMSC.products.length > 0;
-        if (!(hasReagents || hasWheels || hasGlyphs || hasProducts)) {
-            return;
-        }
+    static timelinePanelUpdate() {
+        const hasReagents = OMSC.reagents.length > 0;
+        const hasWheels = ModData.activeWheels.size > 0;
+        const hasGlyphs = ModData.activeGlyphs.size > 0;
+        const hasProducts = OMSC.products.length > 0;
         
+
         let table = Elements.timelinePanel.children[0];
         if (!(table instanceof HTMLTableElement)) {
             console.error("huh?");
             return;
         }
         let fragment = new DocumentFragment();
-        let headers = document.createElement("thead");    
+        let headers = document.createElement("thead");
         fragment.appendChild(headers);
+        let headerRow = document.createElement("tr");
+        headers.appendChild(headerRow);
         if (hasReagents) {
             let reagentsHeader = document.createElement("th");
             reagentsHeader.textContent = "Reagents";
-            headers.appendChild(reagentsHeader);
+            headerRow.appendChild(reagentsHeader);
         }
+
         if (hasWheels) {
             let wheelsHeader = document.createElement("th");
             wheelsHeader.textContent = "Wheels";
-            headers.appendChild(wheelsHeader);
+            headerRow.appendChild(wheelsHeader);
         }
+
         if (hasGlyphs) {
             let glyphHeader = document.createElement("th");
             glyphHeader.textContent = "Glyphs";
             glyphHeader.colSpan = 2;
-            headers.appendChild(glyphHeader);
+            headerRow.appendChild(glyphHeader);
         }
-        let timelineHeader = document.createElement("th");
-        timelineHeader.textContent = "Events";
-        headers.appendChild(timelineHeader);
+
+        {
+            let timelineHeader = document.createElement("th");
+            timelineHeader.textContent = "Events";
+            headerRow.appendChild(timelineHeader);
+        }
+
         if (hasProducts) {
             let productHeader = document.createElement("th");
             productHeader.textContent = "Products";
-            headers.appendChild(productHeader);
+            headerRow.appendChild(productHeader);
         }
+
         let body = document.createElement("tbody");
         fragment.appendChild(body);
         let row = document.createElement("tr");
         body.appendChild(row);
 
-
-
-        table.replaceChildren(fragment);        
+        if (hasReagents) {
+            const reagentDataId = "timelineReagents";
+            let reagentsData = document.createElement("td");
+            reagentsData.id = reagentDataId;
+            row.appendChild(reagentsData);
+            for (let i = 0; i < OMSC.reagents.length; i++) {
+                let reagentPanel = document.createElement("div");
+                reagentsData.appendChild(reagentPanel);
+                let namePlate = document.createElement("p");
+                namePlate.textContent = OMSC.reagents[i].name;
+                reagentPanel.appendChild(namePlate);
+                let pullButton = document.createElement("button");
+                pullButton.id = `reagentPull_${i}`;
+                pullButton.innerText = "Pull";
+                reagentPanel.appendChild(pullButton);
+                let recycleButton = document.createElement("button");
+                recycleButton.id = `reagentRecycle_${i}`;
+                recycleButton.innerText = "Recycle";
+                reagentPanel.appendChild(recycleButton);
+            }
+        }
+        table.replaceChildren(fragment);
     }
 }

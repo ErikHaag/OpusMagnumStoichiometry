@@ -16,6 +16,11 @@
  * @prop {"glyph"} type
  * @prop {Transmutation} transmutation
  */
+/**
+ * @typedef {object} TimelineState
+ * @prop {number} failureAt
+ */
+
 
 class Elements {
     /** @type {TabRow} */
@@ -79,23 +84,23 @@ class OMSC {
         combiningModule.atomMerge(combined, symbols, bases, { mode: 1 });
 
         // remove "repeat" atom
-        ["S", "B", "A"].forEach((v) => document.getElementById("OMA_" + v + "_repeat__opus_magnum")?.remove());
+        ["S", "B", "A"].forEach((v) => document.getElementById(`OMA_${v}_repeat__opus_magnum`)?.remove());
 
         for (let aT of combined.children) {
             AtomType.atomTypes.push(AtomType.fromElementId(aT.id.substring(6)));
         }
 
         AtomType.atomTypes.sort((a, b) => {
-            if (a.namespace > b.namespace) {
+            if (a.identifier.namespace > b.identifier.namespace) {
                 return 1;
             }
-            if (a.namespace < b.namespace) {
+            if (a.identifier.namespace < b.identifier.namespace) {
                 return -1;
             }
-            if (a.name > b.name) {
+            if (a.identifier.name > b.identifier.name) {
                 return 1;
             }
-            if (a.name < b.name) {
+            if (a.identifier.name < b.identifier.name) {
                 return -1;
             }
             return 0;
@@ -132,6 +137,13 @@ class OMSC {
             event.moleculeIndex--;
         }
         uiUpdater.reagentsPanelUpdate(removeProductInstead);
+        uiUpdater.timelinePanelUpdate();
+    }
+
+    static recomputeTimeline() {
+        for (let i = 0; i < OMSC.timeline.length; i++) {
+        }
+        uiUpdater.timelinePanelUpdate();
     }
 
     /** @type {State} */
@@ -147,6 +159,13 @@ class OMSC {
      * @type {Array<MoleculeTimelineEvent | GlyphTimelineEvent>}
      */
     static timeline = [];
+
+    /**
+     * @type {TimelineState}
+     */
+    static timelineState = {
+        failureAt: -1
+    };
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -1,5 +1,54 @@
 
+/**
+ * @typedef {object} Identifier
+ * @prop {string} namespace
+ * @prop {string} name
+ */
+
 class Utilities {
+    /**
+     * @param {string} str
+     * @returns {Identifier}
+     */
+    static doubleUnderToIdentifier(str) {
+        let splits = str.split("__", 2);
+        if (splits.length != 2) {
+            throw Error("Invalid input!");
+        }
+        return {
+            namespace: splits[1],
+            name: splits[0]
+        };
+    }
+    /**
+     * @param {string} str
+     * @returns {Identifier}
+     */
+    static colonSepToIdentifier(str) {
+        let splits = str.split(":", 2);
+        if (splits.length != 2) {
+            throw Error("Invalid input!");
+        }
+        return {
+            namespace: splits[0],
+            name: splits[1]
+        };
+    }
+
+    /**
+     * @param {Identifier} iden
+     */
+    static identifierToColonSep(iden) {
+        return `${iden.namespace}:${iden.name}`;
+    }
+
+    /**
+     * @param {Identifier} iden
+     */
+    static identifierToDoubleUnder(iden) {
+        return `${iden.name}__${iden.namespace}`;
+    }
+
     /**
      * @param {string} str
      */
@@ -44,6 +93,6 @@ class Utilities {
                 failed.push(element);
             }
         }
-        return {passed, failed};
+        return { passed, failed };
     }
 }

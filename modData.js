@@ -148,7 +148,7 @@ class ModData {
     }
 
     static installOpusMagnum() {
-        const addedAtoms = AtomType.atomTypes.filter(a => a.namespace == "opus_magnum").map(a => a.toString());
+        const addedAtoms = AtomType.atomTypes.filter(a => a.identifier.namespace == "opus_magnum").map(a => a.toString());
         addedAtoms.forEach(a => ModData.usableAtomTypes.add(a));
 
 

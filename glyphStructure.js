@@ -39,7 +39,7 @@ class WheelTransmutation {
                     throw new Error("Duplicate offset found!")
                 }
             }
-        } 
+        }
         this.inputs = inputList;
         this.outputs = outputList;
         if (this.offsets.length != this.inputs.length || this.inputs.length != this.outputs.length) {
@@ -113,6 +113,52 @@ class Transmutation {
             }
         }
     }
+
+    /**
+     * @param {Transmutation} other
+     */
+    equals(other) {
+        if (this.glyph != other.glyph) {
+            return false;
+        }
+        if (this.wheelChanges.length != other.wheelChanges.length) {
+            return false;
+        }
+
+        for (let a of AtomType.atomTypes) {
+            let key = a.toString();
+            if ((this.inputAtoms.get(key) ?? 0n) != (other.inputAtoms.get(key) ?? 0n)) {
+                return false;
+            }
+            if ((this.outputAtoms.get(key) ?? 0n) != (other.outputAtoms.get(key) ?? 0n)) {
+                return false;
+            }
+        }
+
+        for (let i = 0; i < this.wheelChanges.length; i++) {
+            let tSubject = this.wheelChanges[i];
+            let oSubject = other.wheelChanges[i];
+            if (tSubject.wheel != oSubject.wheel) {
+                return false;
+            }
+            if (tSubject.offsets.length != oSubject.offsets.length) {
+                return false;
+            }
+            for (let j = 0; j < tSubject.offsets.length; j++) {
+                if (tSubject.offsets[j] != oSubject.offsets[j]) {
+                    return false;
+                }
+                if (tSubject.inputs[j] != oSubject.inputs[j]) {
+                    return false;
+                }
+                if (tSubject.outputs[j] != oSubject.outputs[j]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 }
 
 class Wheel {
@@ -126,8 +172,8 @@ class Wheel {
      * @param {boolean} immutable
      */
     constructor(namespace, name, displayName, description, initialAtoms, immutable = false) {
-        this.namespace = namespace;
-        this.name = name;
+        /** @type {Identifier} */
+        this.identifier = { namespace: namespace, name: name };
         this.displayName = displayName;
         this.description = description
         for (let a of initialAtoms) {
@@ -139,7 +185,7 @@ class Wheel {
     }
 
     get id() {
-        return this.namespace + ":" + this.name;
+        return Utilities.identifierToColonSep(this.identifier);
     }
 }
 
@@ -152,8 +198,8 @@ class Glyph {
      * @param {string} description 
      */
     constructor(namespace, name, displayName, description) {
-        this.namespace = namespace
-        this.name = name;
+        /** @type {Identifier} */
+        this.identifier = { namespace: namespace, name: name };
         this.displayName = displayName;
         this.description = description;
         /** @type {Array<Transmutation>} */
@@ -161,7 +207,7 @@ class Glyph {
     }
 
     get id() {
-        return this.namespace + ":" + this.name;
+        return Utilities.identifierToColonSep(this.identifier);
     }
 
     /**
@@ -178,15 +224,15 @@ class Glyph {
     }
 
     cleanup() {
-        o:for (let i = 0; i < this.transmutations.length; i++) {
+        o: for (let i = 0; i < this.transmutations.length; i++) {
             let transmute = this.transmutations[i];
-            let remove = false;
             for (let wheelTransmutation of transmute.wheelChanges) {
                 let sourceWheel = ModData.getWheelFromId(wheelTransmutation.wheel);
                 if (sourceWheel == undefined) {
-                    console.error(`Unknown or undeclared wheel \"${wheelTransmutation.wheel}\" found.`)
-                    remove = true;
-                    break;
+                    console.error(`Unknown or undeclared wheel \"${wheelTransmutation.wheel}\" found.`);
+                    this.transmutations.splice(i, 1);
+                    i--;
+                    continue o;
                 }
 
                 if (!sourceWheel.immutable) {
@@ -206,6 +252,14 @@ class Glyph {
                 }
                 return 0;
             });
+            for (let i = 0; i < transmute.wheelChanges.length - 1; i++) {
+                if (transmute.wheelChanges[i].wheel == transmute.wheelChanges[i + 1].wheel) {
+                    console.error("Found 2 wheel transformations on the same wheel!");
+                    this.transmutations.splice(i, 1);
+                    i--;
+                    continue o;
+                }
+            }
         }
     }
 }

@@ -5,21 +5,17 @@ class AtomType {
     static atomTypes = [];
 
     /**
-     * 
-     * @param {string} namespace 
-     * @param {string} name 
+     * @param {Identifier} iden
      */
-    constructor(namespace, name) {
-        this.namespace = namespace;
-        this.name = name;
+    constructor(iden) {
+        this.identifier = iden;
     }
 
     /**
      * @param {string} str
      */
     static fromElementId(str) {
-        let [n, ns] = str.split("__");
-        return new AtomType(ns, n);
+        return new AtomType((Utilities.doubleUnderToIdentifier(str)));
     }
 
     /**
@@ -27,8 +23,7 @@ class AtomType {
      * @param {string} id
      */
     static fromId(id) {
-        let [ns, n] = id.split(":");
-        return new AtomType(ns, n);
+        return new AtomType((Utilities.colonSepToIdentifier(id)));
     }
 
     /**
@@ -41,19 +36,15 @@ class AtomType {
     }
 
     sanityCheck() {
-        let valid = false;
         for (let aT of AtomType.atomTypes) {
-            if (this.namespace == aT.namespace && this.name == aT.name) {
-                valid = true;
-                break;
+            if (this.identifier.namespace == aT.identifier.namespace && this.identifier.name == aT.identifier.name) {
+                return;
             }
         }
-        if (!valid) {
-            throw new Error(`unknown atom type \"${this}\"`);
-        }
+        throw new Error(`unknown atom type \"${this}\"`);
     }
 
     toString() {
-        return this.namespace + ":" + this.name;
+        return Utilities.identifierToColonSep(this.identifier);
     }
 }
