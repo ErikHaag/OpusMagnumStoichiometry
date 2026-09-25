@@ -126,6 +126,45 @@ class uiUpdater {
             return;
         }
 
+        if (id.startsWith("reagentPull_")) {
+            let mI = Number.parseInt(id.substring(12));
+            if (Number.isNaN(mI) || mI < 0 || mI >= OMSC.reagents.length) {
+                console.error("huh?");
+                return;
+            }
+            /** @type {MoleculeTimelineEvent} */
+            let event = {
+                type: "inputReagent",
+                moleculeIndex: mI
+            };
+            OMSC.timeline.push(event);
+            OMSC.recomputeTimeline();
+        }
+        if (id.startsWith("reagentRecycle_")) {
+            let mI = Number.parseInt(id.substring(15));
+            if (Number.isNaN(mI) || mI < 0 || mI >= OMSC.reagents.length) {
+                console.error("huh?");
+                return;
+            }
+            /** @type {MoleculeTimelineEvent} */
+            let event = {
+                type: "recycleReagent",
+                moleculeIndex: mI
+            };
+            OMSC.timeline.push(event);
+            OMSC.recomputeTimeline();
+        }
+        if (id.startsWith("timelineSelectGlyph_")) {
+            let glyphId = Utilities.identifierToColonSep(Utilities.doubleUnderToIdentifier(id.substring(20)));
+            OMSC.activeGlyph = glyphId;
+            let glyph = ModData.getGlyphFromId(OMSC.activeGlyph);
+            if (glyph == undefined) {
+                console.error("huh?");
+                return;
+            }
+            OMSC.updateAGT();
+            return;
+        }
     }
 
     /**
@@ -287,6 +326,7 @@ class uiUpdater {
 
             const detailsName = `${reagentStr}Group_${i}`;
             const openDrawer = container.querySelector("details[name=" + detailsName + "][open] > summary")?.textContent ?? "";
+            let first = true;
             let removeButton = document.createElement("button");
             removeButton.id = `${reagentStr}Delete_${i}`;
             removeButton.innerText = "Delete"
@@ -300,9 +340,10 @@ class uiUpdater {
                 const summaryName = Utilities.snakeToTitle(mod);
                 let details = document.createElement("details");
                 details.setAttribute("name", detailsName);
-                if (openDrawer != "" && summaryName == openDrawer) {
+                if (openDrawer == "" ? first : summaryName == openDrawer) {
                     details.open = true;
                 }
+                first = false;
                 tray.appendChild(details);
                 let summary = document.createElement("summary");
                 summary.innerText = summaryName;
@@ -350,28 +391,10 @@ class uiUpdater {
         let fragment = new DocumentFragment();
         const detailsName = "glyphPaneDetails";
         let openDrawer = (container.querySelector("details[name=" + detailsName + "][open] > summary")?.textContent) ?? "";
+        let first = true;
         for (let mod of ModData.modList) {
             let validGlyphs = ModData.usableGlyphs.filter((g) => g.identifier.namespace == mod);
-            // partition
-            let { passed, failed } = Utilities.partitionList(validGlyphs, ((g) => g.transmutations.length != 0));
-            // filter
-            for (let fail of failed) {
-                let used = false;
-                for (let pass of passed) {
-                    if (pass.transmutations.findIndex((t) => t.otherGlyphs.includes(fail.id)) != -1) {
-                        used = true;
-                        break;
-                    }
-                }
-                if (!used) {
-                    let index = validGlyphs.findIndex((g) => g.id == fail.id);
-                    if (index == -1) {
-                        console.error("huh?");
-                        return;
-                    }
-                    validGlyphs.splice(index, 1);
-                }
-            }
+            
             let validWheels = ModData.usableWheels.filter((w) => w.identifier.namespace == mod);
 
             if (validGlyphs.length == 0 && validWheels.length == 0) {
@@ -379,9 +402,10 @@ class uiUpdater {
             }
             let summaryText = Utilities.snakeToTitle(mod);
             let details = document.createElement("details");
-            if (openDrawer != "" && summaryText == openDrawer) {
+            if (openDrawer == "" ? first : summaryText == openDrawer) {
                 details.open = true;
             }
+            first = false;
             details.name = detailsName;
             fragment.appendChild(details);
             let summary = document.createElement("summary");
@@ -439,7 +463,7 @@ class uiUpdater {
         const hasWheels = ModData.activeWheels.size > 0;
         const hasGlyphs = ModData.activeGlyphs.size > 0;
         const hasProducts = OMSC.products.length > 0;
-        
+
 
         let table = Elements.timelinePanel.children[0];
         if (!(table instanceof HTMLTableElement)) {
@@ -447,10 +471,10 @@ class uiUpdater {
             return;
         }
         let fragment = new DocumentFragment();
-        let headers = document.createElement("thead");
-        fragment.appendChild(headers);
+        let tableHead = document.createElement("thead");
+        fragment.appendChild(tableHead);
         let headerRow = document.createElement("tr");
-        headers.appendChild(headerRow);
+        tableHead.appendChild(headerRow);
         if (hasReagents) {
             let reagentsHeader = document.createElement("th");
             reagentsHeader.textContent = "Reagents";
@@ -482,15 +506,14 @@ class uiUpdater {
             headerRow.appendChild(productHeader);
         }
 
-        let body = document.createElement("tbody");
-        fragment.appendChild(body);
+        let tableBody = document.createElement("tbody");
+        fragment.appendChild(tableBody);
         let row = document.createElement("tr");
-        body.appendChild(row);
+        tableBody.appendChild(row);
 
         if (hasReagents) {
-            const reagentDataId = "timelineReagents";
             let reagentsData = document.createElement("td");
-            reagentsData.id = reagentDataId;
+            reagentsData.id = "timelineReagents";
             row.appendChild(reagentsData);
             for (let i = 0; i < OMSC.reagents.length; i++) {
                 let reagentPanel = document.createElement("div");
@@ -508,6 +531,94 @@ class uiUpdater {
                 reagentPanel.appendChild(recycleButton);
             }
         }
+
+        if (hasWheels) {
+            let wheelData = document.createElement("td");
+            row.appendChild(wheelData);
+            const timelineWheelSummaryName = "timelineWheelDetails";
+            let openDrawer = document.querySelector(`details[name=${timelineWheelSummaryName}][open] > summary`)?.textContent ?? ""
+            let first = true;
+            for (let mod of ModData.modList) {
+                let wheelsFromMods = ModData.usableWheels.filter((w) => w.identifier.namespace == mod && ModData.activeWheels.has(w.id));
+                if (wheelsFromMods.length == 0) {
+                    continue;
+                }
+                const summaryText = Utilities.snakeToTitle(mod);
+
+                let details = document.createElement("details");
+                details.name = timelineWheelSummaryName;
+                if (openDrawer == "" ? first : summaryText == openDrawer) {
+                    details.open = true;
+                }
+                first = false;
+                wheelData.appendChild(details);
+                let summary = document.createElement("summary");
+                summary.textContent = summaryText;
+                details.appendChild(summary);
+                for (let wheel of wheelsFromMods) {
+                    const wheelAtoms = OMSC.state.wheels.get(wheel.id);
+                    if (wheelAtoms == undefined) {
+                        console.error("huh?")
+                        continue;
+                    }
+                    let svgBox = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    svgBox.setAttribute("width", "228");
+                    svgBox.setAttribute("height", "206");
+                    svgBox.setAttribute("viewBox", "0 0 228 206");
+                    details.appendChild(svgBox);
+                    const offsets = [[0, 1], [1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1]];
+                    for (let i = 0; i < 6; i++) {
+                        let hex = offsets[i];
+                        let x = 81 * hex[0] + 41 * hex[1];
+                        let y = -41 * Math.sqrt(3) * hex[1];
+                        let atomUse = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                        atomUse.setAttribute("href", `#OMA_A_${Utilities.identifierToDoubleUnder(Utilities.colonSepToIdentifier(wheelAtoms[i]))}`)
+                        atomUse.setAttribute("transform", "translate(" + (x + 84) + "," + (y + 73) + ")");
+                        svgBox.appendChild(atomUse);
+                    }
+                    let wheelOverlayUse = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                    wheelOverlayUse.setAttribute("href", "wheelOverlay.svg");
+                    svgBox.appendChild(wheelOverlayUse);
+                    let wheelLabel = document.createElement("p");
+                    wheelLabel.textContent = wheel.displayName;
+                    details.appendChild(wheelLabel);
+                }
+            }
+        }
+
+        if (hasGlyphs) {
+            let glyphData = document.createElement("td");
+            glyphData.id = "timelineGlyphs";
+            row.appendChild(glyphData);
+            const timelineGlyphSummaryName = "timelineGlyphDetails";
+            const openDrawer = document.querySelector(`details[name=${timelineGlyphSummaryName}][open] > summary`)?.textContent ?? "";
+            let first = true;
+            for (let mod of ModData.modList) {
+                let currentGlyphs = ModData.usableGlyphs.filter((g) => g.identifier.namespace == mod && ModData.activeGlyphs.has(g.id));
+                if (currentGlyphs.length == 0) {
+                    continue;
+                }
+                const summaryText = Utilities.snakeToTitle(mod);
+                let details = document.createElement("details");
+                details.name = timelineGlyphSummaryName;
+                if (openDrawer == "" ? first : summaryText == openDrawer) {
+                    details.open = true;
+                }
+                first = false;
+                glyphData.appendChild(details);
+                let summary = document.createElement("summary");
+                summary.textContent = summaryText;
+                details.appendChild(summary);
+                for (let g of currentGlyphs) {
+                    let buttonId = "timelineSelectGlyph_" + Utilities.identifierToDoubleUnder(g.identifier);
+                    let button = document.createElement("button");
+                    button.id = buttonId;
+                    button.textContent = g.displayName;
+                    details.appendChild(button);
+                }
+            }
+        }
+
         table.replaceChildren(fragment);
     }
 }

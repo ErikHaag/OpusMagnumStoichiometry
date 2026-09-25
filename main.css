@@ -110,3 +110,8 @@
         margin: 5px;
     }
 }
+
+#timelineGlyphs > details > button {
+    display: block;
+    width: 100%;
+}

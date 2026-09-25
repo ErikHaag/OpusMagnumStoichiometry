@@ -140,10 +140,77 @@ class OMSC {
         uiUpdater.timelinePanelUpdate();
     }
 
+    static updateAGT() {
+        let glyph = ModData.getGlyphFromId(OMSC.activeGlyph);
+        if (glyph == undefined) {
+            OMSC.activeGlyphTransmutations = [];
+            console.error("huh?");
+            return;
+        }
+        OMSC.activeGlyphTransmutations = glyph.transmutations.filter((t) => t.canApply(OMSC.state));
+    }
+
     static recomputeTimeline() {
+        OMSC.state.reset();
         for (let i = 0; i < OMSC.timeline.length; i++) {
+            let copy = OMSC.state.copy();
+            try {
+                OMSC.applyTimelineEvent(copy, OMSC.timeline[i]);
+            } catch {
+                OMSC.timelineState.failureAt = i;
+                break;
+            }
+            OMSC.state = copy;
         }
         uiUpdater.timelinePanelUpdate();
+    }
+    /**
+     * @param {State} state
+     * @param {MoleculeTimelineEvent | GlyphTimelineEvent} event
+     */
+    static applyTimelineEvent(state, event) {
+        switch (event.type) {
+            case "inputReagent":
+                for (let [k, v] of OMSC.reagents[event.moleculeIndex].atoms) {
+                    state.atoms.set(k, (state.atoms.get(k) ?? 0n) + v);
+                }
+                break;
+            case "recycleReagent":
+                for (let [k, v] of OMSC.reagents[event.moleculeIndex].atoms) {
+                    const newCount = (state.atoms.get(k) ?? 0n) - v;
+                    if (newCount < 0n) {
+                        throw new Error("could not recycle molecule");
+                    }
+                    state.atoms.set(k, newCount);
+                }
+                break;
+            case "outputProduct":
+                for (let [k, v] of OMSC.products[event.moleculeIndex].atoms) {
+                    const newCount = (state.atoms.get(k) ?? 0n) - v;
+                    if (newCount < 0n) {
+                        throw new Error("could not output molecule");
+                    }
+                    state.atoms.set(k, newCount);
+                }
+                break;
+            case "glyph":
+                const srcGlyphId = event.transmutation.glyph;
+                if (!ModData.activeGlyphs.has(srcGlyphId)) {
+                    throw new Error("glyph is not present or available");
+                }
+                let srcGlyph = ModData.getGlyphFromId(srcGlyphId);
+                if (srcGlyph == undefined || srcGlyph.transmutations.every(t => !t.equals(event.transmutation))) {
+                    throw new Error("transmutation is not available");
+                }
+
+                if (!event.transmutation.canApply(state)) {
+                    throw new Error("could not apply transmutation");
+                }
+                event.transmutation.apply(state);
+                break;
+            default:
+                throw new Error("Invalid event type");
+        }
     }
 
     /** @type {State} */
@@ -155,16 +222,17 @@ class OMSC {
     /** @type {Array<Molecule>} */
     static products = [];
 
-    /**
-     * @type {Array<MoleculeTimelineEvent | GlyphTimelineEvent>}
-     */
+
+    static activeGlyph = "";
+    /** @type {Array<Transmutation>} */
+    static activeGlyphTransmutations = [];
+
+    /** @type {Array<MoleculeTimelineEvent | GlyphTimelineEvent>} */
     static timeline = [];
 
-    /**
-     * @type {TimelineState}
-     */
+    /** @type {TimelineState} */
     static timelineState = {
-        failureAt: -1
+        failureAt: -1,
     };
 }
 

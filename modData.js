@@ -133,17 +133,60 @@ class ModData {
                     }
                 }
             }
-            const installMod = "install" + Utilities.snakeToTitle(mod).replaceAll(" ", "");
+            const installMod = `install${Utilities.snakeToTitle(mod).replaceAll(" ", "")}`;
             // @ts-ignore
-            if (typeof (ModData[installMod]) == 'function') {
-                // @ts-ignore
-                ModData[installMod]();
+            const installFunction = ModData[installMod];
+            if (typeof (installFunction) == 'function') {
+                installFunction();
             } else {
-                console.error("No function exists: \"" + installMod + "\"");
+                console.error(`No function exists: \"${installMod}\"`);
             }
         }
         for (let g of ModData.usableGlyphs) {
             g.cleanup();
+        }
+
+        // discard any glyph with no transmutation attached
+        o:for (let i = 0; i < ModData.usableGlyphs.length; i++) {
+            if (ModData.usableGlyphs[i].transmutations.length != 0) {
+                continue;
+            }
+            let search = ModData.usableGlyphs[i].id;
+            for (let j of ModData.usableGlyphs) {
+                for (let k of j.transmutations) {
+                    if (k.otherGlyphs.includes(search)) {
+                        continue o;
+                    }
+                }
+            }
+            ModData.usableGlyphs.splice(i--, 1);
+        }
+
+        for (let reagent of OMSC.reagents) {
+            for (let [k, v] of reagent.atoms.entries()) {
+                if (v == 0n || !ModData.usableAtomTypes.has(k)) {
+                    reagent.atoms.delete(k);
+                }
+            }
+        }
+        for (let product of OMSC.products) {
+            for (let [k, v] of product.atoms.entries()) {
+                if (v == 0n || !ModData.usableAtomTypes.has(k)) {
+                    product.atoms.delete(k);
+                }
+            }
+        }
+        let ids = ModData.usableGlyphs.map(g => g.id);
+        for (let g of ModData.activeGlyphs) {
+            if (!ids.includes(g)) {
+                ModData.activeGlyphs.delete(g);
+            }
+        }
+        ids = ModData.usableWheels.map(w => w.id);
+        for (let w of ModData.activeWheels) {
+            if (!ids.includes(w)) {
+                ModData.activeWheels.delete(w);
+            }
         }
     }
 
@@ -373,7 +416,7 @@ class ModData {
                 [metals[i >> 1], metals[(i - 1) >> 1]]
             ));
 
-        } 
+        }
 
         ModData.usableGlyphs.push(division);
 

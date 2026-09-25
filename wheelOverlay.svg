@@ -1,0 +1,22 @@
+<svg viewBox="0 0 228 206" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <g id="atomCage">
+            <line x1="-32" y1="30" x2="-2" y2="30" stroke-width="15" stroke="gray" />
+            <line x1="-4" y1="20" x2="-4" y2="40" stroke-width="8" stroke="gray" />
+            <circle cx="30" cy="30" r="25" fill="none" stroke-width="5" stroke="#666" />
+            <line x1="30" y1="-2" x2="30" y2="5" stroke-width="6" stroke="#666" />
+            <line x1="-2" y1="30" x2="5" y2="30" stroke-width="6" stroke="#666" />
+            <line x1="30" y1="62" x2="30" y2="55" stroke-width="6" stroke="#666" />
+            <line x1="62" y1="30" x2="55" y2="30" stroke-width="6" stroke="#666" />
+        </g>
+    </defs>
+    <use href="#atomCage" transform="translate(125,1.9859168896760337) rotate(300, 30, 30)" />
+    <use href="#atomCage" transform="translate(165,73) rotate(0, 30, 30)" />
+    <use href="#atomCage" transform="translate(124,144.01408311032395) rotate(60, 30, 30)" />
+    <use href="#atomCage" transform="translate(43,144.01408311032395) rotate(120, 30, 30)" />
+    <use href="#atomCage" transform="translate(3,73) rotate(180, 30, 30)" />
+    <use href="#atomCage" transform="translate(44,1.9859168896760337) rotate(240, 30, 30)" />
+    <circle cx="114" cy="103" r="27.5" fill="gray" />
+    <circle cx="114" cy="103" r="22.5" fill="antiquewhite" />
+    <circle cx="114" cy="103" r="17.5" fill="purple" />
+</svg>

@@ -11,6 +11,18 @@ class State {
         this.wheels = new Map();
     }
 
+    reset() {
+        this.atoms.clear();
+        this.wheels.clear();
+        for (let w of ModData.usableWheels) {
+            if (!ModData.activeWheels.has(w.id)) {
+                continue;
+            }
+            this.wheels.set(w.id, structuredClone(w.initialAtoms)); 
+        }
+
+    }
+
     /** @this {State} */
     copy() {
         return structuredClone(this);
@@ -106,7 +118,7 @@ class Transmutation {
         for (let w of this.wheelChanges) {
             let currentWheel = state.wheels.get(w.wheel);
             if (currentWheel == undefined) {
-                throw new Error("The wheel " + w.wheel + " is not active!");
+                throw new Error(`The wheel ${w.wheel} is not active!`);
             }
             for (let i = 0; i < w.offsets.length; i++) {
                 currentWheel[w.offsets[i]] = w.outputs[i];
