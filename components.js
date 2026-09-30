@@ -16,7 +16,9 @@ class TabRow {
 
         this.option = 0;
         let i = 0;
+        this.rootElement.role = "tablist";
         for (let c of this.rootElement.children) {
+            c.role = "tab";
             c.setAttribute("data-index", i.toString());
             i++;
         }
@@ -26,7 +28,7 @@ class TabRow {
         this.rootElement.classList.add("tabRow")
         this.rootElement.addEventListener("click", this);
     }
-    
+
     /**
      * 
      * @param {MouseEvent} e 
@@ -39,7 +41,7 @@ class TabRow {
         if (index == null) {
             return;
         }
-        this.setOption(Number.parseInt(index,10), true);
+        this.setOption(Number.parseInt(index, 10), true);
     }
 
     /**
@@ -47,7 +49,8 @@ class TabRow {
      * @param {number} index 
      * @param {boolean} userInput 
      */
-    setOption(index, userInput = false) {4
+    setOption(index, userInput = false) {
+        4
         if (Number.isNaN(index)) {
             index = 0;
         }

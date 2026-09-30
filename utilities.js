@@ -96,3 +96,47 @@ class Utilities {
         return { passed, failed };
     }
 }
+
+class Strings {
+    static modPanel = {
+        checkbox: "modSelectedCheckbox_"
+    }
+    static reagentPanel = {
+        add: "reagentAdd",
+        atomCount: "reagentAtomCount_",
+        delete: "reagentDelete_",
+        detailsName: "reagentGroup_",
+        name: "reagentName_"
+    }
+    static productPanel = {
+        add: "productAdd",
+        atomCount: "productAtomCount_",
+        delete: "productDelete_",
+        detailsName: "productGroup_",
+        name: "productName_"
+    }
+    static glyphPanel = {
+        detailsName: "glyphPaneDetails",
+        glyphCheckbox: "glyphSelectedCheckbox_",
+        wheelCheckbox: "wheelSelectedCheckbox_"
+    }
+    static timelinePanel = {
+        atomDetailsName: "timelineAtomDetails",
+        eventData: "timelineEvents",
+        eventDelete: "timelineEventDelete_",
+        eventMoveUp: "timeelineEventMoveUp_",
+        eventMoveDown: "timelineEventMoveDown_",
+        glyphChoice: "timelineSelectGlyph_",
+        glyphData: "timelineGlyphs",
+        glyphDetailsName: "timelineGlyphDetails",
+        productData: "timelineProducts",
+        productOutput: "productOutput_",
+        reagentData: "timelineReagents",
+        reagentPull: "reagentPull_",
+        reagentRecycle: "reagentRecycle_",
+        transmutationChoice: "timelineTransmutation_",
+        transmutationData: "timelineTransmutations",
+        wheelDetailsName: "timelineWheelDetails"
+    }
+
+}

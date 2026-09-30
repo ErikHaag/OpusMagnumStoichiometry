@@ -50,7 +50,7 @@ class Elements {
         // @ts-ignore
         this.timelinePanel = document.getElementById("timelinePanel");
 
-        document.addEventListener("click", uiUpdater.clickHandler);
+        document.addEventListener("click", uiUpdater.clickHandler, { capture: true });
         document.addEventListener("change", uiUpdater.changeHandler);
 
         uiUpdater.initiallizeStaticARIA();
@@ -91,17 +91,22 @@ class OMSC {
         }
 
         AtomType.atomTypes.sort((a, b) => {
-            if (a.identifier.namespace > b.identifier.namespace) {
-                return 1;
-            }
-            if (a.identifier.namespace < b.identifier.namespace) {
-                return -1;
-            }
-            if (a.identifier.name > b.identifier.name) {
+            if (a.identifier.namespace != b.identifier.namespace) {
+                if (a.identifier.namespace == "opus_magnum") {
+                    return -1;
+                } else if (b.identifier.namespace == "opus_magnum") {
+                    return 1;
+                }
+                if (a.identifier.namespace < b.identifier.namespace) {
+                    return -1;
+                }
                 return 1;
             }
             if (a.identifier.name < b.identifier.name) {
                 return -1;
+            }
+            if (a.identifier.name > b.identifier.name) {
+                return 1;
             }
             return 0;
         });
@@ -110,7 +115,7 @@ class OMSC {
 
         uiUpdater.updateAll();
 
-        this.state = new State();
+        testing();
     }
 
     /**
@@ -141,6 +146,10 @@ class OMSC {
     }
 
     static updateAGT() {
+        if (OMSC.activeGlyph == "") {
+            OMSC.activeGlyphTransmutations = [];
+            return;
+        }
         let glyph = ModData.getGlyphFromId(OMSC.activeGlyph);
         if (glyph == undefined) {
             OMSC.activeGlyphTransmutations = [];
@@ -152,6 +161,7 @@ class OMSC {
 
     static recomputeTimeline() {
         OMSC.state.reset();
+        OMSC.timelineState.failureAt = -1;
         for (let i = 0; i < OMSC.timeline.length; i++) {
             let copy = OMSC.state.copy();
             try {
@@ -162,7 +172,6 @@ class OMSC {
             }
             OMSC.state = copy;
         }
-        uiUpdater.timelinePanelUpdate();
     }
     /**
      * @param {State} state
@@ -214,7 +223,7 @@ class OMSC {
     }
 
     /** @type {State} */
-    static state;
+    static state = new State();
 
     /** @type {Array<Molecule>} */
     static reagents = [];
@@ -236,10 +245,42 @@ class OMSC {
     };
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    Elements.initiallize();
-})
+Elements.initiallize();
+OMSC.load();
 
-window.addEventListener("load", () => {
-    OMSC.load();
-});
+function testing() {
+
+    OMSC.reagents.push({
+        name: "Distilled Alcohol",
+        atoms: new Map([["opus_magnum:fire", 1n], ["opus_magnum:salt", 2n], ["opus_magnum:water", 1n]])
+    });
+    
+    OMSC.products.push({
+        name: "Elemental Air",
+        atoms: new Map([["opus_magnum:air", 1n]])
+    });
+
+    OMSC.products.push({
+        name: "Elemental Earth",
+        atoms: new Map([["opus_magnum:earth", 1n]])
+    });
+    OMSC.products.push({
+        name: "Elemental Fire",
+        atoms: new Map([["opus_magnum:fire", 1n]])
+    });
+    OMSC.products.push({
+        name: "Elemental Water",
+        atoms: new Map([["opus_magnum:water", 1n]])
+    });
+
+    ModData.activeGlyphs.add("opus_magnum:calcification");
+    ModData.activeGlyphs.add("opus_magnum:duplication");
+    ModData.activeWheels.add("opus_magnum:berlo");
+    OMSC.activeGlyph = "opus_magnum:duplication";
+    OMSC.timeline.push({ type: "inputReagent", "moleculeIndex": 0 });
+    OMSC.recomputeTimeline();
+    OMSC.updateAGT();
+    uiUpdater.updateAll();
+    Elements.menuSelect.setOption(4);
+    uiUpdater.timelinePanelUpdate();
+}

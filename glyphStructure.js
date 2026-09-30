@@ -18,14 +18,25 @@ class State {
             if (!ModData.activeWheels.has(w.id)) {
                 continue;
             }
-            this.wheels.set(w.id, structuredClone(w.initialAtoms)); 
+            this.wheels.set(w.id, structuredClone(w.initialAtoms));
         }
 
     }
 
     /** @this {State} */
     copy() {
-        return structuredClone(this);
+        let clone = new State();
+        for (let [k, v] of this.atoms) {
+            clone.atoms.set(k, v);
+        }
+        for (let [k, v] of this.wheels) {
+            let array = [];
+            for (let i = 0; i < v.length; i++) {
+                array[i] = v[i];
+            }
+            clone.wheels.set(k, array);
+        }
+        return clone;
     }
 }
 
@@ -74,6 +85,7 @@ class Transmutation {
         this.outputAtoms = Utilities.listToMap(outputAtoms);
         this.wheelChanges = wheelChanges;
         this.otherGlyphs = otherGlyphs;
+        this.uniqueId = -1;
     }
 
     /**
@@ -272,6 +284,7 @@ class Glyph {
                     continue o;
                 }
             }
+            transmute.uniqueId = i;
         }
     }
 }

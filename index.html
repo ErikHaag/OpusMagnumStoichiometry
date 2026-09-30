@@ -14,11 +14,31 @@
 </head>
 
 <body class="light">
-    <div id="helpBox" hidden>
-        <p></p>
-        <button id="closeHelp">Close</button>
-        <button id="nextHelp">Next</button>
-    </div>
+    <svg style="opacity: 0;" width="0" height="0">
+        <defs>
+            <linearGradient id="gradientMask">
+                <stop offset="25%" stop-color="gray" stop-opacity="1" />
+                <stop offset="80%" stop-color="gray" stop-opacity="0" />
+            </linearGradient>
+        </defs>
+        <g id="wheelArmFade">
+            <rect x="-32" y="22.5" width="30" height="15" fill="url(#gradientMask)" />
+        </g>
+        <g id="wheelArm">
+            <rect x="-32" y="22.5" width="30" height="15" fill="gray" />
+            <rect x="-8" y="20" width="8" height="20" fill="gray" />
+            <circle cx="30" cy="30" r="25" fill="none" stroke-width="5" stroke="#666" />
+            <line x1="30" y1="-2" x2="30" y2="5" stroke-width="6" stroke="#666" />
+            <line x1="-2" y1="30" x2="5" y2="30" stroke-width="6" stroke="#666" />
+            <line x1="30" y1="62" x2="30" y2="55" stroke-width="6" stroke="#666" />
+            <line x1="62" y1="30" x2="55" y2="30" stroke-width="6" stroke="#666" />
+        </g>
+        <g id="wheelHub">
+            <circle r="27.5" fill="gray" />
+            <circle r="22.5" fill="antiquewhite" />
+            <circle r="17.5" fill="purple" />
+        </g>
+    </svg>
     <!-- Menu -->
     <h1>Opus Magnum Stoichiometry Calculator</h1>
     <nav id="mainNav">
@@ -29,25 +49,22 @@
         <button>Timeline</button>
     </nav>
     <main class="panels">
-        <div id="modPanel" class="visible" >
-            <div class="pairs">
-
-            </div>
+        <div id="modPanel" class="visible">
+            <div class="pairs"></div>
         </div>
         <div id="reagentPanel">
-            <button id="addReagent" title="Add a new reagent" aria-label="Add a new reagent">+</button>
+            <button id="reagentAdd" title="Add a new reagent" aria-label="Add a new reagent">+</button>
             <div></div>
         </div>
         <div id="productPanel">
-            <button id="addProduct" title="Add a new product" aria-label="Add a new product">+</button>
+            <button id="productAdd" title="Add a new product" aria-label="Add a new product">+</button>
             <div></div>
         </div>
         <div id="glyphPanel">
             <div></div>
         </div>
         <div id="timelinePanel">
-            <table class="timelineTable">
-            </table>
+            <table class="timelineTable"></table>
         </div>
     </main>
 </body>
@@ -58,4 +75,5 @@
 <script src='components.js'></script>
 <script src='uiUpdater.js'></script>
 <script src='main.js'></script>
+
 </html>
