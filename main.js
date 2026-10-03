@@ -19,6 +19,7 @@
 /**
  * @typedef {object} TimelineState
  * @prop {number} failureAt
+ * @prop {number} loopStart
  */
 
 
@@ -112,10 +113,7 @@ class OMSC {
         });
 
         ModData.reset();
-
         uiUpdater.updateAll();
-
-        testing();
     }
 
     /**
@@ -160,17 +158,37 @@ class OMSC {
     }
 
     static recomputeTimeline() {
-        OMSC.state.reset();
+        let prevStates = [new State()];
+        prevStates[0].reset();
         OMSC.timelineState.failureAt = -1;
+        OMSC.timelineState.loopStart = -1;
+
         for (let i = 0; i < OMSC.timeline.length; i++) {
-            let copy = OMSC.state.copy();
+            let next = prevStates[i].copy();
             try {
-                OMSC.applyTimelineEvent(copy, OMSC.timeline[i]);
+                OMSC.applyTimelineEvent(next, OMSC.timeline[i]);
             } catch {
                 OMSC.timelineState.failureAt = i;
                 break;
             }
-            OMSC.state = copy;
+            prevStates.push(next);
+        }
+        OMSC.state = prevStates[prevStates.length - 1];
+        if (OMSC.timelineState.failureAt != -1) {
+            return;
+        }
+        
+        let lastLoopStart = prevStates.length - 1;
+        for (let i = 0; i < OMSC.products.length; i++) {
+            let lastSubmit = OMSC.timeline.findLastIndex((e) => e.type == "outputProduct" && e.moleculeIndex == i);
+            lastLoopStart = Math.min(lastLoopStart, lastSubmit);
+        }
+
+        for (let i = 0; i < lastLoopStart; i++) {
+            if (OMSC.state.equals(prevStates[i])) {
+                OMSC.timelineState.loopStart = i;
+                break;
+            }
         }
     }
     /**
@@ -242,6 +260,7 @@ class OMSC {
     /** @type {TimelineState} */
     static timelineState = {
         failureAt: -1,
+        loopStart: -1
     };
 }
 
@@ -277,7 +296,6 @@ function testing() {
     ModData.activeGlyphs.add("opus_magnum:duplication");
     ModData.activeWheels.add("opus_magnum:berlo");
     OMSC.activeGlyph = "opus_magnum:duplication";
-    OMSC.timeline.push({ type: "inputReagent", "moleculeIndex": 0 });
     OMSC.recomputeTimeline();
     OMSC.updateAGT();
     uiUpdater.updateAll();

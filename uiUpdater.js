@@ -132,17 +132,17 @@ class uiUpdater {
                 focusTarget.focus();
                 return;
             }
-            let alternateFocusTarget = Elements.productPanel.children[0];
-            if (!(alternateFocusTarget instanceof HTMLElement)) {
+            let newFocus = Elements.productPanel.children[0];
+            if (!(newFocus instanceof HTMLElement)) {
                 console.error("huh?");
                 return;
             }
-            alternateFocusTarget.focus();
+            newFocus.focus();
             return;
         }
 
         if (id.startsWith(Strings.timelinePanel.reagentPull)) {
-            let mI = Number.parseInt(id.substring(Strings.timelinePanel.reagentPull.length));
+            let mI = Number.parseInt(id.substring(Strings.timelinePanel.reagentPull.length), 10);
             if (Number.isNaN(mI) || mI < 0 || mI >= OMSC.reagents.length) {
                 console.error("huh?");
                 return;
@@ -165,7 +165,7 @@ class uiUpdater {
             return;
         }
         if (id.startsWith(Strings.timelinePanel.reagentRecycle)) {
-            let mI = Number.parseInt(id.substring(Strings.timelinePanel.reagentRecycle.length));
+            let mI = Number.parseInt(id.substring(Strings.timelinePanel.reagentRecycle.length), 10);
             if (Number.isNaN(mI) || mI < 0 || mI >= OMSC.reagents.length) {
                 console.error("huh?");
                 return;
@@ -202,7 +202,7 @@ class uiUpdater {
             return;
         }
         if (id.startsWith(Strings.timelinePanel.transmutationChoice)) {
-            let transmutationIndex = Number.parseInt(id.substring(Strings.timelinePanel.transmutationChoice.length));
+            let transmutationIndex = Number.parseInt(id.substring(Strings.timelinePanel.transmutationChoice.length), 10);
             let transmutation = OMSC.activeGlyphTransmutations.find((v) => v.uniqueId == transmutationIndex);
             if (transmutation == undefined) {
                 console.error("huh?");
@@ -221,9 +221,89 @@ class uiUpdater {
             OMSC.recomputeTimeline();
             OMSC.updateAGT();
             uiUpdater.timelinePanelUpdate();
-            let newFocus = document.getElementById(id);
-            newFocus?.focus();
+            (document.getElementById(id) ?? (document.getElementById(Strings.timelinePanel.transmutationChoice + (OMSC.activeGlyphTransmutations[0]?.uniqueId ?? -1))))?.focus();
             return;
+        }
+        if (id.startsWith(Strings.timelinePanel.eventDelete)) {
+            let eventIndex = Number.parseInt(id.substring(Strings.timelinePanel.eventDelete.length), 10);
+            if (Number.isNaN(eventIndex)) {
+                console.error("huh?");
+                return;
+            }
+            OMSC.timeline.splice(eventIndex, 1);
+            OMSC.recomputeTimeline();
+            OMSC.updateAGT();
+            uiUpdater.timelinePanelUpdate();
+            if (eventIndex == OMSC.timeline.length) {
+                eventIndex--;
+            }
+            if (eventIndex == -1) {
+                return;
+            }
+            (document.getElementById(Strings.timelinePanel.eventDelete + eventIndex))?.focus();
+            return;
+        }
+
+        if (id.startsWith(Strings.timelinePanel.eventMoveDown)) {
+            let eventIndex = Number.parseInt(id.substring(Strings.timelinePanel.eventMoveDown.length), 10);
+            if (Number.isNaN(eventIndex)) {
+                console.error("huh?");
+                return;
+            }
+            let v = OMSC.timeline.splice(eventIndex, 1);
+            OMSC.timeline.splice(eventIndex + 1, 0, ...v);
+            OMSC.recomputeTimeline();
+            OMSC.updateAGT();
+            uiUpdater.timelinePanelUpdate();
+            if (eventIndex <= OMSC.timeline.length - 3) {
+                eventIndex++;
+                (document.getElementById(Strings.timelinePanel.eventMoveDown + eventIndex))?.focus();
+            } else {
+                (document.getElementById(Strings.timelinePanel.eventMoveUp + (OMSC.timeline.length - 1)))?.focus();
+
+            }
+            return;
+        }
+        if (id.startsWith(Strings.timelinePanel.eventMoveUp)) {
+            let eventIndex = Number.parseInt(id.substring(Strings.timelinePanel.eventMoveUp.length), 10);
+            if (Number.isNaN(eventIndex)) {
+                console.error("huh?");
+                return;
+            }
+            let v = OMSC.timeline.splice(eventIndex, 1);
+            OMSC.timeline.splice(eventIndex - 1, 0, ...v);
+            OMSC.recomputeTimeline();
+            OMSC.updateAGT();
+            uiUpdater.timelinePanelUpdate();
+            if (eventIndex >= 2) {
+                eventIndex--;
+                (document.getElementById(Strings.timelinePanel.eventMoveUp + eventIndex))?.focus();
+            } else {
+                (document.getElementById(Strings.timelinePanel.eventMoveDown + "0"))?.focus();
+            }
+            return;
+        }
+        if (id.startsWith(Strings.timelinePanel.productOutput)) {
+            let index = Number.parseInt(id.substring(Strings.timelinePanel.productOutput.length), 10);
+            if (Number.isNaN(index)) {
+                console.error("huh?");
+                return;
+            }
+            /** @type {MoleculeTimelineEvent} */
+            let event = {
+                type: "outputProduct",
+                moleculeIndex: index
+            };
+
+            if (OMSC.timelineState.failureAt == -1) {
+                OMSC.timeline.push(event);
+            } else {
+                OMSC.timeline.splice(OMSC.timelineState.failureAt, 0, event);
+            }
+            OMSC.recomputeTimeline();
+            OMSC.updateAGT();
+            uiUpdater.timelinePanelUpdate();
+            document.getElementById(id)?.focus();
         }
     }
 
@@ -251,6 +331,8 @@ class uiUpdater {
                 }
             }
             ModData.reset();
+            uiUpdater.reagentsPanelUpdate();
+            uiUpdater.reagentsPanelUpdate(true);
             uiUpdater.glyphPaneUpdate();
             OMSC.recomputeTimeline();
             OMSC.updateAGT();
@@ -277,7 +359,7 @@ class uiUpdater {
             if (numEndIndex == -1) {
                 return;
             }
-            let index = Number.parseInt(idTemp.substring(0, numEndIndex));
+            let index = Number.parseInt(idTemp.substring(0, numEndIndex), 10);
             if (Number.isNaN(index)) {
                 return;
             }
@@ -769,9 +851,11 @@ class uiUpdater {
             let eventData = document.createElement("td");
             eventData.id = Strings.timelinePanel.eventData;
             row.appendChild(eventData);
+            let grid = document.createElement("div");
+            eventData.appendChild(grid);
             for (let i = 0; i < OMSC.timeline.length; i++) {
                 let eventBox = document.createElement("div");
-                eventData.appendChild(eventBox);
+                grid.appendChild(eventBox);
                 let statusIndicator = document.createElement("div");
                 if (OMSC.timelineState.failureAt != -1) {
                     if (i == OMSC.timelineState.failureAt) {
@@ -779,19 +863,21 @@ class uiUpdater {
                     } else if (i > OMSC.timelineState.failureAt) {
                         statusIndicator.className = "ignored";
                     }
-                } else {
-                    // repeat detection
+                } else if (OMSC.timelineState.loopStart != -1 ) {
+                    if (i >= OMSC.timelineState.loopStart) {
+                        statusIndicator.className = "loop";
+                    }
                 }
                 eventBox.append(statusIndicator);
 
                 let timelineEvent = OMSC.timeline[i];
                 if (timelineEvent.type == "inputReagent") {
                     let reagentPullDisp = document.createElement("p");
-                    reagentPullDisp.textContent = "Pulled " + OMSC.reagents[timelineEvent.moleculeIndex].name;
+                    reagentPullDisp.textContent = "Pull " + OMSC.reagents[timelineEvent.moleculeIndex].name;
                     eventBox.appendChild(reagentPullDisp);
                 } else if (timelineEvent.type == "recycleReagent") {
                     let reagentRecycleDisp = document.createElement("p");
-                    reagentRecycleDisp.textContent = "Recycled " + OMSC.reagents[timelineEvent.moleculeIndex].name;
+                    reagentRecycleDisp.textContent = "Recycle " + OMSC.reagents[timelineEvent.moleculeIndex].name;
                     eventBox.appendChild(reagentRecycleDisp);
                 } else if (timelineEvent.type == "outputProduct") {
                     let productOutputDisp = document.createElement("p");

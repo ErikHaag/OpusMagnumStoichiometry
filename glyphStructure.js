@@ -38,6 +38,47 @@ class State {
         }
         return clone;
     }
+
+    /**
+     * @param {State} other
+     */
+    equals(other) {
+        for (let aT of ModData.usableAtomTypes ) {
+            let tC = this.atoms.get(aT) ?? 0n;
+            let oC = this.atoms.get(aT) ?? 0n;
+            if (tC != oC) {
+                return false;
+            }
+        }
+        for (let wT of ModData.activeWheels) {
+            let tW = this.wheels.get(wT);
+            let oW = other.wheels.get(wT);
+            if (tW == undefined || oW == undefined) {
+                console.error("huh?");
+                return false;
+            }
+            if (tW.length != oW.length) {
+                console.error("huh?");
+                return false;
+            }
+            const six = tW.length;
+            let success = false;
+            // account for wheel being turned, but not mirrored
+            o:for (let i = 0; i < six; i++) {
+                for (let j = 0; j < six; j++) {
+                    if (tW[j] != oW[(j + i) % six]) {
+                        continue o;
+                    }
+                }
+                success = true;
+                break;
+            }
+            if (!success) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 class WheelTransmutation {
@@ -149,6 +190,10 @@ class Transmutation {
             return false;
         }
 
+        if (this.otherGlyphs.length != other.otherGlyphs.length) {
+            return false;
+        }
+
         for (let a of AtomType.atomTypes) {
             let key = a.toString();
             if ((this.inputAtoms.get(key) ?? 0n) != (other.inputAtoms.get(key) ?? 0n)) {
@@ -178,6 +223,12 @@ class Transmutation {
                 if (tSubject.outputs[j] != oSubject.outputs[j]) {
                     return false;
                 }
+            }
+        }
+
+        for (let i = 0; i < this.otherGlyphs.length; i++) {
+            if (!other.otherGlyphs.includes(this.otherGlyphs[i])) {
+                return false;
             }
         }
 
@@ -250,6 +301,38 @@ class Glyph {
     cleanup() {
         o: for (let i = 0; i < this.transmutations.length; i++) {
             let transmute = this.transmutations[i];
+
+            // remove transmutation if it does nothing
+            let useless = true;
+            for (let aT of ModData.usableAtomTypes) {
+                if ((transmute.inputAtoms.get(aT) ?? 0n) != (transmute.outputAtoms.get(aT) ?? 0n)) {
+                    useless = false;
+                    break;
+                }
+            }
+            if (useless) {
+                p: for (let wT of transmute.wheelChanges) {
+                    for (let j = 0; j < wT.inputs.length; j++) {
+                        if (wT.inputs[j] != wT.outputs[j]) {
+                            useless = false;
+                            break p;
+                        }
+                    }
+                }
+            }
+            if (useless) {
+                this.transmutations.splice(i, 1);
+                i--;
+                continue;
+            }
+
+            for (let j = i + 1; j < this.transmutations.length; j++) {
+                if (transmute.equals(this.transmutations[j])) {
+                    // remove redundant
+                    this.transmutations.splice(j, 1);
+                    j--;
+                }
+            }
             for (let wheelTransmutation of transmute.wheelChanges) {
                 let sourceWheel = ModData.getWheelFromId(wheelTransmutation.wheel);
                 if (sourceWheel == undefined) {
@@ -276,15 +359,18 @@ class Glyph {
                 }
                 return 0;
             });
-            for (let i = 0; i < transmute.wheelChanges.length - 1; i++) {
-                if (transmute.wheelChanges[i].wheel == transmute.wheelChanges[i + 1].wheel) {
+            for (let j = 0; j < transmute.wheelChanges.length - 1; j++) {
+                if (transmute.wheelChanges[j].wheel == transmute.wheelChanges[j + 1].wheel) {
                     console.error("Found 2 wheel transformations on the same wheel!");
                     this.transmutations.splice(i, 1);
                     i--;
                     continue o;
                 }
             }
-            transmute.uniqueId = i;
+        }
+
+        for (let i = 0; i < this.transmutations.length; i++) {
+            this.transmutations[i].uniqueId = i;
         }
     }
 }

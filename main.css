@@ -117,7 +117,7 @@
     width: 100%;
 }
 
-#timelineEvents {
+#timelineEvents>div {
     display: grid;
     grid-template-columns: 5px max-content max-content;
 
@@ -140,6 +140,10 @@
 
             &.ignored {
                 background-color: gray;
+            }
+
+            &.loop {
+                background-color: navy;
             }
         }
 
@@ -195,4 +199,9 @@
             }
         }
     }
+}
+
+button {
+    min-width: 30px;
+    min-height: 30px;
 }

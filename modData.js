@@ -36,6 +36,7 @@ class ModData {
     /** @type {Map<string, ModDependency>} */
     static modDependencies = new Map([
         ["de_re_metallica", { incompatiblities: ["reductive_metallurgy"] }],
+        ["extransmutations", { processFirst: ["", "uncommon_primes"] }],
         ["reductive_metallurgy", { incompatiblities: ["de_re_metallica"] }],
         ["halving_metallurgy", { processFirst: ["reductive_metallurgy", "vacancy"] }],
         ["magnus_animismus", { requirements: ["true_animismus"] }],
@@ -147,7 +148,7 @@ class ModData {
         }
 
         // discard any glyph with no transmutation attached
-        o:for (let i = 0; i < ModData.usableGlyphs.length; i++) {
+        o: for (let i = 0; i < ModData.usableGlyphs.length; i++) {
             if (ModData.usableGlyphs[i].transmutations.length != 0) {
                 continue;
             }
@@ -219,13 +220,21 @@ class ModData {
 
         let multibonding = new Glyph(
             "opus_magnum",
-            "speed_bonder",
+            "multibonder",
             "Glyph of Multibonding",
             "The glyph of multibonding can create up to three bonds at once."
         );
 
         ModData.usableGlyphs.push(multibonding);
 
+        let triplexbonder = new Glyph(
+            "opus_magnum",
+            "triplex_bonder",
+            "Glyph of Triplex Bonding",
+            "The glyph of triplex bonding creates 3 special bonds that; when overlaid, create a complete triplex bond"
+        );
+
+        ModData.usableGlyphs.push(triplexbonder);
 
         const cardinals = ["opus_magnum:air", "opus_magnum:earth", "opus_magnum:fire", "opus_magnum:water"];
 
@@ -331,14 +340,24 @@ class ModData {
         let disposal = new Glyph(
             "opus_magnum",
             "disposal",
-            "Glyph of Disposal / Waste chain",
-            "The glyph of disposal removes unneeded atoms from the board / Waste chaining pushes atoms out of reach"
+            "Glyph of Disposal",
+            "The glyph of disposal removes unneeded atoms from the board."
         );
 
         disposal.appendTransmutations(addedAtoms.map((a) => new Transmutation([a], [])));
 
         ModData.usableGlyphs.push(disposal);
 
+        let wasteChain = new Glyph(
+            "opus_magnum",
+            "waste_chain",
+            "Waste Chain",
+            "Waste chaining pushes atoms out of reach."
+        );
+
+        wasteChain.appendTransmutations(addedAtoms.flatMap((a) => ["opus_magnum:bonder", "opus_magnum:multibonder"].map((b) => new Transmutation([a], [], [], [b]))));
+
+        ModData.usableGlyphs.push(wasteChain);
 
         let unification = new Glyph(
             "opus_magnum",
@@ -450,6 +469,390 @@ class ModData {
                     ]
                 ))
             );
+        }
+
+        ModData.usableGlyphs.push(proliferation);
+    }
+
+    static installAlchemicalInversions() {
+
+        const addedAtoms = AtomType.atomTypes.filter((a) => a.identifier.namespace == "alchemical_inversions").map(a => a.toString());
+        addedAtoms.forEach((a) => ModData.usableAtomTypes.add(a));
+
+        const antimetals = ["anti_gold", "anti_silver", "anti_copper", "anti_iron", "anti_tin", "anti_lead"].map((s) => `alchemical_inversions:${s}`);
+
+        let projection = ModData.getGlyphFromId("opus_magnum:projection");
+        if (projection != undefined) {
+            for (let i = 0; i < 5; i++) {
+                projection.appendTransmutations(new Transmutation(
+                    ["opus_magnum:quicksilver", antimetals[i]],
+                    [antimetals[i + 1]]
+                ));
+            }
+        }
+
+        let purification = ModData.getGlyphFromId("opus_magnum:purification");
+        if (purification != undefined) {
+            for (let i = 0; i < 5; i++) {
+                purification.appendTransmutations(new Transmutation(
+                    [antimetals[i], antimetals[i]],
+                    [antimetals[i + 1]]
+                ));
+            }
+            purification.appendTransmutations(new Transmutation(
+                ["alchemical_inversions:yttrium", "alchemical_inversions:yttrium"],
+                ["opus_magnum:lead"]
+            ));
+        }
+
+        let disposal = ModData.getGlyphFromId("opus_magnum:disposal");
+        if (disposal != undefined) {
+            disposal.appendTransmutations(addedAtoms.map(a => new Transmutation(
+                [a],
+                []
+            )));
+        }
+
+        let wasteChain = ModData.getGlyphFromId("opus_magnum:waste_chain");
+        if (wasteChain != undefined) {
+            wasteChain.appendTransmutations(addedAtoms.flatMap((a) => ["opus_magnum:bonder", "opus_magnum:multibonder"].map((b) => new Transmutation([a], [], [], [b]))));
+        }
+
+        let recession = new Glyph(
+            "alchemical_inversions",
+            "recession",
+            "Glyph of Recession",
+            "The glyph of recession takes in two metals and redistributes their metallicity. rendering them as close to equivalent as possible."
+        )
+
+        const metals = antimetals.concat(["alchemical_inversions:yttrium", "opus_magnum:lead", "opus_magnum:tin", "opus_magnum:iron", "opus_magnum:copper", "opus_magnum:silver", "opus_magnum:gold"])
+
+        for (let i = 0; i < 13; i++) {
+            for (let j = i; j < 13; j++) {
+                let sum = i + j;
+                let outputL = sum >> 1;
+                let outputG = (sum + 1) >> 1;
+                if (outputL == 6 || outputG == 6) {
+                    // diverge from yttrium
+                    outputL--;
+                    outputG++;
+                }
+                recession.appendTransmutations(new Transmutation(
+                    [metals[i], metals[j]],
+                    [metals[outputL], metals[outputG]]
+                ));
+            }
+        }
+
+        ModData.usableGlyphs.push(recession);
+
+        let conglomeration = new Glyph(
+            "alchemical_inversions",
+            "conglomeration",
+            "Glyph of Conglomeration",
+            "The glyph of conglomeration transmutes one atom of vitae and one atom of mors into one atom of tenebrivex."
+        );
+
+        conglomeration.appendTransmutations(new Transmutation(
+            ["opus_magnum:mors", "opus_magnum:vitae"],
+            ["alchemical_inversions:tenebrivex"]
+        ))
+
+        ModData.usableGlyphs.push(conglomeration);
+
+        let transposal = new Glyph(
+            "alchemical_inversions",
+            "transposal",
+            "Glyph of Trasposal",
+            "The glyph of transposal consumes an atom of tenebrivex to invert a compatible atom."
+        );
+
+        const cardinalTransposals = ["opus_magnum:mors", "opus_magnum:earth", "opus_magnum:water", "opus_magnum:salt", "alchemical_inversions:tenebrivex", "opus_magnum:fire", "opus_magnum:air", "opus_magnum:vitae"];
+
+        for (let i = 0; i <= 12; i++) {
+            transposal.appendTransmutations(new Transmutation(
+                ["alchemical_inversions:tenebrivex", metals[i]],
+                [metals[12 - i]]
+            ));
+        }
+
+        for (let i = 0; i <= 7; i++) {
+            transposal.appendTransmutations(new Transmutation(
+                ["alchemical_inversions:tenebrivex", cardinalTransposals[i]],
+                [cardinalTransposals[7 - i]]
+            ));
+        }
+
+        ModData.usableGlyphs.push(transposal);
+
+        let corrosion = new Glyph(
+            "alchemical_inversions",
+            "corrosion",
+            "Glyph of Corrosion",
+            "The glyph of corrosion consumes a normal metal and an antimetal to create a single atom with their combined metallicity."
+        );
+
+        for (let i = 0; i <= 6; i++) {
+            for (let j = 0; j <= 6; j++) {
+                corrosion.appendTransmutations(new Transmutation(
+                    [metals[6 - i], metals[j + 6]],
+                    [metals[12 + j - i]]
+                ))
+            }
+        }
+
+        ModData.usableGlyphs.push(corrosion);
+
+
+        let concatenation = new Glyph(
+            "alchemical_inversions",
+            "concatenation",
+            "Glyph of Concatenation",
+            "The glyph of concatenation takes in a yttrium atom and a bonded metal pair, outputting their sum."
+        )
+
+        let now = new Date();
+        if (now.getMonth() == 2 && now.getDay() == 4) {
+            // March 5th
+            concatenation.description += "\nYou're a kitty!";
+        }
+
+        for (let i = 0; i <= 12; i++) {
+            for (let j = i; j <= 12; j++) {
+                let sum = i + j - 6;
+                if (sum < 0 || 12 < sum) {
+                    continue;
+                }
+                concatenation.appendTransmutations(["opus_magnum:bonder", "opus_magnum:multibonder"].map(b => new Transmutation(
+                    ["alchemical_inversions:yttrium", metals[i], metals[j]],
+                    [metals[sum]],
+                    [],
+                    [b]
+                )))
+            }
+        }
+
+        ModData.usableGlyphs.push(concatenation);
+    }
+
+    static installComplicatedElements() {
+        const addedAtoms = AtomType.atomTypes.filter(a => a.identifier.namespace == "complicated_elements").map(a => a.toString());
+        addedAtoms.push("halving_metallurgy:quicklime");
+        addedAtoms.forEach(a => ModData.usableAtomTypes.add(a));
+
+        let disposal = ModData.getGlyphFromId("opus_magnum:disposal");
+        if (disposal != undefined) {
+            disposal.appendTransmutations(addedAtoms.map(a => new Transmutation(
+                [a],
+                []
+            )));
+        }
+
+        let wasteChain = ModData.getGlyphFromId("opus_magnum:waste_chain");
+        if (wasteChain != undefined) {
+            wasteChain.appendTransmutations(addedAtoms.flatMap((a) => ["opus_magnum:bonder", "opus_magnum:multibonder"].map((b) => new Transmutation([a], [], [], [b]))));
+        }
+
+        const cardinals = ["opus_magnum:air", "opus_magnum:earth", "opus_magnum:fire", "opus_magnum:water"];
+        const crystallines = ["complicated_elements:aerolith", "complicated_elements:ignistal", "complicated_elements:mistaline", "complicated_elements:pyrolite", "complicated_elements:terramarine", "complicated_elements:vaprorine"];
+
+        let fusion = new Glyph(
+            "complicated_elements",
+            "fusion",
+            "Glyph of Fusion",
+            "The glyph of fusion accepts two atoms and produces a crystal atom based on their types."
+        );
+
+        let k = 0;
+        for (let i = 0; i < 3; i++) {
+            for (let j = i + 1; j < 4; j++) {
+                fusion.appendTransmutations(new Transmutation(
+                    [cardinals[i], cardinals[j]],
+                    [crystallines[k]]
+                ));
+                k++;
+            }
+        }
+
+        for (let i = 0; i < 3; i++) {
+            fusion.appendTransmutations(new Transmutation(
+                [crystallines[i], crystallines[5 - i]],
+                ["opus_magnum:quintessence"]
+            ));
+        }
+
+        ModData.usableGlyphs.push(fusion);
+
+        let erosion = new Glyph(
+            "complicated_elements",
+            "erosion",
+            "Glyph of Erosion",
+            "The glyph of erosion erodes a crystal atom into quicklime."
+        );
+
+        erosion.appendTransmutations(crystallines.map(c => new Transmutation(
+            [c],
+            ["halving_metallurgy:quicklime"]
+        )));
+
+        ModData.usableGlyphs.push(erosion);
+    }
+
+    static installExtransmutations() {
+        ModData.usableAtomTypes.add("extransmutations:ichor");
+
+        let disposal = ModData.getGlyphFromId("opus_magnum:disposal");
+        if (disposal != undefined) {
+            disposal.appendTransmutations(new Transmutation(
+                ["extransmutations:ichor"],
+                []
+            ));
+        }
+        // no waste chaining
+        
+
+
+    }
+
+    static installReductiveMetallurgy() {
+        const metals = ["opus_magnum:lead", "opus_magnum:tin", "opus_magnum:iron", "opus_magnum:copper", "opus_magnum:silver", "opus_magnum:gold"];
+
+        let ravari = new Wheel(
+            "reductive_metallurgy",
+            "ravari",
+            "Ravari's Wheel",
+            "By using Ravari's wheel with the glyphs of projection and rejection, quicksilver can be charged and discharged.",
+            [...metals],
+            false
+        );
+
+        ModData.usableWheels.push(ravari);
+
+        let projection = ModData.getGlyphFromId("opus_magnum:projection");
+        if (projection != undefined) {
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 5; j++) {
+                    projection.appendTransmutations(
+                        new Transmutation(
+                            ["opus_magnum:quicksilver"],
+                            [],
+                            [
+                                new WheelTransmutation(
+                                    "reductive_metallurgy:ravari",
+                                    [i],
+                                    [metals[j]],
+                                    [metals[j + 1]]
+                                )
+                            ]
+                        )
+
+                    );
+                }
+            }
+        }
+
+        let rejection = new Glyph(
+            "reductive_metallurgy",
+            "rejection",
+            "Glyph of Rejection",
+            "The glyph of rejection extracts quicksilver to demote an atom of metal to a lower form."
+        );
+
+        for (let i = 1; i < 6; i++) {
+            rejection.appendTransmutations(
+                new Transmutation(
+                    [metals[i]],
+                    [metals[i - 1], "opus_magnum:quicksilver"]
+                )
+            )
+        }
+
+        for (let i = 0; i < 6; i++) {
+            for (let j = 1; j < 6; j++) {
+                rejection.appendTransmutations(
+                    new Transmutation(
+                        [],
+                        ["opus_magnum:quicksilver"],
+                        [new WheelTransmutation(
+                            "reductive_metallurgy:ravari",
+                            [i],
+                            [metals[j]],
+                            [metals[j - 1]]
+                        )]
+                    )
+                )
+            }
+        }
+
+        ModData.usableGlyphs.push(rejection);
+
+        let deposition = new Glyph(
+            "reductive_metallurgy",
+            "deposition",
+            "Glyph of Deposition",
+            "The glyph of deposition can separate an atom of metal into two atoms of lower form."
+        );
+
+        for (let i = 1; i < 6; i++) {
+
+            deposition.appendTransmutations(new Transmutation(
+                [metals[i]],
+                [metals[i >> 1], metals[(i - 1) >> 1]]
+            ));
+        }
+
+        ModData.usableGlyphs.push(deposition);
+
+        let proliferation = new Glyph(
+            "reductive_metallurgy",
+            "proliferation",
+            "Glyph of Proliferation",
+            "The glyph of proliferation consumes quicksilver to proliferate one metal from another."
+        );
+
+        for (let metal of metals) {
+            proliferation.appendTransmutations(new Transmutation(
+                ["opus_magnum:quicksilver", metal],
+                [metal, metal]
+            ));
+        }
+
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 6; j++) {
+                proliferation.appendTransmutations(new Transmutation(
+                    ["opus_magnum:quicksilver"],
+                    [metals[j]],
+                    [
+                        new WheelTransmutation(
+                            "reductive_metallurgy:ravari",
+                            [i],
+                            [metals[j]],
+                            [metals[j]]
+                        )
+                    ]
+                ));
+            }
+        }
+
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 6; j++) {
+                for (let k = 1; k < 6; k++) {
+                    proliferation.appendTransmutations(
+                        [1, 5].map(l => new Transmutation(
+                            [],
+                            [metals[j]],
+                            [
+                                new WheelTransmutation(
+                                    "reductive_metallurgy:ravari",
+                                    [i, (i + l) % 6],
+                                    [metals[j], metals[k]],
+                                    [metals[j], metals[k - 1]]
+                                )
+                            ]
+                        )
+                        ));
+                }
+            }
         }
 
         ModData.usableGlyphs.push(proliferation);
